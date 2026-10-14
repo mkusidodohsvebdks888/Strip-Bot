@@ -1,0 +1,268 @@
+/* Activity (timeline / step / terminal / summary) — left panel of Task Detail.
+   Matches the existing CodeCard/DiffCard idiom: borders var(--border-08),
+   radius 11px, header bg var(--head-bg), body bg var(--card-bg). Mono font for
+   code/paths/terminal/status; UI font for titles. Colors are tokens only. */
+
+/* ---- timeline (scroll column) ---- */
+.timeline {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 22px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---- step row ---- */
+.step {
+  display: flex;
+  gap: 11px;
+  padding: 8px 0;
+}
+
+.glyph {
+  flex: 0 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--muted-3);
+  user-select: none;
+}
+
+.glyphIcon {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.glyphCommand {
+  color: var(--muted-2);
+}
+
+.glyphSummary {
+  color: var(--accent);
+}
+
+.glyphRunning {
+  color: var(--dot-warning);
+}
+
+.glyphFail {
+  color: var(--diff-del-sign);
+}
+
+.glyphOk {
+  color: var(--accent);
+}
+
+.stepMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.stepTitle {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg-strong);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* command titles are mono ($ npm test …) */
+.stepTitleMono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.stepStatusTag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.2;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--border-07);
+  background: var(--surface-3);
+}
+
+.stepStatusOk {
+  color: var(--accent);
+}
+
+.stepStatusFail {
+  color: var(--diff-del-sign);
+}
+
+.stepStatusRunning {
+  color: var(--dot-warning);
+}
+
+/* compact mono file list (read / edit details) */
+.fileList {
+  list-style: none;
+  margin: 7px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fileListItem {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---- terminal block (command step body) ---- */
+.terminal {
+  margin-top: 9px;
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.terminalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border-06);
+  background: var(--head-bg);
+}
+
+.terminalLabel {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-4);
+}
+
+.terminalStatus {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+.terminalStatusOk {
+  color: var(--accent);
+}
+
+.terminalStatusFail {
+  color: var(--diff-del-sign);
+}
+
+.terminalStatusRunning {
+  color: var(--dot-warning);
+}
+
+.terminalBody {
+  padding: 11px 0;
+  overflow-x: auto;
+}
+
+.terminalLine {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--code-fg);
+  padding: 0 14px;
+  white-space: pre;
+  min-height: 1.7em;
+}
+
+/* running-status mini caret on the trailing terminal line */
+.terminalCaret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: var(--dot-warning);
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: caret 1s steps(1) infinite;
+}
+
+/* ---- summary (agent message text) ---- */
+.summary {
+  display: flex;
+  gap: 11px;
+  padding: 10px 0 8px;
+}
+
+.summaryText {
+  min-width: 0;
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--text-message);
+  white-space: pre-wrap;
+}
+
+.summaryCode {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg-strong);
+}
+
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  background: var(--accent);
+  vertical-align: -2px;
+  margin-left: 1px;
+  animation: caret 1s steps(1) infinite;
+}
+
+/* ---- running indicator (reuses the 3-dot dotpulse) ---- */
+.running {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 0 6px;
+}
+
+.runningDots {
+  flex: 0 0 22px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.runningDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dot-warning);
+  animation: dotpulse 1.2s infinite;
+}
+
+.runningDot2 {
+  animation-delay: 0.2s;
+}
+
+.runningDot3 {
+  animation-delay: 0.4s;
+}
+
+.runningLabel {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted-3);
+}

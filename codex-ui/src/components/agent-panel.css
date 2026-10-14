@@ -1,0 +1,14 @@
+.strip-agent{height:100%;display:flex;flex-direction:column;padding:24px;gap:12px;min-height:0;overflow:hidden}
+.strip-agent-entry{margin:12px}
+.strip-agent-header{display:flex;justify-content:space-between;padding-right:130px;-webkit-app-region:drag}
+.strip-agent-config{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.strip-agent-config label:first-child{flex:1;min-width:240px}
+.strip-agent-config label{display:flex;flex-direction:column;gap:6px;font-size:12px}
+.strip-agent input,.strip-agent select,.strip-agent textarea{background:#151516;border:1px solid #333;color:inherit;border-radius:8px;padding:10px;font:inherit}
+.strip-agent-history{display:flex;gap:6px;overflow:auto;flex-shrink:0}.strip-agent-history button{white-space:nowrap}
+.strip-agent-timeline{flex:1;overflow:auto;min-height:80px}.strip-agent pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.7 Consolas,monospace;margin:8px 0}
+.strip-agent-message{padding:16px 0;border-bottom:1px solid #242426}.strip-agent details{margin:8px 0}.strip-agent summary{cursor:pointer}
+.strip-agent-permissions{background:#211b10;border:1px solid #786035;border-radius:10px;padding:12px;max-height:250px;overflow:auto;flex-shrink:0}
+.strip-agent-permissions button{margin-right:8px}.strip-agent-permissions article+article{border-top:1px solid #574828;margin-top:12px;padding-top:12px}
+.strip-agent-question label{display:flex;flex-direction:column;gap:5px;margin:10px 0}
+.strip-agent-composer{display:flex;gap:12px}.strip-agent-composer textarea{flex:1;min-height:80px;resize:vertical}
+@media(max-width:640px){.strip-agent{padding:16px}.strip-agent-header{padding-right:0}.strip-agent-config label:first-child{min-width:100%}}

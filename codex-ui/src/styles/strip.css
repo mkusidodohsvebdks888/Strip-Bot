@@ -1,0 +1,582 @@
+.strip-app {
+  --accent: #7aa2f7;
+  font-family: var(--font-ui);
+}
+/* Codex Desktop menu / toolbar scale */
+.strip-header,
+.strip-config {
+  font-size: 13px;
+}
+.strip-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.strip-welcome-logo {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+.strip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.strip-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.strip-icon:not(.model-brand) svg {
+  fill: none;
+  stroke: currentColor;
+}
+.strip-model-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.model-brand svg {
+  width: 20px;
+  height: 20px;
+}
+.strip-icon-button {
+  display: inline-flex;
+  padding: 7px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.strip-icon-button:hover,
+.strip-config:hover {
+  background: var(--surface-2);
+  color: var(--fg);
+}
+.strip-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  background: var(--surface-search);
+  border: 1px solid var(--border-10);
+  border-radius: 9px;
+  padding: 0 10px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.strip-search-wrap:focus-within {
+  border-color: var(--sb-focus-stroke, var(--accent));
+  box-shadow: 0 0 0 3px var(--sb-focus, rgba(122, 162, 247, 0.22));
+}
+.strip-search-wrap .strip-icon {
+  color: var(--muted-3);
+}
+.strip-search-wrap .strip-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.strip-search {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 9px 0;
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+}
+.strip-search:focus-visible {
+  outline: none;
+}
+
+.strip-muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+.strip-history-empty {
+  padding: 12px 20px;
+}
+.strip-task {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+}
+.strip-task > button:first-child {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  min-width: 0;
+  cursor: pointer;
+}
+.strip-delete {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  padding: 8px;
+  opacity: 0;
+  cursor: pointer;
+}
+.strip-task:hover .strip-delete,
+.strip-delete:focus-visible {
+  opacity: 1;
+}
+.strip-attribution {
+  margin: 0;
+  padding: 6px 18px 14px;
+  color: var(--muted-3);
+  font-size: 9px;
+  text-decoration: none;
+}
+.strip-attribution a {
+  color: inherit;
+  text-decoration: none;
+}
+.strip-attribution a:hover {
+  color: var(--muted-2);
+}
+.strip-header {
+  min-height: 60px;
+  /* right padding reserves room for the native window-controls overlay */
+  padding: 0 150px 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-07);
+  gap: 12px;
+  -webkit-app-region: drag;
+}
+.strip-header button,
+.strip-header input,
+.strip-header a,
+.strip-header select {
+  -webkit-app-region: no-drag;
+}
+.strip-drag {
+  -webkit-app-region: drag;
+}
+.strip-drag button,
+.strip-drag input,
+.strip-drag a {
+  -webkit-app-region: no-drag;
+}
+.strip-header > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.strip-config {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: var(--muted);
+  border: 1px solid var(--border-08);
+  background: transparent;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.strip-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--muted-3);
+  border-radius: 50%;
+}
+.strip-dot.is-busy {
+  background: var(--accent);
+  animation: pulse 1.4s infinite;
+}
+.strip-thread {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.strip-messages {
+  width: min(100%, 880px);
+  padding: 35px 36px;
+  margin: 0 auto;
+}
+.strip-message {
+  padding: 0 0 34px;
+}
+.strip-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.strip-user-avatar {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  border-radius: 5px;
+  font-size: 11px;
+}
+.strip-message-content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-message);
+}
+.strip-message-content pre {
+  overflow: auto;
+  background: var(--surface-2);
+  padding: 18px;
+  border: 1px solid var(--border-08);
+  border-radius: 10px;
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.strip-message-content code {
+  font-family: var(--font-code);
+  font-size: 13px;
+}
+.strip-copy {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  cursor: pointer;
+}
+.strip-copy svg {
+  width: 13px;
+  height: 13px;
+}
+.strip-model {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.strip-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-2);
+  border: 1px solid var(--border-10);
+  padding: 12px 20px;
+  border-radius: 10px;
+  z-index: 80;
+  max-width: 85vw;
+}
+.strip-toast button {
+  background: transparent;
+  border: 0;
+  color: var(--fg);
+  margin-left: 15px;
+  cursor: pointer;
+}
+.strip-dialog {
+  width: min(500px, calc(100vw - 30px));
+  border: 1px solid var(--border-10);
+  border-radius: 18px;
+  padding: 28px;
+  background: var(--surface-2);
+  color: var(--fg);
+}
+.strip-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+}
+.strip-settings-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.strip-settings-title h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+.strip-dialog label {
+  display: block;
+  margin-top: 20px;
+  font-size: 12px;
+}
+.strip-dialog input,
+.strip-dialog select,
+.strip-dialog textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-10);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.strip-dialog textarea {
+  min-height: 92px;
+  padding: 9px 10px;
+  resize: vertical;
+}
+.strip-dialog input:focus,
+.strip-dialog select:focus,
+.strip-dialog textarea:focus {
+  border-color: var(--sb-focus-stroke, var(--accent));
+  box-shadow: 0 0 0 3px var(--sb-focus, rgba(122, 162, 247, 0.22));
+}
+.strip-dialog select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 34px;
+}
+.strip-select {
+  position: relative;
+  display: block;
+  margin-top: 8px;
+}
+.strip-select select {
+  margin-top: 0;
+}
+.strip-select .strip-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-4);
+  pointer-events: none;
+}
+.strip-select .strip-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.strip-settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+.strip-settings-actions button {
+  cursor: pointer;
+}
+.strip-settings-actions .strip-primary {
+  background: var(--accent);
+  color: #101114;
+}
+.strip-error {
+  color: #e06b6b;
+  font-size: 12px;
+}
+.strip-mobile {
+  display: none;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .strip-app > aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    width: 264px;
+  }
+  .strip-app > aside.strip-sidebar-open {
+    transform: none;
+  }
+  .strip-mobile {
+    display: inline-flex;
+  }
+  .strip-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 45;
+    border: 0;
+  }
+  .strip-header {
+    padding: 0 14px;
+  }
+  .strip-messages {
+    padding: 25px 20px;
+  }
+  .strip-delete {
+    opacity: 1;
+  }
+}
+
+/* ---- Strip UI Kit integration: kit tokens remapped onto the Strip Bot palette ---- */
+/* The kit sets display:inline-flex on .strip-btn, so mobile-only controls must be
+   re-hidden with equal specificity. */
+.strip-ui .strip-btn.strip-mobile {
+  display: none;
+}
+.strip-ui[data-theme="dark"] {
+  --sb-bg: var(--bg);
+  --sb-surface: var(--surface-3);
+  --sb-text: var(--fg);
+  --sb-text-muted: var(--muted);
+  --sb-border: var(--border-10);
+  --sb-hover: var(--surface-2);
+  --sb-pressed: #1b1b1e;
+  --sb-accent: var(--accent);
+  --sb-accent-hover: #93b4f9;
+  --sb-accent-text: #101114;
+  --sb-danger: #e06b6b;
+  --sb-danger-bg: rgba(224, 107, 107, 0.12);
+  --sb-focus: rgba(122, 162, 247, 0.22);
+  --sb-focus-stroke: var(--accent);
+  --sb-shadow: none;
+  --sb-radius: 9px;
+}
+.strip-ui .strip-icon-button,
+.strip-ui .strip-delete {
+  color: var(--sb-text-muted);
+}
+.strip-btn--sm .strip-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.strip-btn--lg .strip-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.strip-ui .strip-model {
+  font-family: var(--font-mono);
+}
+.strip-ui .strip-delete:hover:not(:disabled) {
+  color: var(--sb-danger);
+}
+
+@media (max-width: 760px) {
+  .strip-ui .strip-btn.strip-mobile {
+    display: inline-flex;
+  }
+}
+
+/* kit-sourced small chevron for the composer model selector */
+.strip-model .strip-icon {
+  color: var(--muted-4);
+}
+.strip-model .strip-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+
+
+/* header: generation status only; settings lives in the sidebar account row */
+.strip-busy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted-3);
+  -webkit-app-region: no-drag;
+}
+
+/* attachments shown on sent messages (file contents are not uploaded by the local bridge) */
+.strip-message-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.strip-message-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 260px;
+  padding: 3px 8px;
+  border: 1px solid var(--border-10);
+  background: var(--surface-3);
+  border-radius: 7px;
+  color: var(--muted-3);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.strip-message-file .strip-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ---- Strip Codex Composer + Dropdown: remap kit tokens onto the Strip Bot palette.
+   The kit's dark tokens use `.strip-ui[data-theme="dark"] .strip-codex-composer`
+   (three classes), so this override must match that specificity to win. ---- */
+.strip-ui[data-theme="dark"] .strip-codex-composer {
+  --scc-bg: var(--head-bg);
+  --scc-text: var(--fg);
+  --scc-muted: var(--muted-4);
+  --scc-subtle: var(--muted-3);
+  --scc-border: var(--border-10);
+  --scc-hover: #202024;
+  --scc-active: #26262b;
+  --scc-focus: var(--sb-focus-stroke, var(--accent));
+  --scc-chip: var(--surface-3);
+  --scc-error: #e06b6b;
+  --scc-surface-shadow: none;
+}
+/* menus need a surface of their own, otherwise they blend into the composer panel */
+.strip-ui[data-theme="dark"] .strip-dropdown__popup {
+  background: #17171b;
+  border-color: var(--border-10);
+  box-shadow: var(--shadow-pop);
+}
+/* the app-wide focus ring must not draw a second outline inside the composer panel */
+.strip-codex-composer__textarea:focus-visible,
+.strip-codex-composer__textarea:focus {
+  outline: none;
+}
+.strip-codex-composer__panel:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--sb-focus, rgba(122, 162, 247, 0.22));
+}
+
+/* settings: bridge rule controls */
+.strip-dialog label.strip-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12px;
+}
+.strip-dialog label.strip-check input {
+  display: inline-block;
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+.strip-models {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.strip-models .strip-select {
+  flex: 1;
+  min-width: 160px;
+  margin-top: 0;
+}

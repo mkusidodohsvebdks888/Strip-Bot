@@ -1,0 +1,13 @@
+.runtime/
+node_modules/
+.env
+.env.*
+!.env.example
+exports/
+desktop-app/releases/
+desktop-app/staging/
+desktop-app/dist/
+codex-ui/dist/
+*.log
+*.db
+*.sqlite*

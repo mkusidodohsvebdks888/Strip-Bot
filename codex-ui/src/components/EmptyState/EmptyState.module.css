@@ -1,0 +1,76 @@
+.root {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 120px;
+  text-align: center;
+}
+
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--grad-logo-lg-a), var(--grad-dark));
+  border: 1px solid var(--border-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: 22px;
+}
+
+.heading {
+  font-size: 26px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.subtext {
+  margin: 0 0 28px;
+  color: var(--muted-2);
+  font-size: 14px;
+  max-width: 440px;
+  line-height: 1.5;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  justify-content: center;
+  max-width: 560px;
+}
+
+.chip {
+  text-align: left;
+  background: var(--surface-chip);
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  padding: 11px 13px;
+  cursor: pointer;
+  color: var(--text-chip);
+  font-family: inherit;
+  font-size: 13px;
+  max-width: 264px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+
+.tag {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.chipText {
+  line-height: 1.4;
+}

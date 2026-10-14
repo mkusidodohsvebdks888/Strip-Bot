@@ -1,0 +1,79 @@
+import type { CSSProperties } from 'react';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import styles from './App.module.css';
+import { Sidebar } from './components/Sidebar/Sidebar';
+import { ToastHost } from './components/Toast/ToastHost';
+import { TasksProvider } from './store/TasksContext';
+import { Home } from './routes/Home';
+import { TaskDetail } from './routes/TaskDetail';
+import type { AccentColor } from './types';
+
+const ACCENTS: AccentColor[] = ['#5ad6a0', '#7aa2f7', '#e0894f', '#c9a0ff'];
+
+function readProps() {
+  // Works with HashRouter: the query-param props live before the hash.
+  const params = new URLSearchParams(window.location.search);
+
+  const rawAccent = params.get('accent');
+  const accent: AccentColor =
+    rawAccent && (ACCENTS as string[]).includes(rawAccent)
+      ? (rawAccent as AccentColor)
+      : '#5ad6a0';
+
+  const rawSidebar = params.get('sidebar');
+  const showSidebar = !(rawSidebar === '0' || rawSidebar === 'false');
+
+  const userName = params.get('user') ?? 'Jordan Ellis';
+
+  return { accent, showSidebar, userName };
+}
+
+/** Persistent shell: optional <Sidebar/> + a <main> with the routed outlet. */
+function Layout({
+  showSidebar,
+  userName,
+  userInitial,
+}: {
+  showSidebar: boolean;
+  userName: string;
+  userInitial: string;
+}) {
+  return (
+    <>
+      {showSidebar && <Sidebar userName={userName} userInitial={userInitial} />}
+      <main className={styles.main}>
+        <Outlet />
+      </main>
+      <ToastHost />
+    </>
+  );
+}
+
+export default function App() {
+  const { accent, showSidebar, userName } = readProps();
+  const userInitial = (userName.trim()[0] || 'U').toUpperCase();
+
+  const rootStyle = { ['--accent' as keyof CSSProperties]: accent } as CSSProperties;
+
+  return (
+    <TasksProvider>
+      <div className={styles.app} style={rootStyle}>
+        <Routes>
+          <Route
+            element={
+              <Layout
+                showSidebar={showSidebar}
+                userName={userName}
+                userInitial={userInitial}
+              />
+            }
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/tasks/:taskId" element={<TaskDetail />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </div>
+    </TasksProvider>
+  );
+}

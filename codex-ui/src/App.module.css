@@ -1,0 +1,30 @@
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: radial-gradient(
+    120% 80% at 50% -10%,
+    var(--grad-dark) 0%,
+    var(--bg) 55%
+  );
+}
+
+.thread {
+  flex: 1;
+  overflow-y: auto;
+}

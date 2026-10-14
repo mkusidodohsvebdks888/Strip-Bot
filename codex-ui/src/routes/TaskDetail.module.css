@@ -1,0 +1,31 @@
+/* Task Detail two-panel split (Activity | Files changed).
+   Both panels are matched cards (border-08, radius 11px, overflow:hidden — the
+   CodeCard/DiffCard idiom) floating in an equally-padded body, so they read as
+   a pair and each card's rounded corners stay visible. Tokens only. */
+
+.body {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.left,
+.right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Card shell shared by both columns — matches FilesChanged .panel so the two
+   sides feel native and identical. */
+.left {
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--card-bg);
+}

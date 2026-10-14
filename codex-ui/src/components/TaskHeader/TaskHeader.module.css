@@ -1,0 +1,87 @@
+.header {
+  height: 52px;
+  flex: 0 0 52px;
+  border-bottom: 1px solid var(--border-06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.repo {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--fg-strong);
+}
+
+.sep {
+  color: var(--faint);
+}
+
+.branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  background: var(--surface-3);
+  border: 1px solid var(--border-07);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.branchGlyph {
+  color: var(--accent);
+}
+
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.createPr {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.viewPr {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--surface-3);
+  border: 1px solid var(--border-07);
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.refresh {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-07);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+}

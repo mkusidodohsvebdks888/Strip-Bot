@@ -1,0 +1,64 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--muted-2);
+  background: var(--surface-3);
+  border: 1px solid var(--border-07);
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.label {
+  line-height: 1;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 6px;
+}
+
+.dotPulse {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.check {
+  display: inline-flex;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+/* status -> dot color + label tint */
+.running .dot {
+  background: var(--dot-warning);
+}
+.running .label {
+  color: var(--title-warning);
+}
+
+.done .dot {
+  background: var(--accent);
+}
+.done .label {
+  color: var(--fg-strong);
+}
+
+.queued .dot {
+  background: var(--faint);
+}
+.queued .label {
+  color: var(--muted-2);
+}
+
+.error .dot {
+  background: var(--diff-del-sign);
+}
+.error .label {
+  color: var(--diff-del-fg);
+}

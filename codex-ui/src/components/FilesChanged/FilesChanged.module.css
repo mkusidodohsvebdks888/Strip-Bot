@@ -1,0 +1,237 @@
+/* FilesChanged — panel / file tree / diff viewer.
+   Matches the CodeCard/DiffCard idiom: border var(--border-08), radius 11px,
+   header bg var(--head-bg), body bg var(--card-bg). Tokens only — no hardcoded
+   colors. Mono for paths/code/counts. */
+
+/* ---- panel shell ---- */
+.panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-06);
+  background: var(--head-bg);
+}
+
+.panelTitle {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg-strong);
+}
+
+.totals {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.totalAdded {
+  color: var(--diff-add-sign);
+}
+
+.totalRemoved {
+  color: var(--diff-del-sign);
+}
+
+.body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* ---- empty / placeholder states ---- */
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted-3);
+}
+
+.emptyWorking {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  color: var(--muted-2);
+}
+
+.workingDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dot-warning);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ---- file tree (index) ---- */
+.fileTree {
+  flex: 0 0 232px;
+  min-width: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 8px 6px 12px;
+  border-right: 1px solid var(--border-06);
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+}
+
+.groupLabel {
+  padding: 10px 8px 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.groupFiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fileRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.fileRow:hover {
+  background: var(--surface-3);
+}
+
+.fileRowActive {
+  background: var(--surface-2);
+}
+
+.fileGlyph {
+  flex: 0 0 12px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.fileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileCounts {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.countAdded {
+  color: var(--diff-add-sign);
+}
+
+.countRemoved {
+  color: var(--diff-del-sign);
+}
+
+/* ---- diff viewer (active file) ---- */
+.diffViewer {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.diffViewerHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-06);
+  background: var(--head-bg);
+}
+
+.diffViewerPath {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diffViewerCounts {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.diffViewerBody {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 8px 0;
+}
+
+.diffLine {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.diffSign {
+  flex: 0 0 22px;
+  text-align: center;
+  user-select: none;
+}
+
+.diffText {
+  white-space: pre;
+  padding-right: 18px;
+}

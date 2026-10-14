@@ -1,0 +1,319 @@
+.thread {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px 28px;
+}
+
+/* ---- message row ---- */
+.row {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+}
+
+.avatarUser {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--avatar-a), var(--avatar-b));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-strong);
+}
+
+.avatarAssistant {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 8px;
+  background: linear-gradient(150deg, var(--grad-logo-a), var(--grad-dark));
+  border: 1px solid var(--border-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.body {
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modelBadge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted-4);
+  background: var(--surface-3);
+  border: 1px solid var(--border-07);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+.text {
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--text-message);
+  white-space: pre-wrap;
+}
+
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  background: var(--accent);
+  vertical-align: -2px;
+  margin-left: 1px;
+  animation: caret 1s steps(1) infinite;
+}
+
+/* ---- code card ---- */
+.codeCard {
+  margin-top: 14px;
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.codeHeader {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-06);
+  background: var(--head-bg);
+}
+
+.codeSquare {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: #2a2a2d;
+}
+
+.fileName {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.langBadge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted-4);
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+.copyButton {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  background: transparent;
+  border: 1px solid var(--border-08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.codeBody {
+  padding: 13px 0;
+  overflow-x: auto;
+}
+
+.codeLine {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.gutter {
+  flex: 0 0 42px;
+  text-align: right;
+  padding-right: 14px;
+  color: var(--faint);
+  user-select: none;
+}
+
+.codeText {
+  white-space: pre;
+  padding-right: 18px;
+  color: var(--code-fg);
+}
+
+.codeComment {
+  color: var(--code-comment);
+}
+
+/* ---- diff card ---- */
+.diffCard {
+  margin-top: 12px;
+  border: 1px solid var(--border-08);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.diffHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-06);
+  background: var(--head-bg);
+}
+
+.diffAdded {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--diff-add-sign);
+}
+
+.diffRemoved {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--diff-del-sign);
+}
+
+.diffActions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.applyButton {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  padding: 4px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.viewButton {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-10);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.diffBody {
+  padding: 8px 0;
+  overflow-x: auto;
+}
+
+.diffLine {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.diffLineAdd {
+  background: var(--diff-add-bg);
+}
+
+.diffLineDel {
+  background: var(--diff-del-bg);
+}
+
+.diffLineCtx {
+  background: transparent;
+}
+
+.diffSign {
+  flex: 0 0 22px;
+  text-align: center;
+  user-select: none;
+}
+
+.diffSignAdd {
+  color: var(--diff-add-sign);
+}
+
+.diffSignDel {
+  color: var(--diff-del-sign);
+}
+
+.diffSignCtx {
+  color: var(--faint);
+}
+
+.diffText {
+  white-space: pre;
+  padding-right: 18px;
+}
+
+.diffTextAdd {
+  color: var(--diff-add-fg);
+}
+
+.diffTextDel {
+  color: var(--diff-del-fg);
+}
+
+.diffTextCtx {
+  color: var(--muted-2);
+}
+
+/* ---- typing indicator ---- */
+.typingBody {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 28px;
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-2);
+  animation: dotpulse 1.2s infinite;
+}
+
+.dot2 {
+  animation-delay: 0.2s;
+}
+
+.dot3 {
+  animation-delay: 0.4s;
+}
+
+.typingLabel {
+  font-size: 12.5px;
+  color: var(--muted-3);
+  font-family: var(--font-mono);
+}

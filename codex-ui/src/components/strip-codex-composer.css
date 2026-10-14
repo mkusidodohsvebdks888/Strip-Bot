@@ -1,0 +1,176 @@
+/* Strip Codex-inspired message composer — original CSS, MIT.
+   Works standalone or inside the earlier .strip-ui light/dark theme. */
+.strip-codex-composer {
+  --scc-bg: #fff;
+  --scc-text: #23262b;
+  --scc-muted: #81848b;
+  --scc-subtle: #666b73;
+  --scc-border: #e1e3e7;
+  --scc-hover: #f1f2f4;
+  --scc-active: #e9ebee;
+  --scc-focus: #b6c4d8;
+  --scc-surface-shadow: 0 5px 20px rgba(28,33,40,.045),0 1px 3px rgba(28,33,40,.025);
+  --scc-send-bg: #22262b;
+  --scc-send-fg: #fff;
+  --scc-chip: #f2f3f5;
+  --scc-error: #b5373b;
+  color: var(--scc-text);
+  width: 100%;
+  max-width: 780px;
+  margin-inline: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+}
+.strip-ui[data-theme="dark"] .strip-codex-composer,
+.strip-codex-composer[data-theme="dark"] {
+  --scc-bg: #25262a;
+  --scc-text: #ededef;
+  --scc-muted: #85868d;
+  --scc-subtle: #b0b1b7;
+  --scc-border: #414249;
+  --scc-hover: #37383e;
+  --scc-active: #44454c;
+  --scc-focus: #787f8c;
+  --scc-surface-shadow: 0 8px 28px rgba(0,0,0,.14), 0 1px 5px rgba(0,0,0,.1);
+  --scc-send-bg: #e4e4e7;
+  --scc-send-fg: #202126;
+  --scc-chip: #35363c;
+  --scc-error: #f1a0a4;
+  color-scheme: dark;
+}
+.strip-codex-composer, .strip-codex-composer * { box-sizing: border-box; }
+.strip-codex-composer button,
+.strip-codex-composer textarea,
+.strip-codex-composer select { font: inherit; }
+.strip-codex-composer button { -webkit-tap-highlight-color: transparent; }
+.strip-codex-composer__panel {
+  border: 1px solid var(--scc-border);
+  border-radius: 17px;
+  background: var(--scc-bg);
+  box-shadow: var(--scc-surface-shadow);
+  overflow: visible;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.strip-codex-composer__panel:focus-within {
+  border-color: var(--scc-focus);
+  box-shadow: var(--scc-surface-shadow), 0 0 0 2px color-mix(in srgb,var(--scc-focus),transparent 83%);
+}
+.strip-codex-composer__editor { padding: 15px 17px 8px; }
+.strip-codex-composer__textarea {
+  display: block;
+  width: 100%;
+  min-height: 51px;
+  max-height: 220px;
+  padding: 0;
+  margin: 0;
+  resize: none;
+  outline: none;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--scc-text);
+  font-size: 14px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.strip-codex-composer__textarea::placeholder { color: var(--scc-muted); opacity: 1; }
+.strip-codex-composer__files { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 13px 5px; }
+.strip-codex-composer__files:empty { display: none; }
+.strip-codex-composer__file {
+  max-width: 215px;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 5px 4px 8px;
+  border: 1px solid var(--scc-border);
+  background: var(--scc-chip);
+  border-radius: 7px;
+  color: var(--scc-subtle);
+  line-height: 1.4;
+}
+.strip-codex-composer__file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.strip-codex-composer__file-remove {
+  display: grid; place-items: center;
+  width: 20px; height: 20px;
+  flex: 0 0 20px;
+  border: 0; background: transparent;
+  color: inherit; cursor: pointer; border-radius: 5px;
+}
+.strip-codex-composer__file-remove:hover { background: var(--scc-hover); }
+.strip-codex-composer__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px 9px;
+  min-height: 43px;
+}
+.strip-codex-composer__icon { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.strip-codex-composer__icon--small { width: 14px; height: 14px; }
+.strip-codex-composer__tool {
+  flex: none;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--scc-subtle);
+  cursor: pointer;
+  transition: background 145ms ease, color 145ms ease;
+}
+.strip-codex-composer__tool:hover:not(:disabled) { background: var(--scc-hover); color: var(--scc-text); }
+.strip-codex-composer__tool:active:not(:disabled) { background: var(--scc-active); }
+.strip-codex-composer__tool:disabled { opacity: .42; cursor: not-allowed; }
+.strip-codex-composer__spacer { flex: 1; min-width: 3px; }
+.strip-codex-composer__send {
+  width: 30px; height: 30px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  flex: 0 0 30px;
+  padding: 0;
+  background: var(--scc-send-bg);
+  color: var(--scc-send-fg);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 130ms ease, opacity 130ms ease, filter 130ms ease;
+}
+.strip-codex-composer__send:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.06); }
+.strip-codex-composer__send:not(:disabled):active { transform: translateY(0); }
+.strip-codex-composer__send:disabled { opacity: .37; cursor: not-allowed; }
+.strip-codex-composer__send .strip-codex-composer__icon { width: 18px; height: 18px; stroke-width: 2; }
+.strip-codex-composer__status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 7px 6px 0;
+  min-height: 25px;
+}
+/* Compact status-row dropdowns share the same menu component. */
+.strip-codex-composer__status .strip-dropdown { --sdd-subtle: var(--scc-muted); }
+.strip-codex-composer__status .strip-dropdown__trigger:hover { color: var(--scc-text); }
+.strip-codex-composer__status-icon { margin-left: 5px; color: var(--scc-muted); }
+.strip-codex-composer__hint { margin-left: auto; color: var(--scc-muted); font-size: 11px; white-space: nowrap; }
+.strip-codex-composer__error { margin: 5px 8px 0; color: var(--scc-error); font-size: 12px; }
+.strip-codex-composer :is(button, .strip-codex-composer__file-remove):focus-visible {
+  outline: 2px solid var(--scc-focus); outline-offset: 2px;
+}
+@media (max-width: 580px) {
+  .strip-codex-composer__hint { display: none; }
+  .strip-codex-composer__toolbar { gap: 2px; padding-inline: 6px; }
+  .strip-dropdown__trigger { max-width: 123px; }
+  .strip-codex-composer__editor { padding: 12px 13px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .strip-codex-composer__panel, .strip-codex-composer__tool, .strip-codex-composer__send { transition: none; }
+}
+
+.strip-codex-composer__model-type { color: var(--text-secondary, #8c8c96); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+@media (max-width: 560px) { .strip-codex-composer__model-type { max-width: 80px; } }

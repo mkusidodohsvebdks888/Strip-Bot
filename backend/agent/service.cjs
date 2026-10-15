@@ -107,9 +107,11 @@ function createAgentService({root,allowNative = true,apiKey,endpoint,model,provi
       }
       if (action === 'interrupt' && method === 'POST') return engine.request(upstream+'/interrupt',{});
       if (action === 'permissions' && method === 'POST') {
-        if (!/^per_[a-zA-Z0-9]+$/.test(body.requestID || '') || !['once','reject'].includes(body.decision)) throw httpError(400,'无效的审批决定。');
+        if (!/^per_[a-zA-Z0-9]+$/.test(body.requestID || '') || !['once','always','reject'].includes(body.decision)) throw httpError(400,'无效的审批决定。');
         const pending = await engine.request(upstream+'/permission');
-        if (!pending.data.some(p => p.id === body.requestID && p.sessionID === id)) throw httpError(404,'审批请求不属于当前会话或已结束。');
+        const permission = pending.data.find(p => p.id === body.requestID && p.sessionID === id);
+        if (!permission) throw httpError(404,'审批请求不属于当前会话或已结束。');
+        if (body.decision === 'always' && (!Array.isArray(permission.save) || !permission.save.length || permission.save.some(p => typeof p !== 'string' || !p.trim()))) throw httpError(409,'引擎未提供可保存的授权规则，请选择允许本次。');
         return engine.request(upstream+'/permission/'+body.requestID+'/reply',{decision:body.decision});
       }
       if (action === 'forms' && method === 'POST') {

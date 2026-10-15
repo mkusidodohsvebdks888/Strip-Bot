@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import type {Snapshot} from '../components/AgentPanel';
+import type {PermissionDecision} from '../components/Approval/ApprovalPanel';
 import type {Chat} from '../domain/chat';
 import {readStored,restoreChats} from './chat-storage.mjs';
 
@@ -25,7 +26,7 @@ export function useUnifiedConversation() {
     const value=readStored<unknown>(localStorage,'strip_unified_drafts_v1',{});
     return value && typeof value === 'object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).filter(([,v])=>typeof v === 'string')):{};
   });
-  const [error,setError] = useState(''),[sending,setSending] = useState(false),[loading,setLoading] = useState(false),[deciding,setDeciding] = useState('');
+  const [error,setError] = useState(''),[approvalError,setApprovalError] = useState(''),[sending,setSending] = useState(false),[loading,setLoading] = useState(false),[deciding,setDeciding] = useState('');
   const sendingRef = useRef(false),activeRef = useRef(active),runningRef = useRef<string|null>(null);
   const cancelRequested = useRef(false);
   activeRef.current = active;
@@ -43,7 +44,7 @@ export function useUnifiedConversation() {
   },[sessions,active]);
   useEffect(()=>{try {localStorage.setItem('strip_unified_drafts_v1',JSON.stringify(drafts));} catch {setError('无法保存草稿，请检查存储空间。');}},[drafts]);
   useEffect(() => {
-    setSnapshot(null);setError('');
+    setSnapshot(null);setError('');setApprovalError('');
     if (!/^ses_/.test(active)) {setLoading(false);return;}
     let disposed = false,timer:ReturnType<typeof setTimeout>;
     setLoading(true);
@@ -102,10 +103,15 @@ export function useUnifiedConversation() {
     try {await api('/sessions/'+id+'/interrupt',{});runningRef.current = null;}
     catch(e) {setError(e instanceof Error ? e.message:'停止失败');}
   }
-  async function decide(id:string,decision:'once'|'reject') {
-    setDeciding(id);
-    try {await api('/sessions/'+active+'/permissions',{requestID:id,decision});setSnapshot(s=>s ? {...s,permissions:s.permissions.filter(p=>p.id !== id)}:s);}
-    catch(e) {setError(e instanceof Error ? e.message:'审批失败');}finally {setDeciding('');}
+  async function decide(id:string,decision:PermissionDecision) {
+    const sessionID = activeRef.current;
+    if (!/^ses_/.test(sessionID) || deciding) return;
+    setDeciding(id);setApprovalError('');
+    try {
+      await api('/sessions/'+sessionID+'/permissions',{requestID:id,decision});
+      if (activeRef.current === sessionID) setSnapshot(s=>s ? {...s,permissions:decision === 'reject' ? [] : s.permissions.filter(p=>p.id !== id)}:s);
+    } catch(e) {setApprovalError(e instanceof Error ? e.message:'审批失败');}
+    finally {setDeciding('');}
   }
   async function answer(formID:string,value:Record<string,unknown>) {
     await api('/sessions/'+active+'/forms',{formID,answer:value});
@@ -117,6 +123,6 @@ export function useUnifiedConversation() {
     else setSessions(all=>all.filter(s=>s.id !== id));
     if (active === id) newConversation();
   }
-  return {sessions,legacyChats,active,selected,legacyContext,snapshot,workspace,setWorkspace,draft,setDraft,error,loading,sending,busy,busySession,deciding,select,newConversation,send,stop,decide,answer,remove};
+  return {sessions,legacyChats,active,selected,legacyContext,snapshot,workspace,setWorkspace,draft,setDraft,error,approvalError,loading,sending,busy,busySession,deciding,select,newConversation,send,stop,decide,answer,remove};
 }
 

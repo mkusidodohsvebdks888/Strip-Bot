@@ -4,13 +4,13 @@ const {createAgentService} = require('../backend/agent/service.cjs');
 const {createGateway} = require('../backend/gateway.cjs');
 const http = require('node:http');
 
-test('Agent API isolates sessions, validates workspaces and only accepts one-time permission replies',async () => {
+test('Agent API isolates sessions, validates workspaces and validates scoped permission replies',async () => {
   const root = path.resolve(__dirname,'..','.runtime','agent-security-'+Date.now());await fs.mkdir(root,{recursive:true});
-  let sessionCount = 0;const calls = [];
+  let sessionCount = 0;const calls = [];let savePatterns = ['result.txt'];
   const engine = {executable:__filename,ensure:async () => {},close:async () => {},request:async (route,body) => {
     calls.push({route,body});
     if (route === '/api/session') return {data:{id:'ses_test'+(++sessionCount),title:'test'}};
-    if (route.endsWith('/permission')) return {data:[{id:'per_test',sessionID:'ses_test1',action:'edit',resources:['result.txt']}]};
+    if (route.endsWith('/permission')) return {data:[{id:'per_test',sessionID:'ses_test1',action:'edit',resources:['result.txt'],save:savePatterns}]};
     return {data:[]};
   }};
   const agent = createAgentService({root,workspaceBase:root,engine});
@@ -20,7 +20,15 @@ test('Agent API isolates sessions, validates workspaces and only accepts one-tim
   const b = await agent.handle('POST','/sessions',{workspace:root,model});
   await assert.rejects(agent.handle('POST','/sessions/ses_unknown/prompt',{text:'test'}),{status:404});
   await assert.rejects(agent.handle('POST',`/sessions/${b.session.id}/permissions`,{requestID:'per_test',decision:'once'}),{status:404});
-  await assert.rejects(agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'always'}),{status:400});
+  await assert.rejects(agent.handle('POST',`/sessions/${b.session.id}/permissions`,{requestID:'per_test',decision:'always'}),{status:404});
+  await assert.rejects(agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'invalid'}),{status:400});
+  savePatterns=[];
+  await assert.rejects(agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'always'}),{status:409});
+  savePatterns=['result.txt'];
+  await agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'once'});
+  assert.deepEqual(calls.at(-1),{route:'/api/session/ses_test1/permission/per_test/reply',body:{decision:'once'}});
+  await agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'always',save:['*']});
+  assert.deepEqual(calls.at(-1),{route:'/api/session/ses_test1/permission/per_test/reply',body:{decision:'always'}});
   await agent.handle('POST',`/sessions/${a.session.id}/permissions`,{requestID:'per_test',decision:'reject'});
   assert.deepEqual(calls.at(-1),{route:'/api/session/ses_test1/permission/per_test/reply',body:{decision:'reject'}});
   await assert.rejects(agent.handle('POST','/shell',{command:'anything'}),{status:404});

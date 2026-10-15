@@ -1,8 +1,9 @@
 import {useEffect,useState} from 'react';
 import './agent-panel.css';
+import {ApprovalPanel, type PermissionDecision, type PermissionRequest} from './Approval/ApprovalPanel';
 import type {Config} from '../domain/chat';
 type Model = {id:string;providerID:string;name:string};
-type Permission = {id:string;action:string;resources:string[];metadata?:unknown};
+type Permission = PermissionRequest;
 type FormField = {key:string;type:string;title?:string;description?:string;required?:boolean;hidden?:boolean;default?:string|number|boolean|string[];options?:{value:string;label:string}[];when?:{key:string;op:string;value:unknown}[]};
 type AgentForm = {id:string;title:string;fields:FormField[]};
 type Tool = {type:string;id?:string;name?:string;text?:string;state?:{status:string;input?:unknown;content?:unknown;error?:unknown}};
@@ -47,6 +48,7 @@ export function AgentPanel({config,currentModel}:{config:Config;currentModel?:st
   const [snapshot,setSnapshot] = useState<Snapshot|null>(null),[draft,setDraft] = useState('');
   const [error,setError] = useState(''),[loading,setLoading] = useState(true),[sending,setSending] = useState(false);
   const [deciding,setDeciding] = useState('');
+  const [approvalError,setApprovalError] = useState('');
   useEffect(() => {
     let disposed = false;
     if (active) {setLoading(false);return;}
@@ -91,10 +93,11 @@ export function AgentPanel({config,currentModel}:{config:Config;currentModel?:st
     } catch(e) {setError(e instanceof Error ? e.message:'发送失败');}
     finally {setSending(false);}
   }
-  async function decide(id:string,decision:'once'|'reject') {
-    setDeciding(id);
-    try {await api('/sessions/'+active+'/permissions',{requestID:id,decision});setSnapshot(value => value ? {...value,permissions:value.permissions.filter(p => p.id !== id)}:value);}
-    catch(e) {setError(e instanceof Error ? e.message:'审批失败');}
+  async function decide(id:string,decision:PermissionDecision) {
+    if (deciding) return;
+    setDeciding(id);setApprovalError('');
+    try {await api('/sessions/'+active+'/permissions',{requestID:id,decision});setSnapshot(value => value ? {...value,permissions:decision === 'reject' ? [] : value.permissions.filter(p => p.id !== id)}:value);}
+    catch(e) {setApprovalError(e instanceof Error ? e.message:'审批失败');}
     finally {setDeciding('');}
   }
   return <section className="strip-agent">
@@ -125,14 +128,7 @@ export function AgentPanel({config,currentModel}:{config:Config;currentModel?:st
       </article>)}
       {!!snapshot?.diff?.length && <details><summary>文件变更（{snapshot.diff.length}）</summary><pre>{pretty(snapshot.diff)}</pre></details>}
     </div>
-    {!!snapshot?.permissions.length && <div className="strip-agent-permissions" aria-label="待审批工具操作">
-      {snapshot.permissions.map(permission => <article key={permission.id}>
-        <strong>批准操作：{permission.action}</strong><pre>{permission.resources.join('\n')}</pre>
-        {!!permission.metadata && <details><summary>操作详情</summary><pre>{pretty(permission.metadata)}</pre></details>}
-        <button className="strip-btn strip-btn--primary" disabled={Boolean(deciding)} onClick={() => void decide(permission.id,'once')}>允许本次</button>
-        <button className="strip-btn strip-btn--secondary" disabled={Boolean(deciding)} onClick={() => void decide(permission.id,'reject')}>拒绝</button>
-      </article>)}
-    </div>}
+    {!!snapshot?.permissions.length && <ApprovalPanel key={active} permissions={snapshot.permissions} workspace={snapshot.workspace || workspace} deciding={deciding} error={approvalError} onDecision={decide} />}
     {!!snapshot?.forms?.length && <div className="strip-agent-permissions" aria-label="Agent 问题">{snapshot.forms.map(form => <QuestionForm key={form.id} form={form} onAnswer={async answer => {
       await api('/sessions/'+active+'/forms',{formID:form.id,answer});
       setSnapshot(value => value ? {...value,forms:value.forms.filter(f => f.id !== form.id)}:value);

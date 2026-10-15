@@ -5,6 +5,7 @@ import empty from './components/EmptyState/EmptyState.module.css';
 import box from './components/Composer/Composer.module.css';
 import {StripCodexComposer} from './components/StripCodexComposer';
 import {QuestionForm} from './components/AgentPanel';
+import {ApprovalPanel} from './components/Approval/ApprovalPanel';
 import {ChatHistoryList} from './components/Sidebar/ChatHistoryList';
 import {BrandIcon,Icon} from './Icons';
 import {useUnifiedConversation} from './state/useUnifiedConversation';
@@ -52,7 +53,7 @@ export default function App() {
   const messages=[...(snapshot?.messages || [])].reverse().filter(m=>m.type==='user' || m.type==='assistant' || m.error);
   const modelChanged = Boolean(snapshot?.configurationChanged || (snapshot?.model && snapshot.model.providerID!=='strip-local') || (routeModel && snapshot?.model && snapshot.model.id !== routeModel));
   const waiting = Boolean(snapshot?.permissions.length || snapshot?.forms.length);
-  const blockedReason = modelChanged ? '连接或模型已变化，请保留输入并新建对话。':conversation.loading ? '正在读取会话，请稍候。':waiting ? '请先处理上方的工具审批或问题。':!workspace ? '请填写有效的项目目录。':modelsLoading ? '正在加载模型，请稍候。':modelError ? modelError:!active.startsWith('ses_') && !selectedModel ? '未读取到模型，请先在 CC Switch 中配置 Codex 模型。':'';
+  const blockedReason = modelChanged ? '连接或模型已变化，请保留输入并新建对话。':conversation.loading ? '正在读取会话，请稍候。':waiting ? '请先处理输入框上方的工具审批或问题。':!workspace ? '请填写有效的项目目录。':modelsLoading ? '正在加载模型，请稍候。':modelError ? modelError:!active.startsWith('ses_') && !selectedModel ? '未读取到模型，请先在 CC Switch 中配置 Codex 模型。':'';
   const blocked = Boolean(blockedReason);
   function newChat(){conversation.newConversation();setCcView(false);setMobile(false);}
   return <div className={shell.app+' strip-app strip-ui'} data-theme="dark">
@@ -88,13 +89,14 @@ export default function App() {
             </div>
           </article>)}
           {!!snapshot?.diff.length && <details className="strip-unified-tool"><summary>文件变更 · {snapshot.diff.length}</summary><pre>{pretty(snapshot.diff)}</pre></details>}
-          {!!snapshot?.permissions.length && <section className="strip-unified-approval" aria-label="待审批工具操作"><strong>需要你确认</strong>{snapshot.permissions.map(p=><article key={p.id}><p>{p.action}</p><pre>{p.resources.join('\n')}</pre>{!!p.metadata && <details><summary>操作详情</summary><pre>{pretty(p.metadata)}</pre></details>}<button className="strip-btn strip-btn--primary strip-btn--sm" disabled={Boolean(conversation.deciding)} onClick={()=>void conversation.decide(p.id,'once')}>允许本次</button><button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={Boolean(conversation.deciding)} onClick={()=>void conversation.decide(p.id,'reject')}>拒绝</button></article>)}</section>}
           {snapshot?.forms.map(form=><div className="strip-unified-approval" key={form.id}><QuestionForm form={form} onAnswer={answer=>conversation.answer(form.id,answer)}/></div>)}
           {modelChanged && <div className="strip-unified-alert" role="status">当前连接模型已变化。此会话保留原模型，请新建对话继续。<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={newChat}>新建对话</button></div>}
           {modelError && <div role="alert" className="strip-unified-alert strip-error">{modelError}</div>}{conversation.error && <div role="alert" className="strip-unified-alert strip-error">{conversation.error}</div>}
         </div>
       </div>
-      <div className={box.wrapper}><StripCodexComposer key={active} value={draft} onValueChange={conversation.setDraft} busy={busy} onStop={()=>void conversation.stop()} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model}  modelType="CC Switch · Responses" efforts={[{value:'default',label:'自动'}]} environments={[{value:'local',label:'项目'}]} permissions={[{value:'ask',label:'逐次批准'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>setNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{await conversation.send(text,files);setMobile(false);}}/>
+      <div className={box.wrapper}>
+        {!!snapshot?.permissions.length && <ApprovalPanel key={active} permissions={snapshot.permissions} workspace={snapshot.workspace || workspace} deciding={conversation.deciding} error={conversation.approvalError} onDecision={conversation.decide} />}
+        <StripCodexComposer key={active} value={draft} onValueChange={conversation.setDraft} busy={busy} onStop={()=>void conversation.stop()} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model}  modelType="CC Switch · Responses" efforts={[{value:'default',label:'自动'}]} environments={[{value:'local',label:'项目'}]} permissions={[{value:'ask',label:'逐次批准'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>setNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{await conversation.send(text,files);setMobile(false);}}/>
         {blockedReason && <div className="strip-unified-alert" role="status">{blockedReason}{modelChanged && <button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>conversation.newConversation(draft)}>保留输入并新建对话</button>}{!modelsLoading && (modelError || !selectedModel) && <button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>}</div>}
         {!busy && !blocked && !draft.trim() && <p className="strip-unified-caption">输入消息或添加文本附件后即可发送</p>}
         <p className="strip-unified-caption">同一段对话中提问与编程 · OpenCode 执行工具 · 操作前由你批准</p>

@@ -5,6 +5,7 @@ import empty from './components/EmptyState/EmptyState.module.css';
 import box from './components/Composer/Composer.module.css';
 import {StripCodexComposer} from './components/StripCodexComposer';
 import {QuestionForm} from './components/AgentPanel';
+import {ChatHistoryList} from './components/Sidebar/ChatHistoryList';
 import {BrandIcon,Icon} from './Icons';
 import {useUnifiedConversation} from './state/useUnifiedConversation';
 import './styles/strip.css';
@@ -60,12 +61,10 @@ export default function App() {
       <div className={'strip-drag '+side.brand}><img className="strip-logo" src="/brand-logo.png" alt="Strip Bot"/><span className={side.wordmark}>Strip Bot</span><button className="strip-mobile strip-btn strip-btn--ghost strip-btn--icon" aria-label="关闭导航" onClick={()=>setMobile(false)}><Icon name="x"/></button></div>
       <div className={side.newTaskWrap}><button className={'strip-btn strip-btn--secondary strip-btn--wide '+side.newTask} disabled={busy} onClick={newChat}><Icon name="chat-round-add"/>新建对话</button></div>
       <div className={side.searchWrap}><label className="strip-search-wrap"><Icon name="search"/><input className="strip-search" aria-label="搜索会话" placeholder="搜索会话" value={search} onChange={e=>setSearch(e.target.value)}/></label></div>
-      <nav className={side.list} aria-label="历史会话"><div className={side.groupLabel}>对话与任务</div>
-        {entries.filter(s=>s.title.includes(search)).map(s=><div key={s.id} className={'strip-task '+(active===s.id ? side.itemActive:'')}>
-          <button className={side.item} disabled={busy} onClick={()=>{conversation.select(s.id);setCcView(false);setMobile(false);}}><span className={side.dot}/><div className={side.itemBody}><div className={side.itemTitle}>{s.title}</div><div className={side.itemRepo}>{s.description}</div></div></button>
-          <button className="strip-delete strip-btn strip-btn--ghost strip-btn--icon strip-btn--sm" aria-label={'删除会话：'+s.title} disabled={busy} onClick={()=>conversation.remove(s.id)}><Icon name="trash-bin-trash"/></button>
-        </div>)}
-        {!entries.length && <p className="strip-muted strip-history-empty">还没有对话</p>}
+      <nav className={side.list} aria-label="历史会话">
+        <ChatHistoryList entries={entries} activeId={active} query={search} busy={busy}
+          onSelect={id=>{conversation.select(id);setCcView(false);setMobile(false);}}
+          onRemove={conversation.remove} />
       </nav>
       <div className={side.footer}><button className="strip-btn strip-btn--ghost" disabled={busy} onClick={()=>setCcView(true)}>CC Switch 连接</button></div>
       <p className="strip-attribution">Strip UI Kit · MIT · <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide Icons · ISC</a></p>

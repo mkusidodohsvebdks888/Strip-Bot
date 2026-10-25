@@ -90,8 +90,8 @@ export function useUnifiedConversation() {
         for (const file of files) {
           if (file.size > 150000 || (file.type && !file.type.startsWith('text/') && !/json|javascript|xml/.test(file.type))) throw new Error('请添加小于 150 KB 的文本或代码文件。');
           const content = await file.text();
-          if (content.includes('\\0')) throw new Error('暂不支持二进制附件，请添加文本或代码文件。');
-          prompt += '\\n\\n附件 '+file.name+'：\\n'+content;
+          if (content.includes('\0')) throw new Error('暂不支持二进制附件，请添加文本或代码文件。');
+          prompt += '\n\n附件 '+file.name+'：\n'+content;
         }
         if (prompt.length > 60000) throw new Error('消息与附件合计超过 60000 字符。');
         const localId = active.startsWith('loc_') ? active : 'loc_'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);

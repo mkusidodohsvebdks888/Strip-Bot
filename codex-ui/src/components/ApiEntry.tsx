@@ -200,6 +200,7 @@ export function ApiEntry({onEntered,appearance,onThemeChange}:{onEntered:(settin
     el.style.setProperty('--rx',`${(.5-y)*4}deg`);el.style.setProperty('--ry',`${(x-.5)*4}deg`);
   }
   return <main className="strip-api-entry strip-api-entry--merged" data-appearance={baseAppearance(appearance)} data-theme={baseAppearance(appearance)==='dark'?'dark':'light'}>
+    <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
     <div className="strip-entry-orbs" aria-hidden="true"><i/><i/><i/></div>
     {onThemeChange && <button type="button" className="strip-entry-theme" aria-label="切换主题" onClick={()=>{if(baseAppearance(appearance)==='dark')onThemeChange(previousLight.current);else{previousLight.current=appearance;onThemeChange('dark');}}}>◐ 主题</button>}
     <div ref={card} className={`strip-entry-card${shake?' is-shake':''}`} onPointerMove={moveCard} onPointerLeave={()=>{card.current?.style.setProperty('--rx','0deg');card.current?.style.setProperty('--ry','0deg');}} onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>

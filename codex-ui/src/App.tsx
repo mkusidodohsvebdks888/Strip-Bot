@@ -74,6 +74,8 @@ import './styles/activity-stream.css';
 import './styles/question-card.css';
 // Keep the shared palette context last so every UI module switches together.
 import './modules/theme/styles/unified-modules.css';
+// Keep outer window chrome last: the frame and native-titlebar region share one radius.
+import './modules/theme/styles/window-frame.css';
 
 // OpenCode may return the same reply both on the message and in text parts.
 // Prefer parts when available to avoid displaying an entire reply twice.
@@ -253,6 +255,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   if(blockedReason && !modelError && !modelChanged && !modelsLoading && !conversation.loading && !waiting) notifications.push({id:'blocked',title:'消息提示',message:blockedReason,action:!selectedModel?<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>:<button className="strip-btn strip-btn--secondary strip-btn--sm" onClick={openSettings}>打开设置</button>});
   if(notice) notifications.push({id:'composer-'+noticeRevision,title:'消息提示',message:notice});
   return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-wallpaper={showWallpaper} style={wallpaperStyle}>
+    <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
     {showWallpaper && <div className="strip-wallpaper-layer" data-fit={wallpaper.fit} aria-hidden="true"><img src={wallpaper.wallpaper!.url} alt="" draggable={false}/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}

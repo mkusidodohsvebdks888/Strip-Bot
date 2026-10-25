@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {findWorkspace, startLocalService} = require('./runtime/local-service.cjs');
 const {getAppearance}=require('./runtime/window-appearance.cjs');
+const STRIP_TITLEBAR_HEIGHT=48;
 const {registerStorageMigration} = require('./runtime/storage-migration.cjs');
 const resources = fs.existsSync(path.join(__dirname,'backend','gateway.cjs')) ? __dirname : path.resolve(__dirname,'..');
 const discoveredWorkspace = findWorkspace(resources);
@@ -41,13 +42,13 @@ async function start() {
     const palette=getAppearance(appearance);if(!palette)return;
     nativeTheme.themeSource=palette.theme;
     window.setBackgroundColor(palette.backgroundColor);
-    window.setTitleBarOverlay({color:palette.color,symbolColor:palette.symbolColor,height:44});
+    window.setTitleBarOverlay({color:palette.color,symbolColor:palette.symbolColor,height:STRIP_TITLEBAR_HEIGHT});
   });
   window = new BrowserWindow({
     title: 'Strip Bot', width: 1200, height: 850, minWidth: 420, minHeight: 700,
     show: false, backgroundColor: '#faf9f6', autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#faf9f6', symbolColor: '#4a4139', height: 44 },
+    titleBarOverlay: { color: '#faf9f6', symbolColor: '#4a4139', height: STRIP_TITLEBAR_HEIGHT },
     icon: path.join(resources, 'public', 'strip-bot.ico'),
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, partition: 'persist:stripbot', preload:path.join(__dirname,'preload.cjs') },
   });

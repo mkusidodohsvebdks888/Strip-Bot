@@ -57,3 +57,12 @@ CSS 由 App.tsx 按原顺序从 `./modules/theme/styles/` 引入，避免级联�
 - **安全与可读性**：状态警告、差异增删颜色、代码高亮和用户背景图片不被强制变色；按当前语义变量保证文本与背景可读。
 - **样式顺序**：`App.tsx` 在其他 CSS 之后最后导入 `unified-modules.css`。新增 UI 模块应优先使用 `var(--card-bg)`、`var(--surface-2)`、`var(--fg)`、`var(--border-10)`，不要硬编码白色/黑色。
 - **验证**：`node --test test/theme-unification.test.js test/appearance.test.js test/wallpaper.test.js test/window-appearance.test.js`；仍需要在 Windows 运行前端构建和手工测试各个模块。
+
+## 圆角窗口与顶部标题栏
+
+- 桌面工作台与模型登录页共用 `styles/window-frame.css`，呈现 18px 圆角矩形外框、细边框及轻柔投影；浏览器页面保留 7px 外边距，Electron 桌面则贴齐窗口顶沿以完整覆盖系统标题栏。
+- Windows Electron 隐藏默认标题栏后仍保留原生最小化 / 最大化 / 关闭按钮；主题化顶部条贯穿整个页面顶部，背景覆盖原生标题栏按钮下方区域。
+- CSS 顶部条与 Electron `titleBarOverlay` 使用相同的 48px 高度，右侧留出 160px 空间供原生窗口按钮使用，并保留顶部拖动窗口能力。
+- 小屏（≤640px）恢复满宽、无外边距和无圆角，避免压缩可操作空间。壁纸、主题选择、工具侧栏和聊天功能不更改。
+- 圆角修饰的是网页内容外框。**Windows 的系统级原生窗口外边角仍由 Windows/Electron 管理**；无需改用无边框窗口以牺牲系统按钮。
+- 测试：`node --test test/window-frame.test.js`，并重新构建前端与 Windows 安装程序后检查窗口最大化、拖动、右上角按钮、窄窗和主题切换。

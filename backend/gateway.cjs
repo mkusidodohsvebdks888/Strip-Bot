@@ -5,6 +5,7 @@ const path = require('node:path');
 const {httpError, requireLocalUrl, bridgeRules, upstreamPayload, sse, pumpResponse} = require('./providers.cjs');
 const {createAgentService} = require('./agent/service.cjs');
 const {createCcSwitch} = require('./ccswitch.cjs');
+const {createImplicitLocalModel} = require('./implicit-local-model.cjs');
 const APP_VERSION = '1.0.0';
 const DEFAULTS = Object.freeze({provider:'openai', endpoint:'http://127.0.0.1:3010/v1/chat/completions', model:'chatgpt', systemPrompt:'你是一个清晰、准确的中文 AI 助手。'});
 const MIME = {
@@ -28,7 +29,7 @@ function respondJson(res, status, payload) {
 
 
 /** Each gateway owns its config, credential and lifecycle; callers own listen/close. */
-function createGateway({defaults = {}, apiKey = '', ccOnly = false, nativeAgent = false, ccSwitchOnly = false, publicDir = path.join(__dirname, '..', 'public'), requestTimeoutMs = 600000, agentRoot = path.join(__dirname,'..'), agentService,agentExecutable,ccSwitch = createCcSwitch()} = {}) {
+function createGateway({defaults = {}, apiKey = '', ccOnly = false, nativeAgent = false, ccSwitchOnly = false, publicDir = path.join(__dirname, '..', 'public'), requestTimeoutMs = 600000, agentRoot = path.join(__dirname,'..'), agentService,agentExecutable,ccSwitch = createCcSwitch(),implicitLocalModel = createImplicitLocalModel()} = {}) {
   const config = Object.freeze({...DEFAULTS, ...defaults});
   const agent = agentService || createAgentService({root:agentRoot,allowNative:!ccSwitchOnly,apiKey:nativeAgent ? '' : ccOnly ? 'PROXY_MANAGED':apiKey,endpoint:nativeAgent ? '' : ccOnly ? ccSwitch.endpoint:config.endpoint,model:nativeAgent ? '' : config.model || 'unconfigured',provider:nativeAgent ? 'opencode' : ccOnly ? 'responses':config.provider,connection:nativeAgent ? 'opencode' : ccOnly ? 'ccswitch':'local',executable:agentExecutable});
   const PUBLIC_DIR = publicDir;
@@ -221,12 +222,19 @@ async function serveStatic(res, pathname) {
 const app = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, `http://${HOST}:${PORT}`).pathname;
-    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/')) {
+    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/') || pathname.startsWith('/api/local-model/')) {
       try {const host = requireLocalUrl(`http://${req.headers.host}`);if (Number(host.port || 80) !== req.socket.localPort) throw new Error();}
       catch {return respondJson(res,403,{error:'无效的本机来源。'});}
       const origin = req.headers.origin;
       if (origin && origin !== `http://${req.headers.host}`) return respondJson(res,403,{error:'跨来源请求被拒绝。'});
       if (!['GET','POST'].includes(req.method)) return respondJson(res,405,{error:'Method not allowed'});
+      if (pathname === '/api/local-model/status' && req.method === 'GET') return respondJson(res,200,await implicitLocalModel.status());
+      if (pathname === '/api/local-model/chat' && req.method === 'POST') {
+        if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) throw httpError(415,'本地模型只接受 JSON 请求。');
+        const data = await readJsonBody(req);
+        return respondJson(res,200,await implicitLocalModel.chat(data));
+      }
+      if (pathname.startsWith('/api/local-model/')) return respondJson(res,404,{error:'Not found'});
       if (pathname === '/api/cc-switch/status' && req.method === 'GET') return respondJson(res,200,await ccSwitch.status());
       if (pathname === '/api/cc-switch/responses' && req.method === 'POST') {
         const body = await readJsonBody(req);const selected = await ccSwitch.resolve(body.model);
@@ -262,7 +270,7 @@ const app = http.createServer(async (req, res) => {
       return respondJson(res, 200, { ...config, version: APP_VERSION, localOnly: true });
     }
     if (req.method === 'GET' && pathname === '/api/health') {
-      return respondJson(res, 200, { ok: true, local: true, service:'stripbot-gateway', version: APP_VERSION,capabilities:{agent:'opencode-v2',ccswitch:true,ccOnly,ccSwitchOnly,nativeAuth:nativeAgent && !ccSwitchOnly} });
+      return respondJson(res, 200, { ok: true, local: true, service:'stripbot-gateway', version: APP_VERSION,capabilities:{agent:'opencode-v2',ccswitch:true,ccOnly,ccSwitchOnly,nativeAuth:nativeAgent && !ccSwitchOnly,implicitLocalModel:true} });
     }
     if (req.method === 'GET' && pathname === '/api/models') {
       if (ccOnly) return respondJson(res,410,{error:'本地 API 模型列表已移除。'});

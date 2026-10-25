@@ -1,1 +1,15 @@
-{"name":"strip-bot-desktop","productName":"Strip Bot","version":"1.0.0","private":true,"main":"main.cjs","scripts":{"start":"electron .","package":"node build.cjs"},"devDependencies":{"@electron/packager":"^20.3.0","electron":"^44.7.0"}}
+{
+  "name": "strip-bot-desktop",
+  "productName": "Strip Bot",
+  "version": "1.0.1",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package": "node build.cjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^44.7.0"
+  }
+}

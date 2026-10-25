@@ -1,0 +1,58 @@
+{
+  "idle": {
+    "label": "呼吸待机",
+    "duration_seconds": 4
+  },
+  "wave": {
+    "label": "挥手",
+    "duration_seconds": 1.6
+  },
+  "dance": {
+    "label": "跳舞",
+    "duration_seconds": 4.6
+  },
+  "spin": {
+    "label": "转圈",
+    "duration_seconds": 2.5
+  },
+  "shy": {
+    "label": "捂脸",
+    "duration_seconds": 2.8
+  },
+  "stretch": {
+    "label": "伸懒腰",
+    "duration_seconds": 3.2
+  },
+  "bow": {
+    "label": "鞠躬",
+    "duration_seconds": 2.3
+  },
+  "sway": {
+    "label": "左右摇摆",
+    "duration_seconds": 3.4
+  },
+  "hop": {
+    "label": "小跳",
+    "duration_seconds": 1.15
+  },
+  "superhop": {
+    "label": "蓄力跳",
+    "duration_seconds": 1.6
+  },
+  "highfive_wait": {
+    "label": "等待击掌",
+    "duration_seconds": 4.8
+  },
+  "highfive_hit": {
+    "label": "击掌成功",
+    "duration_seconds": 1.2
+  },
+  "charge": {
+    "label": "蓄力",
+    "duration_seconds": 2
+  },
+  "sleep": {
+    "label": "打盹",
+    "duration_seconds": 4
+  }
+}

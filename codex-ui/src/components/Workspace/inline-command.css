@@ -1,0 +1,42 @@
+/* Codex-inspired command UI: small contextual popover, not a permanent terminal. */
+.strip-app[data-appearance] .strip-composer-region{position:relative;z-index:3}
+.strip-workflow-command-popup{box-sizing:border-box;max-height:calc(100dvh - 160px);overflow:auto;position:absolute;left:50%;bottom:calc(100% - 7px);transform:translateX(-50%);width:min(460px,calc(100% - 32px));z-index:60;color:var(--fg,#24262b);background:color-mix(in srgb,var(--surface,#fff) 95%,transparent);backdrop-filter:blur(22px);border:1px solid var(--border-10,#e1e4e8);border-radius:15px;box-shadow:none;padding:15px}
+.strip-workflow-command-popup-head{display:flex;align-items:flex-start;gap:10px}
+.strip-workflow-command-popup-icon{height:30px;width:30px;display:grid;place-items:center;border:1px solid var(--border-10,#e4e4e4);border-radius:9px;background:var(--surface-2,#f7f7f6);color:var(--fg,#292a30);flex:none}
+.strip-workflow-command-popup-icon svg{height:15px;width:15px}
+.strip-workflow-command-popup-head>div{flex:1;min-width:0}
+.strip-workflow-command-popup-head strong{display:block;font-weight:640;font-size:13px;line-height:1.5}
+.strip-workflow-command-popup-head p{margin:3px 0 0;color:var(--muted,#777);font-size:13px;line-height:1.5}
+.strip-workflow-command-close{background:transparent;border:0;padding:1px 7px;border-radius:6px;font-size:20px;line-height:1.35;cursor:pointer;color:var(--muted,#777)}
+.strip-workflow-command-close:hover{background:var(--surface-2,#f4f5f6);color:var(--fg,#222)}
+.strip-workflow-command-popup-form{margin-top:16px}
+.strip-workflow-command-popup-form>label{display:block;margin-bottom:7px;color:var(--muted,#777);font-size:13px}
+.strip-workflow-command-popup-foot{display:flex;justify-content:space-between;gap:9px;align-items:center;flex-wrap:wrap;padding-top:12px;margin-top:12px;border-top:1px solid var(--border-08,#e8e9ea);font-size:13px;color:var(--muted,#858585)}
+.strip-workflow-command-popup-foot>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+.strip-workflow-command-popup-foot small{font-size:13px}
+.strip-workflow-run-list{padding:0;} .strip-workflow-command-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-08,#e8e9ea);max-height:240px;overflow:auto;}
+.strip-workflow-run-subheading{color:var(--muted,#80848c);font-size:13px;margin:3px 0 8px}
+.strip-workflow-run-step{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;min-width:0}
+.strip-workflow-run-rail{width:23px;height:23px;margin-top:8px;border:1px solid var(--border-10,#e3e5e8);background:var(--bg,#fff);color:var(--muted,#82878b);border-radius:50%;display:grid;place-items:center}
+.strip-workflow-run-rail svg{height:13px;width:13px}
+.strip-workflow-run-step[data-result='error'] .strip-workflow-run-rail{color:#c76f63}
+.strip-workflow-run-body{padding:3px 0 9px;min-width:0}
+.strip-workflow-run-toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;background:transparent;color:var(--fg,#292a30);width:100%;padding:3px 0;cursor:pointer;text-align:left;min-height:40px;font:inherit}
+.strip-workflow-run-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0;flex:1}
+.strip-workflow-run-title strong{font-size:12.5px;font-weight:570;white-space:nowrap}
+.strip-workflow-run-title code{font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 6px;max-width:100%;white-space:normal;overflow-wrap:anywhere;background:var(--surface-2,#f3f4f5);color:var(--muted,#777);border-radius:5px}
+.strip-workflow-run-status{font-size:13px;color:var(--muted,#777);white-space:nowrap}
+.strip-workflow-run-step[data-result='error'] .strip-workflow-run-status{color:#c76f63}
+.strip-workflow-run-chevron{display:inline-block;margin-left:3px;font-size:16px;transition:transform .15s ease}
+.strip-workflow-run-chevron.is-open{transform:rotate(180deg)}
+.strip-workflow-run-detail{margin:5px 0 9px;border:1px solid var(--border-08,#e7e8e9);border-radius:9px;background:var(--surface-2,#f7f7f7);overflow:hidden}
+.strip-workflow-run-detail-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 11px;color:var(--muted,#777);font-size:13px}
+.strip-workflow-run-detail-header>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.strip-workflow-run-detail-header>div{display:flex;gap:3px;flex:none}
+.strip-workflow-run-detail-header button{background:transparent;color:inherit;cursor:pointer;padding:4px 7px;border:0;border-radius:5px;font:inherit;white-space:nowrap}
+.strip-workflow-run-detail-header button:hover{background:var(--bg,#fff);color:var(--fg,#222)}
+.strip-workflow-run-detail>pre{margin:0;padding:11px 13px;background:#22252b;color:#e9edf0;max-height:360px;overflow:auto;font:11.5px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.strip-workflow-run-detail>pre code{font:inherit}
+.strip-workflow-run-empty{font-size:13px;color:var(--muted,#7b7b7b);margin:0;padding:12px}
+@media(max-width:640px){.strip-workflow-command-popup{width:calc(100% - 24px);bottom:calc(100% - 2px)}.strip-workflow-run-toggle{gap:6px}.strip-workflow-run-status{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.strip-workflow-run-chevron{transition:none}}

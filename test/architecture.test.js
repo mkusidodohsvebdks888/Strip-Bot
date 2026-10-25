@@ -51,7 +51,7 @@ test('gateway timeout and malformed upstream SSE are explicit errors',async () =
 });
 
 test('desktop lease closes only a service it owns',async () => {
-  const gateway = createGateway({ccOnly:true,ccSwitchOnly:true});
+  const gateway = createGateway({ccOnly:true,ccSwitchOnly:true,connectionOptions:true,chatgptLogin:true});
   const url = await listen(gateway);
   try {
     const lease = await startLocalService({resources:path.resolve(__dirname,'..'),workspace:null,port:gateway.address().port});

@@ -1,6 +1,13 @@
-{
-  "assets": [
-    "assets/index-21Wj2_w5.js",
-    "assets/index-RybGJ6gj.css"
-  ]
+﻿{
+    "assets":  [
+                   "assets/body-BgBRRNqQ.png",
+                   "assets/foot_left-CPIsa5sK.png",
+                   "assets/foot_right-BtMaIXip.png",
+                   "assets/hand_left-C7PF0koQ.png",
+                   "assets/hand_right-DtC9mHSJ.png",
+                   "assets/index-BNPqxvTb.js",
+                   "assets/index-DsjLBoN5.css",
+                   "assets/nono-brand-Q6cig3W1.png",
+                   "assets/shadow-BpE-eiRi.png"
+               ]
 }

@@ -47,6 +47,16 @@ test('production JS and CSS assets are served with correct MIME and restricted p
     assert.match(response.headers.get('content-type'), asset.endsWith('.js') ? /javascript/ : /text\/css/);
   }
   assert.equal((await fetch(local(appPort, '/assets/unknown.txt'))).status, 404);
+  const manifest = JSON.parse(await (await fetch(local(appPort, '/build-manifest.json'))).text());
+  const imageAsset = manifest.assets.find(asset => /\.(png|jpe?g|webp)$/.test(asset));
+  assert.ok(imageAsset);
+  const image = await fetch(local(appPort, '/' + imageAsset));
+  assert.equal(image.status, 200);
+  assert.match(image.headers.get('content-type'), /^image\//);
+  const icon = await fetch(local(appPort, '/strip-buttons/icons/search.svg'));
+  assert.equal(icon.status, 200);
+  assert.match(icon.headers.get('content-type'), /image\/svg\+xml/);
+  assert.equal((await fetch(local(appPort, '/strip-buttons/icons/not-found.svg'))).status, 404);
 });
 
 test('OpenAI-compatible SSE message arrives through the local proxy', async () => {
@@ -120,3 +130,5 @@ test('unavailable upstream produces a readable SSE error, never a false reply', 
   assert.match(body, /event: error/);
   assert.doesNotMatch(body, /event: done/);
 });
+
+

@@ -1,0 +1,14 @@
+/* No idle, hover, click or sending animations. Match the existing home logo slot. */
+.strip-app[data-appearance] .strip-nono-welcome{width:70px;height:70px;margin:0 0 9px;display:grid;place-items:center;flex:none;pointer-events:none}
+.strip-nono-scene{position:relative;width:100%;aspect-ratio:1374/1145;isolation:isolate}
+.strip-nono-rig{position:absolute;inset:0;transform-origin:50% 85%}
+.strip-nono-layer{position:absolute;display:block;max-width:none;pointer-events:none;user-select:none}
+.strip-nono-welcome.is-typing .strip-nono-body{animation:nono-input-nod .8s ease-in-out infinite alternate}
+.strip-nono-welcome.is-typing .strip-nono-hand_left{animation:nono-input-hand .4s ease-in-out infinite alternate}
+.strip-nono-welcome.is-typing .strip-nono-hand_right{animation:nono-input-hand .4s ease-in-out infinite alternate-reverse}
+.strip-nono-welcome.is-typing .strip-nono-foot_left{animation:nono-input-foot .8s ease-in-out infinite alternate}
+.strip-nono-welcome.is-typing .strip-nono-foot_right{animation:nono-input-foot .8s ease-in-out infinite alternate-reverse}
+@keyframes nono-input-nod{to{transform:rotate(.5deg) translateY(-.5%)}}
+@keyframes nono-input-hand{to{transform:rotate(3deg)}}
+@keyframes nono-input-foot{to{transform:rotate(1deg)}}
+@media(prefers-reduced-motion:reduce){.strip-nono-welcome.is-typing .strip-nono-layer{animation:none!important}}

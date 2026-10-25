@@ -1,0 +1,447 @@
+/* Strip Bot composer v3: Claude's spacious writing surface + Codex's compact tools.
+   Imported AFTER the previous composer styles. Scoped to the workspace, so API
+   entry, settings dialogs and other textareas keep their original appearance. */
+.strip-app[data-appearance] .strip-composer-region {
+  padding: 10px clamp(14px, 3vw, 36px) clamp(16px, 2.6vh, 26px);
+}
+.strip-app[data-appearance] .strip-composer-region .strip-codex-composer {
+  width: min(790px, 100%);
+  max-width: 100%;
+  margin-inline: auto;
+  font-size: 13px;
+}
+
+/* Warm paper (Claude) in light mode, quiet charcoal (Codex) in dark mode. */
+.strip-app[data-appearance][data-theme='light'] .strip-codex-composer {
+  --scc-bg: #fffefa;
+  --scc-text: #30302e;
+  --scc-muted: #95918b;
+  --scc-subtle: #6c6b68;
+  --scc-border: #e7e3dc;
+  --scc-hover: #f4f1eb;
+  --scc-active: #ebe7df;
+  --scc-focus: #c2b7a8;
+  --scc-chip: #f5f2ec;
+  --scc-send-bg: #373632;
+  --scc-send-fg: #fff;
+  --scc-surface-shadow: 0 10px 32px rgba(49,43,32,.065), 0 2px 6px rgba(49,43,32,.025);
+  --scc-tool-border: #e9e5de;
+}
+.strip-app[data-appearance][data-theme='dark'] .strip-codex-composer {
+  --scc-bg: #2b2927;
+  --scc-text: #f3f0eb;
+  --scc-muted: #9f9b94;
+  --scc-subtle: #c8c2ba;
+  --scc-border: #45423e;
+  --scc-hover: #3d3a35;
+  --scc-active: #48433d;
+  --scc-focus: #8d8980;
+  --scc-chip: #37342f;
+  --scc-send-bg: #e9e6df;
+  --scc-send-fg: #292724;
+  --scc-surface-shadow: 0 12px 36px rgba(0,0,0,.18), 0 2px 7px rgba(0,0,0,.07);
+  --scc-tool-border: #494640;
+}
+/* Keep the composer in step with Strip Bot's five appearance themes. */
+.strip-app[data-appearance='white'][data-theme='light'] .strip-codex-composer {
+  --scc-bg: #ffffff;
+  --scc-text: #2c2c2a;
+  --scc-muted: #969696;
+  --scc-subtle: #6b6b68;
+  --scc-border: #e7e7e5;
+  --scc-hover: #f5f5f4;
+  --scc-active: #ededeb;
+  --scc-focus: #c3c3c1;
+  --scc-chip: #f6f6f5;
+  --scc-send-bg: #2f3032;
+  --scc-send-fg: #ffffff;
+  --scc-tool-border: #e8e8e6;
+}
+.strip-app[data-appearance='mist'][data-theme='light'] .strip-codex-composer {
+  --scc-bg: #fbfcfe;
+  --scc-text: #2c3034;
+  --scc-muted: #8a929c;
+  --scc-subtle: #626a74;
+  --scc-border: #e2e7ee;
+  --scc-hover: #f2f5f9;
+  --scc-active: #e9eef5;
+  --scc-focus: #b7c2d0;
+  --scc-chip: #f3f6fa;
+  --scc-send-bg: #30353b;
+  --scc-send-fg: #ffffff;
+  --scc-tool-border: #e4e9f0;
+}
+.strip-app[data-appearance='graphite'][data-theme='dark'] .strip-codex-composer {
+  --scc-bg: #26282b;
+  --scc-text: #eceef1;
+  --scc-muted: #9aa0a8;
+  --scc-subtle: #c2c6cc;
+  --scc-border: #404348;
+  --scc-hover: #33363a;
+  --scc-active: #3b3f44;
+  --scc-focus: #8a9099;
+  --scc-chip: #303338;
+  --scc-send-bg: #e8eaed;
+  --scc-send-fg: #26282b;
+  --scc-tool-border: #44484d;
+}
+
+.strip-app[data-appearance] .strip-codex-composer__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: visible;
+  border: 1px solid var(--scc-border);
+  border-radius: 23px;
+  background: var(--scc-bg);
+  box-shadow: var(--scc-surface-shadow);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.strip-app[data-appearance] .strip-codex-composer__panel:focus-within {
+  border-color: var(--scc-focus);
+  box-shadow: var(--scc-surface-shadow), 0 0 0 3px color-mix(in srgb, var(--scc-focus), transparent 89%);
+}
+
+/* The editor is a writing area, not a one-line form. The bottom toolbar sits
+   on the SAME surface with no separator or fixed-height empty bar. */
+.strip-app[data-appearance] .strip-codex-composer__editor {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 20px 22px 0;
+}
+.strip-app[data-appearance] .strip-codex-composer__textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 88px;
+  max-height: 240px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--scc-text);
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 400;
+  line-height: 1.62;
+  letter-spacing: -.005em;
+  resize: none;
+  overflow-wrap: anywhere;
+  scrollbar-width: thin;
+}
+.strip-app[data-appearance] .strip-codex-composer__textarea::placeholder {
+  color: var(--scc-muted);
+  opacity: 1;
+}
+.strip-app[data-appearance] .strip-codex-composer__textarea:focus-visible {outline: none;box-shadow:none;}
+
+.strip-app[data-appearance] .strip-codex-composer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 46px;
+  margin-top: 4px;
+  padding: 0 15px 13px 15px;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-start,
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end {margin-left: auto;justify-content: flex-end;}
+.strip-app[data-appearance] .strip-codex-composer__tool.strip-codex-composer__attach {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border: 1px solid var(--scc-tool-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--scc-subtle);
+}
+.strip-app[data-appearance] .strip-codex-composer__tool.strip-codex-composer__attach:hover:not(:disabled) {
+  border-color: var(--scc-focus);
+  background: var(--scc-hover);
+  color: var(--scc-text);
+}
+
+/* Permission is an understated chip; auto-approve is visible but not shouting. */
+.strip-app[data-appearance] .strip-codex-composer__permission {display: inline-flex;min-width:0;align-items:center;}
+.strip-app[data-appearance] .strip-codex-composer__permission .strip-session-approval > button {
+  min-height: 34px;
+  max-width: 150px;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--scc-subtle);
+  font-size: 12px;
+  font-weight: 500;
+}
+.strip-app[data-appearance] .strip-codex-composer__permission .strip-session-approval > button:hover:not(:disabled) {
+  background: var(--scc-hover);
+  color: var(--scc-text);
+}
+.strip-app[data-appearance][data-theme='light'] .strip-codex-composer__permission .strip-session-approval.is-auto > button {
+  background: #faf2e1;
+  border-color: #f0e3c9;
+  color: #916d39;
+}
+.strip-app[data-appearance][data-theme='dark'] .strip-codex-composer__permission .strip-session-approval.is-auto > button {
+  background: #493e2d;
+  border-color: #66553b;
+  color: #edd2a2;
+}
+
+/* The current model and effort form one quiet capsule, never a floating
+   speed selector over the editor. Clicking still opens the real left panel. */
+.strip-app[data-appearance] .strip-codex-composer__model-shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  min-width: 0;
+  max-width: min(330px, 49vw);
+  min-height: 36px;
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--scc-subtle);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.strip-app[data-appearance] .strip-codex-composer__model-shortcut:hover:not(:disabled) {
+  border-color: var(--scc-tool-border);
+  background: var(--scc-hover);
+  color: var(--scc-text);
+}
+.strip-app[data-appearance] .strip-codex-composer__model-shortcut .strip-control-icon:first-child {opacity:.65;}
+.strip-app[data-appearance] .strip-codex-composer__model-name {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.strip-app[data-appearance] .strip-codex-composer__model-effort {
+  flex: none;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: var(--scc-chip);
+  color: var(--scc-muted);
+  font-size: 11px;
+}
+.strip-app[data-appearance] .strip-codex-composer__model-shortcut .strip-control-icon:last-child {opacity:.6;}
+
+/* Codex action: distinct and tactile. Disabled means muted, not vanished. */
+.strip-app[data-appearance] .strip-codex-composer__send {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  flex: 0 0 38px;
+  border: none;
+  border-radius: 50%;
+  background: var(--scc-send-bg);
+  color: var(--scc-send-fg);
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-codex-composer__send:disabled {
+  background: var(--scc-chip);
+  color: var(--scc-muted);
+  opacity: .76;
+}
+.strip-app[data-appearance] .strip-codex-composer__send:not(:disabled):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--scc-text), transparent 86%);
+}
+.strip-app[data-appearance] .strip-codex-composer__send.is-streaming {background:var(--scc-send-bg);color:var(--scc-send-fg);}
+
+.strip-app[data-appearance] .strip-codex-composer__files {gap:7px;padding:2px 19px 8px;}
+.strip-app[data-appearance] .strip-codex-composer__file {border-radius:10px;background:var(--scc-chip);padding:6px 7px 6px 9px;}
+.strip-app[data-appearance] .strip-composer-disabled-hint {
+  width:fit-content;
+  max-width:100%;
+  padding:5px 10px;
+  margin:0 0 8px 7px;
+  border-radius:8px;
+  background:var(--scc-chip);
+  color:var(--scc-subtle);
+  font-size:11px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.strip-app[data-appearance] .strip-codex-composer__error {margin:9px 12px 0;}
+
+/* The app no longer renders a redundant always-on approval caption below
+   the card. If a new safety warning is added later, it remains visible. */
+
+@media (max-width: 640px) {
+  .strip-app[data-appearance] .strip-composer-region {padding:8px 12px 12px;}
+  .strip-app[data-appearance] .strip-composer-region .strip-codex-composer {width:100%;}
+  .strip-app[data-appearance] .strip-codex-composer__panel {border-radius:19px;}
+  .strip-app[data-appearance] .strip-codex-composer__editor {padding:16px 16px 0;}
+  .strip-app[data-appearance] .strip-codex-composer__textarea {min-height:76px;max-height:220px;font-size:14.5px;}
+  .strip-app[data-appearance] .strip-codex-composer__toolbar {gap:7px;padding:0 10px 10px;}
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-start,
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end {gap:4px;}
+  .strip-app[data-appearance] .strip-codex-composer__model-shortcut {max-width:min(42vw,190px);padding:0 7px;gap:4px;}
+  .strip-app[data-appearance] .strip-codex-composer__permission .strip-session-approval > button {max-width:105px;padding:6px;gap:3px;}
+}
+@media (max-width: 450px) {
+  .strip-app[data-appearance] .strip-codex-composer__model-shortcut {max-width:106px;}
+  .strip-app[data-appearance] .strip-codex-composer__model-shortcut .strip-control-icon:first-child,
+  .strip-app[data-appearance] .strip-codex-composer__model-shortcut .strip-control-icon:last-child,
+  .strip-app[data-appearance] .strip-codex-composer__model-effort {display:none;}
+  .strip-app[data-appearance] .strip-codex-composer__permission .strip-session-approval > button {max-width:82px;font-size:11px;}
+}
+@media (max-height: 650px) {
+  .strip-app[data-appearance] .strip-codex-composer__textarea {min-height:60px;}
+  .strip-app[data-appearance] .strip-codex-composer__editor {padding-top:14px;}
+  .strip-app[data-appearance] .strip-composer-region {padding-bottom:10px;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .strip-app[data-appearance] .strip-codex-composer__panel,
+  .strip-app[data-appearance] .strip-codex-composer__send {transition:none;}
+}
+
+/* Current Strip Bot integration: the composer uses the inline ModelSwitcher
+   (model + response triggers) instead of the older left-panel shortcut.
+   Present both triggers as one quiet capsule without changing their behaviour. */
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+  max-width: min(380px, 54vw);
+  padding: 2px;
+  border: 1px solid var(--scc-tool-border);
+  border-radius: 12px;
+  background: var(--scc-chip);
+  overflow: visible;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger,
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--scc-subtle);
+  font-size: 12px;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger {
+  max-width: 230px;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger {
+  gap: 4px;
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger:hover:not(:disabled),
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger:hover:not(:disabled) {
+  background: var(--scc-hover) !important;
+  color: var(--scc-text);
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple {
+    max-width: min(52vw, 260px);
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger {
+    max-width: 150px;
+    font-size: 11px;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger {
+    font-size: 10px;
+    padding-inline: 5px;
+  }
+}
+@media (max-width: 450px) {
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple {
+    max-width: 58vw;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-trigger {
+    max-width: 105px;
+    padding-inline: 5px;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger {
+    max-width: 80px;
+    padding-inline: 4px;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple .smp-speed-trigger .strip-control-icon:last-child {
+    display: none;
+  }
+}
+
+/* Fixed model/response menus use viewport coordinates. Backdrop filtering on
+   their composer ancestor would instead make those coordinates panel-local. */
+.strip-app[data-theme="light"] .strip-codex-composer__panel {
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+/* The expanding appearance selector must remain scrollable on short windows. */
+.strip-app .strip-live-model-picker.smp-simple .smp-popup.smp-response-menu {
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+
+.strip-app[data-appearance] .strip-workflow-input-metrics{font-size:12px;padding:1px 7px 0}
+.strip-app[data-appearance] .strip-workflow-heading,.strip-app[data-appearance] .strip-workflow-heading strong{font-size:14px}
+.strip-app[data-appearance] .strip-workflow-surface button,.strip-app[data-appearance] .strip-workflow-surface a{min-height:36px;font-size:13px}
+.strip-app[data-appearance] .strip-workflow-file code,.strip-app[data-appearance] .strip-workflow-command-row input{font-size:14px}
+
+/* Prompt helper: slash-command hints and the local instruction formatter. */
+.strip-app[data-appearance] .strip-codex-composer__slash-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 2px 8px;
+}
+.strip-app[data-appearance] .strip-codex-composer__slash-hints button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--scc-tool-border);
+  border-radius: 8px;
+  background: var(--scc-chip);
+  color: var(--scc-subtle);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.strip-app[data-appearance] .strip-codex-composer__slash-hints button:hover {
+  background: var(--scc-hover);
+  color: var(--scc-text);
+}
+.strip-app[data-appearance] .strip-codex-composer__slash-hints strong {
+  color: var(--scc-text);
+  font-weight: 600;
+}
+@media (max-width: 560px) {
+  .strip-app[data-appearance] .strip-codex-composer__toolbar {
+    flex-wrap: wrap;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-start {
+    flex: 1 1 auto;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__toolbar-end {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+}

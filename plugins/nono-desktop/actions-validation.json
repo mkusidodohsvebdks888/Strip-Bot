@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-22",
+  "model": "Nono_TrueTone_v16.glb",
+  "browser_test": "PASS - Windows Electron WebGL",
+  "parts": 11,
+  "clips": 14,
+  "all_actions_finite": true,
+  "chatUI": true,
+  "realProviderCalled": false,
+  "lighting": {
+    "exposure": 1,
+    "key": 1.6,
+    "hemisphere": 1.15,
+    "fill": 0.4
+  }
+}

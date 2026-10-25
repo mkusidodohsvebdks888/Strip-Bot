@@ -1,0 +1,20 @@
+{
+  "javascript_syntax": "PASS",
+  "glb_header": true,
+  "glb_length": true,
+  "buffer_ranges": true,
+  "source_image_textures": false,
+  "browser_visual_test": "NOT RUN",
+  "model_parts": 9,
+  "animation_clips": [
+    "Breathe",
+    "Hop",
+    "Wave"
+  ],
+  "torus_finite": true,
+  "torus_indices_valid": true,
+  "torus_normal_length": 5.960464477539063e-08,
+  "sphere_finite": true,
+  "sphere_indices_valid": true,
+  "sphere_normal_length": 5.960464477539063e-08
+}

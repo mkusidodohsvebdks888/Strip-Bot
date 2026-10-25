@@ -1,0 +1,127 @@
+/* Claude-style generation look for assistant output.
+   Scoped to .strip-app[data-appearance] so it inherits the theme palette (light / white / dark)
+   and outranks MarkdownReply.css (0,2,x) rules. Import AFTER claude-theme.css and readability.css. */
+
+/* ---------- body: warm serif, generous leading ---------- */
+.strip-app[data-appearance] .strip-chat--codex .strip-markdown {
+  font-family: 'Tiempos Text', Georgia, 'Noto Serif SC', 'Songti SC', STSong, serif;
+  font-size: calc(16.5px * var(--strip-type-scale, 1));
+  line-height: 1.8;
+  letter-spacing: 0.005em;
+  color: var(--text-message);
+}
+.strip-app[data-appearance] .strip-markdown p { margin: 0 0 14px; }
+.strip-app[data-appearance] .strip-markdown :is(h1, h2, h3, h4) {
+  font-family: Georgia, 'Noto Serif SC', 'Songti SC', STSong, serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--fg-strong);
+  margin: 26px 0 10px;
+}
+.strip-app[data-appearance] .strip-markdown h1 { font-size: 1.45em; }
+.strip-app[data-appearance] .strip-markdown h2 { font-size: 1.25em; }
+.strip-app[data-appearance] .strip-markdown h3 { font-size: 1.1em; }
+.strip-app[data-appearance] .strip-markdown :is(strong, b) { color: var(--fg-strong); font-weight: 600; }
+.strip-app[data-appearance] .strip-markdown :is(ul, ol) { padding-left: 1.4em; margin: 6px 0 14px; }
+.strip-app[data-appearance] .strip-markdown li { margin: 5px 0; }
+.strip-app[data-appearance] .strip-markdown li::marker { color: var(--muted-4); }
+.strip-app[data-appearance] .strip-markdown blockquote {
+  margin: 14px 0;
+  padding: 2px 0 2px 16px;
+  color: var(--text-secondary);
+  border-left: 2px solid var(--accent);
+  font-style: italic;
+}
+.strip-app[data-appearance] .strip-markdown hr { border-top: 1px solid var(--quiet-line); margin: 22px 0; }
+.strip-app[data-appearance] .strip-markdown :not(pre) > code {
+  font-family: var(--font-code, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
+  font-size: 0.85em;
+  background: var(--surface-chip);
+  border: 1px solid var(--border-08);
+  color: var(--code-fg, var(--fg));
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+.strip-app[data-appearance] .strip-markdown .strip-md-table-scroll {
+  border: 1px solid var(--border-09);
+  border-radius: 12px;
+  background: var(--quiet-white);
+}
+.strip-app[data-appearance] .strip-markdown th { background: var(--surface-chip); color: var(--fg-strong); }
+.strip-app[data-appearance] .strip-markdown td, .strip-app[data-appearance] .strip-markdown th { border-bottom-color: var(--quiet-line); }
+.strip-app[data-appearance] .strip-markdown .strip-md-code {
+  border-radius: 14px;
+  border: 1px solid var(--border-09);
+  background: var(--surface-3);
+  box-shadow: var(--quiet-shadow);
+}
+.strip-app[data-appearance] .strip-markdown .strip-md-code__toolbar { background: var(--quiet-warm); }
+/* Codex global borders also target `pre`; keep the Claude code card as one border. */
+.strip-app[data-appearance] .strip-markdown .strip-md-code__pre {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ---------- streaming: new blocks fade/slide in ---------- */
+.strip-app[data-appearance] .strip-markdown--streaming > :last-of-type:not(.strip-md-cursor) {
+  animation: strip-claude-block-in 0.32s ease-out both;
+}
+@keyframes strip-claude-block-in {
+  from { opacity: 0; transform: translateY(3px); }
+}
+
+/* ---------- streaming cursor: Claude-style breathing dot instead of a bar ---------- */
+.strip-app[data-appearance] .strip-md-cursor {
+  display: inline-block;
+  vertical-align: middle;
+  width: 9px;
+  height: 9px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+  animation: strip-claude-breathe 1.3s ease-in-out infinite;
+}
+@keyframes strip-claude-breathe {
+  0%, 100% { transform: scale(0.75); opacity: 0.55; box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  50% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+/* ---------- "thinking" indicator shown before the first token ---------- */
+.strip-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  color: var(--muted-2);
+  font: 500 13px var(--font-ui);
+}
+.strip-thinking__star {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  animation: strip-claude-spin 2.4s linear infinite, strip-claude-pulse 1.4s ease-in-out infinite;
+}
+.strip-thinking__star svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+.strip-thinking__label { animation: strip-claude-shimmer-text 1.8s ease-in-out infinite; }
+@keyframes strip-claude-spin { to { transform: rotate(360deg); } }
+@keyframes strip-claude-pulse { 50% { opacity: 0.45; } }
+@keyframes strip-claude-shimmer-text { 50% { opacity: 0.55; } }
+
+/* ---------- actions row ---------- */
+.strip-app[data-appearance] .strip-md-answer__actions { gap: 4px; margin-top: 6px; }
+.strip-app[data-appearance] .strip-md-answer__copy {
+  color: var(--muted-3);
+  border-radius: 8px;
+  font: 500 12px var(--font-ui);
+}
+.strip-app[data-appearance] .strip-md-answer__copy:hover { color: var(--fg); background: var(--surface-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip-app[data-appearance] .strip-markdown--streaming > :last-of-type,
+  .strip-app[data-appearance] .strip-md-cursor,
+  .strip-thinking__star,
+  .strip-thinking__label { animation: none; }
+}

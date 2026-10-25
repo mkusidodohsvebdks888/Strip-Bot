@@ -1,0 +1,22 @@
+{
+  "source": "Nono_TrueTone_v16.glb",
+  "sha256": "022c6db5d5f58139ac4b12d3bfaf861da8c53367271c99535bd71dd57d76f520",
+  "parts": 11,
+  "clips": [
+    "idle",
+    "wave",
+    "dance",
+    "spin",
+    "shy",
+    "stretch",
+    "bow",
+    "sway",
+    "hop",
+    "superhop",
+    "highfive_wait",
+    "highfive_hit",
+    "charge",
+    "sleep"
+  ],
+  "date": "2026-10-22"
+}

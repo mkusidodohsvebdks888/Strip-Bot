@@ -1,5 +1,5 @@
 .wrapper {
-  padding: 0 24px 22px;
+  padding: 6px clamp(12px, 3vw, 28px) 16px;
 }
 
 .inner {

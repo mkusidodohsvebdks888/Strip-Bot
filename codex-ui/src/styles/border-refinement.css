@@ -1,0 +1,168 @@
+/*
+ * Strip Bot border refinement.
+ * Load after all existing theme and component styles.
+ * Scope: borders, corner radii, and focus feedback only.
+ */
+
+.strip-app[data-appearance],
+.strip-api-entry[data-appearance],
+.strip-account-menu {
+  --strip-line-soft: color-mix(in srgb, var(--fg, #302d28) 10%, transparent);
+  --strip-line: color-mix(in srgb, var(--fg, #302d28) 17%, transparent);
+  --strip-line-hover: color-mix(in srgb, var(--fg, #302d28) 28%, transparent);
+  --strip-line-focus: var(--accent, #8b7463);
+  --strip-focus-halo: color-mix(in srgb, var(--strip-line-focus) 14%, transparent);
+  --strip-radius-control: 9px;
+  --strip-radius-card: 12px;
+  --strip-radius-popover: 14px;
+  --strip-radius-composer: 20px;
+}
+
+/* Main surfaces: preserve existing border widths and styles. */
+:root .strip-app[data-appearance] :is(
+  .strip-connection-card,
+  .strip-workflow-outputs,
+  .strip-workflow-run-detail,
+  .strip-live-activity,
+  .strip-approval,
+  .strip-approval-dialog,
+  .strip-notification
+) {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-card);
+}
+
+/* Structural dividers should remain quieter than card outlines. */
+:root .strip-app[data-appearance] :is(
+  .strip-claude-topbar,
+  .strip-sidebar-footer,
+  .strip-workflow-heading,
+  .strip-workflow-file,
+  .strip-workflow-command-popup-foot,
+  .strip-workflow-command-history
+) {
+  border-color: var(--strip-line-soft);
+}
+
+/* Composer: one continuous shell, without a toolbar divider. */
+:root .strip-app[data-appearance] .strip-codex-composer__panel {
+  border: 1px solid var(--strip-line);
+  border-radius: var(--strip-radius-composer);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+@media (hover: hover) {
+  :root .strip-app[data-appearance]
+    .strip-codex-composer__panel:hover:not(:focus-within) {
+    border-color: var(--strip-line-hover);
+  }
+}
+
+:root .strip-app[data-appearance]
+  .strip-codex-composer__panel:focus-within {
+  border-color: var(--strip-line-focus);
+  box-shadow:
+    var(--scc-surface-shadow, 0 0 0 0 transparent),
+    0 0 0 3px var(--strip-focus-halo);
+}
+
+:root .strip-app[data-appearance] .strip-codex-composer__toolbar {
+  border-top: 0;
+}
+
+/* Attachment and inline model controls. */
+:root .strip-app[data-appearance] :is(
+  .strip-codex-composer__file,
+  .strip-codex-composer__tool.strip-codex-composer__attach
+) {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-control);
+}
+
+:root .strip-app[data-appearance]
+  .strip-codex-composer__toolbar-end
+  .strip-live-model-picker.smp-simple {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-card);
+}
+
+/* Popovers retain their existing placement and scrolling behavior. */
+:root .strip-app[data-appearance] :is(
+  .strip-dropdown__popup,
+  .strip-live-model-picker .smp-popup,
+  .strip-approval-menu,
+  .strip-workflow-command-popup
+) {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-popover);
+}
+
+:root .strip-account-menu {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-popover);
+}
+
+:root .strip-account-menu .strip-account-details {
+  border-color: var(--strip-line-soft);
+  border-radius: var(--strip-radius-control);
+}
+
+/* Settings fields: do not touch the borderless composer textarea. */
+:root .strip-app[data-appearance] .strip-connection-card :is(
+  input:not([type]),
+  input[type="text"],
+  input[type="password"],
+  input[type="url"],
+  input[type="email"],
+  input[type="number"],
+  select
+),
+:root .strip-api-entry[data-appearance] :is(
+  input:not([type]),
+  input[type="text"],
+  input[type="password"],
+  input[type="url"],
+  input[type="email"],
+  select
+) {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-control);
+}
+
+/* Invalid fields retain their original error treatment. */
+@media (hover: hover) {
+  :root .strip-app[data-appearance]
+    .strip-connection-card
+    :is(input, select):hover:not(:disabled):not(:focus):not(
+      [aria-invalid="true"]
+    ):not(:user-invalid),
+  :root .strip-api-entry[data-appearance]
+    :is(input, select):hover:not(:disabled):not(:focus):not(
+      [aria-invalid="true"]
+    ):not(:user-invalid) {
+    border-color: var(--strip-line-hover);
+  }
+}
+
+/* Keep selected theme borders and approval status colors untouched. */
+:root .strip-app[data-appearance]
+  .strip-theme-choice:not([aria-pressed="true"]) {
+  border-color: var(--strip-line);
+  border-radius: var(--strip-radius-card);
+}
+
+:root .strip-api-entry--merged[data-appearance] .strip-entry-card {
+  border-color: var(--strip-line);
+}
+
+@media (max-width: 640px) {
+  .strip-app[data-appearance] {
+    --strip-radius-composer: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .strip-app[data-appearance] .strip-codex-composer__panel {
+    transition: none;
+  }
+}

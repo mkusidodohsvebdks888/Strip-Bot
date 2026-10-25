@@ -1,12 +1,12 @@
 {
   "name": "stripbot-local-chat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Strip Bot desktop chat and loopback-only model gateway",
   "scripts": {
     "start": "node server.js",
     "demo-api": "node test/demo-local-api.js",
-    "test": "node --test test/*.test.js",
+    "test": "node --test test/*.test.js test/*.test.mjs",
     "test:agent": "node test/agent-native.e2e.cjs",
     "test:agent:responses": "node test/agent-native.e2e.cjs --responses",
     "test:ccswitch:real": "node test/ccswitch-real.e2e.cjs"

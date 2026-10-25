@@ -1,0 +1,182 @@
+/* Codex-style borders for Strip Bot.
+   Import LAST. Only touches border colour, radius, shadow and focus. */
+
+/* 1. Promote the Codex tokens to every appearance. */
+html[data-strip-appearance] .strip-app[data-appearance],
+html:not([data-strip-appearance]) .strip-app[data-appearance],
+html[data-strip-appearance] .strip-api-entry[data-appearance],
+html:not([data-strip-appearance]) .strip-api-entry[data-appearance],
+html[data-strip-appearance] .strip-account-menu,
+html:not([data-strip-appearance]) .strip-account-menu {
+  --cx-border: rgba(0, 0, 0, .09);
+  --cx-divider: rgba(0, 0, 0, .06);
+  --cx-hover: rgba(0, 0, 0, .045);
+  --cx-selected: rgba(0, 0, 0, .07);
+  --cx-focus: #6f7480;
+
+  /* Remap the warm Claude border scale onto the neutral Codex one. */
+  --border-06: var(--cx-divider);
+  --border-07: var(--cx-divider);
+  --border-08: var(--cx-border);
+  --border-09: var(--cx-border);
+  --border-10: var(--cx-border);
+  --border-focus: var(--cx-focus);
+  --quiet-line: var(--cx-divider);
+
+  /* Keep the previous refinement layer on the same neutral geometry. */
+  --strip-line-soft: var(--cx-divider);
+  --strip-line: var(--cx-border);
+  --strip-line-hover: var(--cx-hover);
+  --strip-line-focus: var(--cx-focus);
+  --strip-focus-halo: color-mix(in srgb, var(--cx-focus) 12%, transparent);
+  --strip-radius-control: var(--cx-r, 8px);
+  --strip-radius-card: var(--cx-r-lg, 12px);
+  --strip-radius-popover: var(--cx-r-lg, 12px);
+  --strip-radius-composer: var(--cx-r-composer, 16px);
+
+  /* Codex is flat: kill ambient card shadows, keep popover shadows. */
+  --quiet-shadow: none;
+  --shadow-pop: 0 14px 38px rgba(0, 0, 0, .18), 0 2px 6px rgba(0, 0, 0, .06);
+
+  --cx-r-sm: 7px;
+  --cx-r: 8px;
+  --cx-r-lg: 12px;
+  --cx-r-composer: 16px;
+}
+html[data-strip-appearance="dark"] .strip-app[data-appearance="dark"],
+html[data-strip-appearance="dark"] .strip-api-entry[data-appearance="dark"],
+html[data-strip-appearance="dark"] .strip-account-menu {
+  --cx-border: rgba(255, 255, 255, .11);
+  --cx-divider: rgba(255, 255, 255, .055);
+  --cx-hover: rgba(255, 255, 255, .065);
+  --cx-selected: rgba(255, 255, 255, .095);
+  --cx-focus: #bbbcc6;
+  --shadow-pop: 0 14px 38px rgba(0, 0, 0, .45);
+}
+
+/* 2. Structural dividers: hairline only. */
+.strip-app[data-appearance] > aside:not(.strip-tool-panel),
+.strip-app[data-appearance] .strip-app-sidebar {
+  border-right: 1px solid var(--cx-divider);
+}
+.strip-app[data-appearance] .strip-claude-topbar,
+.strip-app[data-appearance] .strip-sidebar-footer,
+.strip-app[data-appearance] .strip-claude-sidebar-footer {
+  border-color: var(--cx-divider);
+}
+
+/* 3. Cards & panels: 1px neutral border, 12px radius, no shadow. */
+.strip-app[data-appearance] :is(
+  .strip-connection-card, .strip-live-activity, .strip-approval,
+  .strip-approval-dialog, .strip-notification, .strip-workflow-outputs,
+  .strip-workflow-run-detail, .strip-unified-tool, .strip-theme-choice:not([aria-pressed="true"])
+) {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r-lg);
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-chat--codex .strip-chat__message--user .strip-chat__body {
+  border-color: var(--cx-border);
+  border-radius: var(--cx-r-lg);
+}
+.strip-app[data-appearance] .strip-message-content pre,
+.strip-app[data-appearance] .strip-markdown pre {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r);
+}
+
+/* 4. Composer: 16px shell, hairline border, border-only focus. */
+.strip-app[data-appearance] .strip-codex-composer__panel {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r-composer);
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-codex-composer__panel:focus-within {
+  border-color: var(--cx-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cx-focus) 12%, transparent);
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar {
+  border-top: 0;
+}
+.strip-app[data-appearance] :is(
+  .strip-codex-composer__tool.strip-codex-composer__attach,
+  .strip-codex-composer__file,
+  .strip-codex-composer__slash-hints button
+) {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r);
+}
+.strip-app[data-appearance] .strip-codex-composer__toolbar-end .strip-live-model-picker.smp-simple {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r-lg);
+}
+
+/* 5. Popovers & menus: 12px, 1px border, single soft shadow. */
+.strip-app[data-appearance] :is(
+  .strip-dropdown__popup, .smp-popup, .strip-approval-menu,
+  .strip-workflow-command-popup, .strip-account-menu
+),
+.strip-account-menu {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r-lg);
+  box-shadow: var(--shadow-pop);
+}
+
+/* 6. Controls: 8px radius, borders only where Codex has them. */
+.strip-app[data-appearance] :is(
+  .strip-btn, .strip-icon-button, .strip-dropdown__trigger, .smp-trigger,
+  .smp-speed-trigger, .strip-claude-icon-action, .strip-metrics-restore,
+  .strip-approval button, .strip-approval-dialog button, .strip-wallpaper-actions button
+) {
+  border-radius: var(--cx-r);
+}
+.strip-app[data-appearance] .strip-btn--secondary,
+.strip-app[data-appearance] .strip-approval button,
+.strip-app[data-appearance] .strip-approval-dialog button {
+  border-color: var(--cx-border);
+}
+.strip-app[data-appearance] .strip-btn--primary,
+.strip-app[data-appearance] .strip-approval-primary {
+  border-color: transparent;
+}
+.strip-app[data-appearance] .strip-search-wrap {
+  border: 1px solid transparent;
+  border-radius: var(--cx-r);
+}
+.strip-app[data-appearance] .strip-search-wrap:focus-within {
+  border-color: var(--cx-border);
+}
+
+/* 7. Inputs: hairline, 8px, outline focus without a glow. */
+.strip-app[data-appearance] .strip-connection-card :is(input, select),
+.strip-app[data-appearance] .strip-vendor-first select,
+.strip-api-entry[data-appearance] :is(input, select) {
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-r);
+  box-shadow: none;
+}
+.strip-app[data-appearance] :is(button, input, select, textarea, summary):focus-visible,
+.strip-api-entry[data-appearance] :is(button, input, select, summary):focus-visible {
+  outline: 2px solid var(--cx-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-codex-composer__textarea:focus-visible {
+  outline: none;
+}
+
+/* 8. Sidebar rows: no border, selection via fill only. */
+.strip-app[data-appearance] .strip-task,
+.strip-app[data-appearance] .strip-task > button:first-child {
+  border-radius: var(--cx-r);
+}
+.strip-app[data-appearance] .strip-task--active {
+  background: var(--cx-selected);
+}
+
+@media (max-width: 640px) {
+  .strip-app[data-appearance] {
+    --cx-r-composer: 14px;
+    --strip-radius-composer: var(--cx-r-composer);
+  }
+}

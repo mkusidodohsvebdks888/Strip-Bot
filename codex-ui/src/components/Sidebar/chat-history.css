@@ -1,0 +1,55 @@
+/* Strip Bot / Codex-inspired Projects -> Recent navigation. Intentionally scoped. */
+.strip-app .strip-tool-panel .strip-cx-history{display:flex;flex-direction:column;gap:13px;padding:5px 4px 24px!important;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1;scrollbar-width:thin}
+.strip-app .strip-cx-section{min-width:0;flex:none;margin:0;padding:0}
+.strip-app .strip-cx-section__heading{display:flex;align-items:center;gap:9px;min-height:36px;width:100%;padding:6px 10px;border:0;border-radius:8px;background:transparent;color:var(--muted-2,var(--muted));font:500 13px/1.4 var(--font-ui,inherit);text-align:left;cursor:pointer}
+.strip-app .strip-cx-section__heading>span{flex:1}
+.strip-app .strip-cx-section__heading small{font:400 11px var(--font-ui,inherit);opacity:.67;font-variant-numeric:tabular-nums}
+.strip-app .strip-cx-section__heading:hover:not(:disabled){background:var(--surface-2)}
+.strip-app .strip-cx-section__heading:disabled{cursor:default;opacity:1}
+.strip-app .strip-cx-chevron{flex:none;opacity:.72;transition:transform 150ms ease}
+.strip-app .strip-cx-chevron.is-open{transform:rotate(90deg)}
+.strip-app .strip-cx-section__list,.strip-app .strip-cx-project-list{display:flex;flex-direction:column;gap:1px;margin:3px 0}
+.strip-app .strip-cx-hint{margin:2px 12px 9px;color:var(--muted-4,var(--muted));font-size:11.5px;line-height:1.65}
+.strip-app .strip-cx-project-heading{display:flex;align-items:center;min-width:0}
+.strip-app .strip-cx-project-heading>.strip-cx-section__heading{flex:1;min-width:0}
+.strip-app .strip-cx-add-project{width:29px;height:29px;display:grid;place-items:center;flex:none;margin-right:4px;border:0;border-radius:7px;background:transparent;color:var(--muted-3,var(--muted));cursor:pointer;opacity:.75}
+.strip-app .strip-cx-add-project:hover{background:var(--surface-2);color:var(--fg);opacity:1}
+.strip-app .strip-cx-project__row{display:flex;align-items:center;gap:2px;min-width:0;padding:0 5px}
+.strip-app .strip-cx-project__expander{flex:none;display:grid;place-items:center;width:20px;height:32px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted);cursor:pointer}
+.strip-app .strip-cx-project__expander:disabled{opacity:.25;cursor:default}
+.strip-app .strip-cx-project__open{display:flex;align-items:center;gap:8px;flex:1;min-width:0;min-height:35px;padding:7px 8px;border:0;border-radius:8px;background:transparent;color:var(--fg);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.strip-app .strip-cx-project__open .strip-icon{display:flex;flex:none;color:var(--muted-3,var(--muted))}
+.strip-app .strip-cx-project__open .strip-icon svg{width:15px;height:15px}
+.strip-app .strip-cx-project__open>span:not(.strip-icon){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip-app .strip-cx-project__open>small{color:var(--muted-4,var(--muted));font-size:10.5px;font-weight:400}
+.strip-app .strip-cx-project__open:hover:not(:disabled),.strip-app .strip-cx-project__open.is-current{background:var(--surface-2)}
+.strip-app .strip-cx-project__open.is-current>span:not(.strip-icon){font-weight:560}
+.strip-app .strip-cx-project__open:disabled{opacity:.55;cursor:default}
+.strip-app .strip-cx-project__threads{padding-left:22px;min-width:0;margin:2px 0 6px}
+.strip-app .strip-cx-thread{position:relative;display:flex;align-items:center;min-width:0;min-height:35px;margin:1px 3px;border-radius:8px;background:transparent;color:var(--fg)}
+.strip-app .strip-cx-thread:hover,.strip-app .strip-cx-thread:focus-within{background:var(--surface-2)}
+.strip-app .strip-cx-thread.is-active{background:var(--surface-2)}
+.strip-app .strip-cx-thread__main{flex:1;min-width:0;min-height:35px;display:flex;align-items:center;overflow:hidden;border:0;background:transparent;color:inherit;font:inherit;font-size:13px;line-height:1.45;text-align:left;cursor:pointer;padding:7px 9px 7px 11px}
+.strip-app .strip-cx-thread__main>span{display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.strip-app .strip-cx-thread__main[aria-current="page"]{font-weight:570}
+.strip-app .strip-cx-thread__main:disabled{opacity:.6;cursor:default}
+.strip-app .strip-cx-actions{position:relative;display:flex;align-items:center;flex:none;margin-right:3px}
+.strip-app .strip-cx-more{width:27px;height:29px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--muted-2,var(--muted));cursor:pointer;opacity:0}
+.strip-app .strip-cx-more .strip-icon svg{width:17px;height:17px}
+.strip-app .strip-cx-thread:hover .strip-cx-more,.strip-app .strip-cx-thread:focus-within .strip-cx-more,.strip-app .strip-cx-more[aria-expanded="true"]{opacity:1}
+.strip-app .strip-cx-more:hover{background:var(--surface-3,var(--surface-2))}
+.strip-app .strip-cx-menu{position:fixed;z-index:150;max-height:320px;overflow:auto;width:170px;box-sizing:border-box;padding:5px;border:1px solid var(--border-10);border-radius:11px;background:var(--sidebar-bg,var(--bg));box-shadow:none}
+.strip-app .strip-cx-menu button{width:100%;display:flex;align-items:center;gap:9px;min-height:35px;padding:6px 8px;border:0;border-radius:7px;background:transparent;color:var(--fg);font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.strip-app .strip-cx-menu button:hover:not(:disabled){background:var(--surface-2)}
+.strip-app .strip-cx-menu .strip-icon,.strip-app .strip-cx-menu .strip-icon svg{width:15px;height:15px;flex:none}
+.strip-app .strip-cx-menu .strip-cx-danger{color:var(--fg)}
+.strip-app .strip-cx-menu .strip-cx-danger:hover{color:#c94b4b}
+.strip-app .strip-cx-show-more{display:flex;align-items:center;justify-content:center;gap:6px;margin:9px 7px 3px;padding:7px 12px;border:1px solid var(--border-09);border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.strip-app .strip-cx-show-more:hover{background:var(--surface-2)}
+.strip-app .strip-cx-history button:focus-visible{outline:2px solid var(--muted-2,var(--muted));outline-offset:-2px}
+@media(max-width:900px){.strip-app .strip-cx-more{opacity:1}.strip-app .strip-cx-thread__main,.strip-app .strip-cx-project__open{min-height:40px}}
+@media(hover:none){.strip-app .strip-cx-more{opacity:1}}
+@media(prefers-reduced-motion:reduce){.strip-app .strip-cx-chevron{transition:none}}
+
+.strip-app .strip-cx-thread__main,.strip-app .strip-cx-project__open{font-size:calc(14px * var(--strip-type-scale,1));min-height:40px;}
+.strip-app .strip-cx-hint{font-size:13px;}

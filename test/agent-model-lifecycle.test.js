@@ -18,14 +18,19 @@ test('new Agent tasks bind fresh models; running tasks block reconfiguration and
   assert.equal(created[0].model.id,'model-a');
   active = {[a.id]:{status:'busy'}};
   await assert.rejects(create('model-b'),{status:409});
-  await assert.rejects(agent.handle('POST',`/sessions/${a.id}/prompt`,{text:'overlap',routeModel:'model-a'}),{status:409});
+  // New behavior: a prompt arriving while a turn is active is accepted into the durable queue.
+  const overlap=await agent.handle('POST',`/sessions/${a.id}/prompt`,{text:'overlap',routeModel:'model-a'});
+  assert.equal(overlap.accepted,true);
+  await assert.rejects(create('model-b'),{status:409});
+  await agent.handle('POST',`/sessions/${a.id}/tasks/${overlap.task.id}/cancel`,{});
   active = {};
   await assert.rejects(agent.handle('POST',`/sessions/${a.id}/prompt`,{text:'stale',routeModel:'model-b'}),{status:409});
   const b = (await create('model-b')).session;
   assert.equal(created.at(-1).model.id,'model-b');assert.equal(created.at(-1).config.apiKey,'PROXY_MANAGED');
   await assert.rejects(agent.handle('POST',`/sessions/${a.id}/prompt`,{text:'old',routeModel:'model-b'}),{status:409});
-  await agent.handle('POST',`/sessions/${b.id}/prompt`,{text:'new',routeModel:'model-b'});
-  assert.equal(prompts.length,1);
+  const next=await agent.handle('POST',`/sessions/${b.id}/prompt`,{text:'new',routeModel:'model-b'});
+  assert.equal(next.accepted,true);
+  await agent.handle('POST',`/sessions/${b.id}/tasks/${next.task.id}/cancel`,{});
   const history = await agent.handle('GET',`/sessions/${a.id}`);
   assert.equal(history.model.id,'model-a');assert.equal(history.configurationChanged,true);
   // Concurrent creates must each configure and create atomically.

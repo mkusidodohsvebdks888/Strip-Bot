@@ -12,20 +12,20 @@ function findWorkspace(resources) {
 }
 
 /** A lease distinguishes a reused service from a service owned by this process. */
-async function startLocalService({resources, workspace, port = 3060,agentExecutable}) {
+async function startLocalService({resources, workspace, dataRoot, port = 3060,agentExecutable}) {
   const baseUrl = `http://127.0.0.1:${port}`;
   try {
     const response = await fetch(`${baseUrl}/api/health`, {signal:AbortSignal.timeout(1500)});
     const info = await response.json();
-    if (response.ok && info.service === 'stripbot-gateway' && info.version === '1.0.0' && info.capabilities?.agent === 'opencode-v2' && info.capabilities?.ccswitch && info.capabilities?.ccOnly && info.capabilities?.ccSwitchOnly) {
+    if (response.ok && info.service === 'stripbot-gateway' && info.version === '1.5.1' && info.capabilities?.agent === 'codex-app-server' && info.capabilities?.ccswitch && info.capabilities?.ccOnly && info.capabilities?.ccSwitchOnly && info.capabilities?.connectionOptions && info.capabilities?.chatgptLogin) {
       return {baseUrl, owned:false, close:async () => {}};
     }
   } catch {}
   const {createGateway} = require(path.join(resources, 'backend', 'gateway.cjs'));
   const server = createGateway({
-    agentRoot:workspace || resources,
+    agentRoot:workspace || dataRoot || resources,
     agentExecutable,
-    publicDir:path.join(resources, 'public'), ccOnly:true,ccSwitchOnly:true,
+    publicDir:path.join(resources, 'public'), ccOnly:true,ccSwitchOnly:true,connectionOptions:true,chatgptLogin:true,
     defaults:{provider:'ccswitch', endpoint:'http://127.0.0.1:15721/v1/responses', model:''},
   });
   await new Promise((resolve,reject) => {
@@ -39,4 +39,5 @@ async function startLocalService({resources, workspace, port = 3060,agentExecuta
   })};
 }
 module.exports = {findWorkspace, startLocalService};
+
 

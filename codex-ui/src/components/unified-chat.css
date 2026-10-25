@@ -3,6 +3,12 @@
 .strip-unified-project input{min-width:0;width:100%;padding:7px 10px;background:#151516;color:#e8e8ec;border:1px solid #303035;border-radius:8px;font:12px/1.5 Consolas,monospace}
 .strip-unified-project input:disabled{opacity:.65}
 .strip-unified-thread .strip-messages{max-width:860px;margin:0 auto}
+.strip-unified-thread .strip-chat--codex{--scc-text:var(--text-message);--scc-border:var(--border-08);--scc-chip:var(--surface-2);gap:24px}
+.strip-chat--codex .strip-message{padding:0}
+.strip-chat--codex .strip-chat__body{font-size:14px}
+.strip-chat--codex .strip-chat__body pre{max-width:100%;white-space:pre;overflow:auto}
+.strip-chat--codex .strip-chat__message--user .strip-chat__body{max-width:min(84%,600px)}
+@media(max-width:590px){.strip-unified-thread .strip-chat--codex{gap:20px}.strip-chat--codex .strip-chat__message--user .strip-chat__body{max-width:94%}}
 .strip-unified-tool{border:1px solid #303037;border-radius:10px;background:#151517;margin:12px 0;padding:10px 14px}
 .strip-unified-tool summary{cursor:pointer;display:flex;align-items:center;gap:9px;font-size:13px}
 .strip-unified-tool pre,.strip-unified-approval pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font:12px/1.7 Consolas,monospace}

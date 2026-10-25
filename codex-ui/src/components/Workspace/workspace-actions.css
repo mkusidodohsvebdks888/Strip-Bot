@@ -1,0 +1,29 @@
+@import './inline-command.css';
+/* Changed files stay in the common conversation scroll area. */
+.strip-workflow-surface{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:12px;margin:13px 0 20px;color:var(--fg,#292b2e)}
+.strip-workflow-outputs{border:1px solid var(--border-10,#e6e5e1);border-radius:12px;background:color-mix(in srgb,var(--surface,#fff) 88%,transparent);overflow:hidden}
+.strip-workflow-heading{min-height:42px;padding:10px 13px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12px;border-bottom:1px solid var(--border-08,#eeecea)}
+.strip-workflow-heading strong{font-size:12px;font-weight:640}
+.strip-workflow-heading>span:first-child{font-size:18px;color:var(--muted,#878787)}
+.strip-workflow-muted{font-size:11px;color:var(--muted,#8b8b8b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.strip-workflow-heading button{margin-left:auto}
+.strip-workflow-heading button,.strip-workflow-file button,.strip-workflow-file a{border:0;background:transparent;color:var(--muted,#777);padding:4px 7px;border-radius:6px;cursor:pointer;font-size:11px;text-decoration:none;white-space:nowrap}
+.strip-workflow-heading button:hover,.strip-workflow-file button:hover,.strip-workflow-file a:hover{background:var(--surface-2,#f0efec);color:var(--fg,#222)}
+.strip-workflow-heading button:disabled{opacity:.35;cursor:default}
+.strip-workflow-file-list{padding:3px 12px 9px}
+.strip-workflow-file{display:flex;align-items:center;gap:9px;min-height:38px;flex-wrap:wrap;border-bottom:1px solid var(--border-08,#eee);font-size:11px}
+.strip-workflow-file:last-child{border:0}
+.strip-workflow-file-icon{opacity:.65}
+.strip-workflow-file code{font:11.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;flex:1;min-width:110px}
+.strip-workflow-delta{font:11px ui-monospace,Consolas,monospace;color:#5a9a7a}
+.strip-workflow-patch{flex:0 0 100%;max-height:270px;overflow:auto;background:var(--surface-2,#f6f4f1);font:11px/1.6 ui-monospace,Consolas,monospace;padding:12px;border-radius:6px;margin:3px 0 10px;white-space:pre}
+.strip-workflow-command-row{display:flex;align-items:center;gap:9px;margin-top:7px;padding:6px 6px 6px 13px;border:1px solid var(--border-10,#dcdcdc);border-radius:9px;background:var(--bg,#fff)}
+.strip-workflow-command-row>span{font:14px ui-monospace,Consolas,monospace;color:var(--muted,#999)}
+.strip-workflow-command-row input{flex:1;min-width:0;background:transparent;color:var(--fg,#222);border:0;outline:0;font:12px/1.6 ui-monospace,Consolas,monospace}
+.strip-workflow-command-row button{border:0;border-radius:7px;background:var(--fg,#303030);color:var(--bg,#fff);padding:7px 14px;cursor:pointer;font-size:12px}
+.strip-workflow-command-row button:disabled{opacity:.45;cursor:default}
+.strip-workflow-warning{margin:7px 14px 10px;font-size:11px;color:#b87735}
+.strip-workflow-input-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:7px 5px 0;color:var(--muted,#8b8a87);font-size:10.5px}
+.strip-workflow-input-metrics-note{margin-left:auto}
+.strip-composer-region .strip-codex-composer__file small{font-size:10px;opacity:.65;white-space:nowrap}
+@media(max-width:650px){.strip-workflow-input-metrics-note{margin-left:0}.strip-workflow-file{gap:5px}.strip-workflow-muted{max-width:45%}}

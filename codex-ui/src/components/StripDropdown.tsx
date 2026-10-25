@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import './strip-dropdown.css';
+import {ControlIcon} from './ControlIcon';
 
 export type StripDropdownOption = {
   value: string;
@@ -25,11 +26,7 @@ export type StripDropdownProps = {
   className?: string;
 };
 
-function Chevron() {
-  return <svg className="strip-dropdown__chevron" width="13" height="13" viewBox="0 0 24 24"
-    fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
-    aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>;
-}
+function Chevron() {return <ControlIcon name="down" size={14} className="strip-dropdown__chevron"/>;}
 
 function Check() {
   return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"

@@ -1,0 +1,8 @@
+import {useEffect,useState} from 'react';
+type Status={enabled:boolean;running:boolean;state:string;error:string;supported:boolean};
+export function NonoPluginSettings(){
+  const [status,setStatus]=useState<Status|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+  useEffect(()=>{let active=true;const load=async()=>{try{const response=await fetch('/api/plugins/nono');const data=await response.json();if(!response.ok)throw new Error(data.error);if(active){setStatus(data);setError('');}}catch(e){if(active)setError(e instanceof Error?e.message:'读取插件状态失败。');}};void load();const timer=window.setInterval(load,3000);return()=>{active=false;window.clearInterval(timer);};},[]);
+  async function toggle(){setBusy(true);setError('');try{const response=await fetch('/api/plugins/nono/enable',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:!status?.running})});const data=await response.json();if(!response.ok)throw new Error(data.error);setStatus(data);}catch(e){setError(e instanceof Error?e.message:'插件启停失败。');}finally{setBusy(false);}}
+  return <section className="strip-connection-card" aria-label="糯糯桌面宠物"><h2>糯糯 3D 桌面宠物</h2><p>双击宠物提问，使用 Strip Bot 已保存的 API 连接与模型回复。拖动、睡觉、大小和休息提醒保留在宠物右键菜单。</p><p className="strip-muted">使用 Windows 桌面运行时与本地 3D 渲染，无需 Python。聊天会发送至你配置的服务商；本次宠物对话仅保存在内存中。</p><p role="status">{status?.running?(status.state==='running'?'已运行':'正在启动…'):status?.enabled?'已启用，当前未运行':'未启用'}</p><button type="button" className="strip-btn strip-btn--secondary" disabled={busy || !status || !status.supported} onClick={()=>void toggle()}>{busy?'正在处理…':status?.running?'关闭桌面宠物':'启用桌面宠物'}</button>{(error || status?.error) && <p role="alert">{error || status?.error}</p>}</section>;
+}

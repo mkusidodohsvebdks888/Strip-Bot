@@ -1,0 +1,177 @@
+/* Shared send/stop control for the real Strip composer.
+   Imported after all composer/theme layers so these three states are stable. */
+
+.strip-app[data-appearance] .strip-codex-composer__action-slot {
+  position: relative;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send,
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop {
+  position: absolute;
+  inset: 0;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.2, .8, .2, 1),
+    background 180ms ease,
+    filter 180ms ease;
+}
+
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send {
+  background: var(--scc-send-bg);
+  color: var(--scc-send-fg);
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send:disabled {
+  background: var(--scc-chip);
+  color: var(--scc-muted);
+  opacity: .7;
+}
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send:not(:disabled):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--scc-text), transparent 88%);
+}
+
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: none;
+}
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop:not(:disabled):hover {
+  background: var(--fg-strong, var(--fg));
+  transform: scale(1.04);
+  filter: brightness(1.04);
+}
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop:not(:disabled):active {
+  transform: scale(.94);
+}
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop:disabled {
+  cursor: progress;
+}
+
+.strip-codex-composer__action-slot[data-state='send'] > .strip-codex-composer__stop,
+.strip-codex-composer__action-slot:not([data-state='send']) > .strip-codex-composer__send {
+  visibility: hidden;
+  opacity: 0;
+  transform: scale(.6) rotate(-90deg);
+  pointer-events: none;
+}
+.strip-codex-composer__action-slot[data-state='send'] > .strip-codex-composer__send,
+.strip-codex-composer__action-slot:not([data-state='send']) > .strip-codex-composer__stop {
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.strip-codex-composer__stop-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg, var(--accent) 0 25%, transparent 25% 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  opacity: .9;
+  animation: strip-codex-stop-ring 1.1s linear infinite;
+}
+@keyframes strip-codex-stop-ring { to { transform: rotate(360deg); } }
+
+.strip-codex-composer__stop-icon {
+  display: grid;
+  place-items: center;
+}
+.strip-codex-composer__stop-square {
+  width: 11px;
+  height: 11px;
+  display: block;
+  border-radius: 2.5px;
+  background: currentColor;
+  animation: strip-codex-stop-breathe 1.4s ease-in-out infinite;
+}
+@keyframes strip-codex-stop-breathe {
+  50% { transform: scale(.86); opacity: .8; }
+}
+.strip-codex-composer__stop-spinner {
+  width: 13px;
+  height: 13px;
+  display: block;
+  border: 1.6px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: strip-codex-stop-spin .8s linear infinite;
+}
+@keyframes strip-codex-stop-spin { to { transform: rotate(360deg); } }
+
+.strip-codex-composer__action-slot[data-state='stopping'] > .strip-codex-composer__stop {
+  background: var(--muted);
+  color: var(--bg);
+}
+.strip-codex-composer__action-slot[data-state='stopping'] .strip-codex-composer__stop-ring {
+  background: conic-gradient(var(--muted-5) 0 100%);
+  animation: none;
+  opacity: .6;
+}
+
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send:focus-visible,
+.strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+.strip-codex-composer__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (hover: none) {
+  .strip-app[data-appearance] .strip-codex-composer__action-slot {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send,
+  .strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__send,
+  .strip-app[data-appearance] .strip-codex-composer__action-slot > .strip-codex-composer__stop {
+    transition: opacity 120ms ease;
+    transform: none !important;
+  }
+  .strip-codex-composer__stop-ring,
+  .strip-codex-composer__stop-square,
+  .strip-codex-composer__stop-spinner {
+    animation: none;
+  }
+}
+
+
+

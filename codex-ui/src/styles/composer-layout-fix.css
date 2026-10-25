@@ -1,0 +1,153 @@
+/* 2026-10-18: keep the composer centred in the remaining chat region.
+   The sidebar changes the width of <main>; the composer must never use
+   viewport coordinates or retain the previous main-width centre. */
+.strip-app {
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+}
+.strip-app > main {
+  flex: 1 1 0%;
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.strip-app > main .strip-thread {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.strip-app > main > .strip-connection-settings {
+  flex: 1 1 auto;
+  min-height: 0;
+}.strip-app .strip-composer-region {
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+.strip-app .strip-composer-region .strip-codex-composer {
+  box-sizing: border-box;
+  display: block;
+  width: min(760px, 100%);
+  max-width: min(760px, 100%);
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+.strip-app .strip-composer-region .strip-codex-composer__panel {
+  width: 100%;
+  min-width: 0;
+}
+.strip-app .strip-codex-composer__toolbar-end,
+.strip-app .strip-codex-composer__toolbar-start {
+  min-width: 0;
+}
+.strip-app .strip-composer-region .strip-unified-caption--attention {
+  width: min(760px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  overflow-wrap: anywhere;
+}
+/* Floating selectors stay inside the viewport even in a narrow desktop window. */
+.strip-app .strip-live-model-picker:not(.smp-docked) .smp-popup,
+.strip-app .strip-approval-menu {
+  max-width: calc(100vw - 24px);
+  overscroll-behavior: contain;
+}
+
+/* The compact model/response menu inherits dark literal colours from the
+   original component stylesheet. Re-map it to the active light palette. */
+.strip-app[data-theme="light"] .strip-live-model-picker.smp-simple {
+  --smp-bg: #fffefa;
+  --smp-text: #2c3034;
+  --smp-muted: #777c82;
+  --smp-subtle: #5f646a;
+  --smp-border: #dedfdf;
+  --smp-hover: #f0f0ee;
+  --smp-active: #e8e8e6;
+  --smp-focus: #8b93a0;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker.smp-simple .smp-popup {
+  background: #fffefa;
+  color: #2c3034;
+  border-color: #dedfdf;
+  box-shadow: 0 15px 36px rgba(28,34,42,.12), 0 2px 5px rgba(28,34,42,.05);
+}
+.strip-app[data-theme="light"] .smp-simple .smp-header > strong,
+.strip-app[data-theme="light"] .smp-simple-header-actions {
+  color: #777c82;
+}
+.strip-app[data-theme="light"] .smp-simple-header-actions select {
+  color: #34373b;
+  background: #fffefa;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-simple-model {
+  color: #34373b;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-simple-model:hover:not(:disabled),
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-simple-model[aria-current=true] {
+  background: #f0f0ee;
+  color: #232529;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-simple-model:disabled {
+  opacity: .42;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-model-search {
+  background: #fff;
+  color: #2c3034;
+  border-color: #dedfdf;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-model-search::placeholder {
+  color: #8a8f95;
+}
+.strip-app[data-theme="light"] .smp-simple .smp-popup .smp-close {
+  color: #777c82;
+}
+.strip-app[data-theme="light"] .smp-simple .smp-popup .smp-close:hover {
+  background: #f0f0ee;
+  color: #232529;
+}
+.strip-app[data-theme="light"] .smp-simple-note,
+.strip-app[data-theme="light"] .smp-no-results {
+  color: #777c82;
+}
+.strip-app[data-theme="light"] .smp-error {
+  color: #a63842;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-response-steps button {
+  color: #73777e;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-response-steps button:hover:not(:disabled) {
+  background: #f0f0ee;
+  color: #292d31;
+}
+.strip-app[data-theme="light"] .smp-simple-models {
+  scrollbar-color: #c7c7c7 transparent;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-response-range::-webkit-slider-thumb {
+  background: #4d5560;
+  border-color: #e6e8ea;
+}
+.strip-app[data-theme="light"] .strip-live-model-picker .smp-response-range::-moz-range-thumb {
+  background: #4d5560;
+  border-color: #e6e8ea;
+}.strip-app[data-theme="light"] .strip-live-model-picker .smp-response-steps button[aria-pressed=true] {
+  color: #292d31;
+}
+.strip-app[data-theme="light"] .smp-simple .smp-trigger:hover:not(:disabled) {
+  background: #f0f0ee !important;
+}
+@media (max-width: 640px) {
+  .strip-app .strip-codex-composer__model-shortcut {
+    max-width: min(36vw, 165px);
+  }
+}

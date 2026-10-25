@@ -1,0 +1,36 @@
+/* Shared interaction polish. Component colors and action semantics stay local. */
+#root button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background-color .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease,opacity .14s ease}
+#root button:focus-visible{outline:2px solid #a5b4cf;outline-offset:3px}
+#root button:disabled{cursor:not-allowed}
+#root button:not(:disabled):active{filter:brightness(.9)}
+.strip-control-icon{display:inline-block;flex-shrink:0;vertical-align:middle;pointer-events:none;transition:transform .16s ease}
+.strip-control-icon.is-open{transform:rotate(180deg)}
+.strip-history-chevron.is-open{transform:rotate(90deg)}
+.strip-activity-toggle-end{display:inline-flex;align-items:center;gap:8px;flex:none;color:#b5b5bf;font-size:11px}
+.strip-live-activity .strip-activity-toggle{min-height:44px}
+.strip-live-activity .strip-activity-toggle:hover{background:#ffffff06}
+.strip-live-activity .strip-activity__top-actions button,.strip-live-activity .strip-activity__tabs button{min-height:30px;border-radius:8px;padding:5px 10px}
+.strip-live-activity .strip-activity__top-actions button:hover:not(:disabled){background:#ffffff0c;color:#eee}
+.strip-live-activity .strip-metrics-close{width:30px;height:30px}
+.strip-metrics-restore{min-height:30px;padding:5px 10px}
+.strip-metrics-restore:hover{background:#ffffff0c;color:#eee;border-color:#555563}
+.strip-approval button,.strip-approval-dialog button{min-height:34px}
+.strip-approval nav button{display:inline-flex;align-items:center;justify-content:center;min-width:32px;width:32px;height:32px;padding:0}
+.strip-approval button:hover:not(:disabled),.strip-approval-dialog button:hover:not(:disabled){border-color:#797985}
+.strip-codex-composer .strip-codex-composer__tool{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;border-radius:9px}
+.strip-codex-composer .strip-codex-composer__send{display:inline-flex;align-items:center;justify-content:center;min-width:34px;min-height:34px}
+.strip-codex-composer .strip-codex-composer__send:not(:disabled):hover{box-shadow:0 0 0 3px #ffffff0c}
+.strip-live-model-picker .smp-trigger,.smp-speed-trigger{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:5px 9px;border-radius:8px}
+.strip-live-model-picker .smp-close{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:none;border-radius:8px}
+.strip-live-model-picker .smp-close:hover:not(:disabled){background:var(--smp-hover);color:var(--smp-text)}
+.strip-live-model-picker .smp-recent-btn{min-height:28px;padding:4px 9px;border-radius:7px}
+.strip-live-model-picker .smp-fav{min-width:30px;min-height:30px}
+.strip-history-heading,.strip-history-group-toggle{min-height:34px;gap:9px}
+.strip-delete{min-width:30px;min-height:30px}
+.strip-delete:hover:not(:disabled){background:#ef444415!important;color:#fca5a5!important}
+#root details>summary{list-style:none;cursor:pointer;min-height:30px;display:flex;align-items:center;gap:8px}
+#root details>summary::-webkit-details-marker{display:none}
+#root details>summary::before{content:'';width:6px;height:6px;flex:none;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(-45deg);transition:transform .16s ease;opacity:.75}
+#root details[open]>summary::before{transform:rotate(45deg)}
+@media(pointer:coarse){.strip-live-model-picker .smp-trigger,.smp-speed-trigger,.strip-codex-composer .strip-codex-composer__tool,.strip-codex-composer .strip-codex-composer__send,.strip-live-model-picker .smp-close,.strip-approval button,.strip-metrics-restore{min-height:40px}.strip-delete{min-width:40px;min-height:40px}}
+@media(prefers-reduced-motion:reduce){#root button,.strip-control-icon,#root details>summary::before{transition:none}}

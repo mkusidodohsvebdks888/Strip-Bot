@@ -1,0 +1,30 @@
+/* Import after claude-theme.css and readability.css. Keep inside the themed root. */
+.task-flow { color:var(--fg,#292722); --tf-accent:var(--accent,#b45d41); font-family:var(--font-ui,system-ui,sans-serif); }
+.task-flow .tf-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:14px; }
+.task-flow .tf-heading small { color:var(--muted-2,#756e65);font-size:12px; }
+.task-flow .tf-scroll { overflow:auto;max-width:100%;border:1px solid var(--border-09,#ddd);border-radius:16px;background:var(--bg,#faf9f6); }
+.task-flow .tf-canvas { position:relative;min-width:100%; }
+.task-flow .tf-lines { position:absolute;inset:0;overflow:visible;pointer-events:none; }
+.task-flow .tf-edge { fill:none;stroke:var(--border-10,#ccc);stroke-width:1.5;transition:stroke .25s,filter .25s; }
+.task-flow .tf-edge.is-lit { stroke:var(--tf-accent);stroke-width:2;filter:drop-shadow(0 0 3px color-mix(in srgb,var(--tf-accent) 60%,transparent)); }
+.task-flow .tf-node { position:absolute;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--border-10,#ddd);border-radius:14px;background:var(--bg,#faf9f6);color:var(--fg,#292722);text-align:left;font:inherit;isolation:isolate;transition:background .25s,border-color .25s; }
+.task-flow button.tf-node { cursor:pointer; }
+.task-flow .tf-node.is-pending { background:transparent;color:var(--muted-2,#756e65); }
+.task-flow .tf-node.is-completed { border-color:color-mix(in srgb,var(--tf-accent) 55%,transparent);background:linear-gradient(125deg,color-mix(in srgb,var(--tf-accent) 30%,var(--card-bg,#fff)),color-mix(in srgb,var(--tf-accent) 9%,var(--card-bg,#fff))); }
+.task-flow .tf-node.is-running { border-color:color-mix(in srgb,var(--tf-accent) 35%,transparent); }
+/* Rotate the gradient angle, not a rectangular pseudo-element: the halo follows the rounded perimeter. */
+@property --tf-angle { syntax:'<angle>';initial-value:0deg;inherits:false; }
+.task-flow .tf-node.is-running::before { content:'';position:absolute;inset:-3px;border-radius:17px;padding:2px;background:conic-gradient(from var(--tf-angle),transparent 0deg 220deg,color-mix(in srgb,var(--tf-accent) 35%,transparent) 280deg,var(--tf-accent) 340deg,transparent 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;animation:tf-orbit 1.8s linear infinite; }
+@keyframes tf-orbit { to { --tf-angle:360deg; } }
+.task-flow .tf-node.is-failed { border-color:var(--diff-del-sign,#a0474a);color:var(--diff-del-fg,#a0474a); }
+.task-flow .tf-node.is-cancelled { border-style:dashed;color:var(--muted-3,#797166); }
+.task-flow .tf-step { flex:none;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted-2,#756e65); }
+.task-flow .tf-node-text { display:grid;gap:7px;min-width:0;flex:1; }
+.task-flow .tf-title { font-size:13px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.task-flow .tf-status { font-size:11px;color:var(--muted-2,#756e65); }
+.task-flow .is-running .tf-status,.task-flow .is-completed .tf-indicator { color:var(--tf-accent); }
+.task-flow .tf-indicator { flex:none;font-size:16px; }
+.task-flow .tf-legend,.tf-empty { color:var(--muted-3,#797166);font-size:11px;margin:10px 0; }
+.tf-error { color:var(--diff-del-fg,#a0474a);font-size:13px; }
+.task-flow .tf-node:focus-visible,.task-flow .tf-scroll:focus-visible { outline:2px solid var(--tf-accent);outline-offset:4px; }
+@media(prefers-reduced-motion:reduce) { .task-flow .tf-node.is-running::before { animation:none; background:var(--tf-accent);opacity:.6; } .task-flow .tf-node,.task-flow .tf-edge { transition:none; } }

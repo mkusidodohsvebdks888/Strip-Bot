@@ -1,24 +1,41 @@
 {
   "name": "codex-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.4"
+    "react-router-dom": "^6.30.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "rehype-highlight": "^7.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^9.12.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=18.18"
   }
 }

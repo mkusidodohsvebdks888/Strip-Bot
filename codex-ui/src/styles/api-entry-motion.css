@@ -1,0 +1,150 @@
+/* api-entry-motion.css — motion + control polish for the Strip Bot login (ApiEntry) screen.
+   Import AFTER api-entry-minimal.css and readability.css. Existing class names only; no TSX required.
+   Optional hooks: form[data-state="loading|success"], aria-busy, aria-invalid, .strip-api-error[data-shake]. */
+.strip-api-entry[data-appearance]{
+  --entry-spring:420ms cubic-bezier(.34,1.56,.64,1);--entry-ease:260ms cubic-bezier(.22,1,.36,1);--entry-in:560ms cubic-bezier(.22,1,.36,1);
+  --brand-orange:#f6a36b;--brand-blue:#86b4e8;--brand-green:#a3d1ad;--brand-mist:#c9d3dc;--accent-rgb:76,110,145;
+}
+.strip-api-entry[data-appearance="dark"]{--accent-rgb:168,191,214}
+
+/* 1. Page entrance */
+.strip-api-entry-layout{animation:entry-fade var(--entry-in) backwards}
+.strip-entry-hero>*,.strip-entry-hero-main>*{animation:entry-rise var(--entry-in) backwards}
+.strip-entry-monogram{animation-delay:40ms}.strip-entry-eyebrow{animation-delay:120ms}.strip-entry-hero h2{animation-delay:180ms}
+.strip-entry-hero-main>p{animation-delay:260ms}.strip-entry-steps{animation-delay:320ms}.strip-entry-hero-foot{animation-delay:420ms}
+.strip-entry-steps span{animation:entry-rise var(--entry-in) backwards}
+.strip-entry-steps span:nth-child(1){animation-delay:360ms}.strip-entry-steps span:nth-child(2){animation-delay:430ms}
+.strip-entry-steps span:nth-child(3){animation-delay:500ms}.strip-entry-steps span:nth-child(4){animation-delay:570ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card>*{animation:entry-rise var(--entry-in) backwards}
+.strip-api-entry[data-appearance] .strip-api-entry-card>:nth-child(1){animation-delay:120ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card>:nth-child(2){animation-delay:180ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card>:nth-child(3){animation-delay:240ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card>:nth-child(4){animation-delay:300ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card>:nth-child(n+5){animation-delay:360ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>*{animation:entry-rise var(--entry-in) backwards}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(1){animation-delay:360ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(2){animation-delay:420ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(3){animation-delay:480ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(4){animation-delay:540ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(5){animation-delay:600ms}
+.strip-api-entry[data-appearance] .strip-api-entry-card form>:nth-child(n+6){animation-delay:660ms}
+
+/* 2. Hero: ambient brand glow + living details */
+.strip-entry-hero{overflow:hidden;isolation:isolate}
+.strip-entry-hero::before,.strip-entry-hero::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none;filter:blur(70px);opacity:.55;mix-blend-mode:multiply}
+.strip-entry-hero::before{width:46vmax;height:46vmax;left:-14vmax;top:-12vmax;background:radial-gradient(circle at 35% 35%,var(--brand-orange),transparent 62%);animation:entry-drift-a 22s ease-in-out infinite alternate}
+.strip-entry-hero::after{width:42vmax;height:42vmax;right:-16vmax;bottom:-16vmax;background:radial-gradient(circle at 60% 60%,var(--brand-blue),var(--brand-green) 45%,transparent 68%);animation:entry-drift-b 26s ease-in-out infinite alternate}
+.strip-api-entry[data-appearance="dark"] .strip-entry-hero::before,.strip-api-entry[data-appearance="dark"] .strip-entry-hero::after{mix-blend-mode:screen;opacity:.22}
+.strip-entry-monogram > img{transition:transform var(--entry-spring),filter 260ms}
+.strip-entry-monogram:hover > img{transform:rotate(-6deg) scale(1.08);filter:drop-shadow(0 6px 14px rgba(var(--accent-rgb),.25))}
+.strip-entry-monogram .alpha-eye__stage{transition:transform 220ms cubic-bezier(.2,.75,.25,1),filter 260ms}
+.strip-entry-monogram:hover .alpha-eye__stage{filter:drop-shadow(0 6px 14px rgba(var(--accent-rgb),.25))}
+.strip-entry-hero h2 em{position:relative;display:inline-block;background:linear-gradient(90deg,var(--accent),var(--brand-orange),var(--brand-blue),var(--accent));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:entry-hue 9s linear infinite}
+.strip-entry-hero h2 em::after{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.08em;border-radius:2px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-blue));transform:scaleX(0);transform-origin:left;animation:entry-underline 900ms cubic-bezier(.22,1,.36,1) 700ms forwards}
+.strip-entry-steps span{transition:transform var(--entry-spring),border-color 200ms,background 200ms,box-shadow 200ms;cursor:default}
+.strip-entry-steps span:hover{transform:translateY(-2px);border-color:rgba(var(--accent-rgb),.45);box-shadow:0 8px 20px -10px rgba(var(--accent-rgb),.45)}
+.strip-entry-steps b{display:inline-block;transition:transform var(--entry-spring)}
+.strip-entry-steps span:hover b{transform:scale(1.25)}
+
+/* 3. Form controls */
+.strip-api-entry[data-appearance] label{transition:color 200ms}
+.strip-api-entry[data-appearance] label:focus-within{color:var(--accent)}
+.strip-api-entry[data-appearance] input,.strip-api-entry[data-appearance] select{transition:border-color 200ms ease,box-shadow 220ms ease,transform 220ms cubic-bezier(.22,1,.36,1),background 200ms;box-shadow:0 0 0 0 rgba(var(--accent-rgb),0),inset 0 1px 0 rgba(255,255,255,.4)}
+.strip-api-entry[data-appearance="dark"] input,.strip-api-entry[data-appearance="dark"] select{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.strip-api-entry[data-appearance] input:hover:not(:disabled),.strip-api-entry[data-appearance] select:hover:not(:disabled){border-color:rgba(var(--accent-rgb),.45)}
+.strip-api-entry[data-appearance] input:focus-visible,.strip-api-entry[data-appearance] select:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.18),0 6px 18px -10px rgba(var(--accent-rgb),.45);transform:translateY(-1px)}
+.strip-api-entry[data-appearance] input::placeholder{transition:opacity 180ms,transform 180ms}
+.strip-api-entry[data-appearance] input:focus::placeholder{opacity:.45;transform:translateX(3px)}
+.strip-api-entry[data-appearance] input:user-invalid,.strip-api-entry[data-appearance] input[aria-invalid="true"]{border-color:#d9534f;box-shadow:0 0 0 4px rgba(217,83,79,.14);animation:entry-shake 360ms cubic-bezier(.36,.07,.19,.97)}
+.strip-api-entry[data-appearance] select{appearance:none;-webkit-appearance:none;padding-right:36px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(-45deg,transparent 50%,currentColor 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;transition:border-color 200ms,box-shadow 220ms,transform 220ms,background-position 220ms}
+.strip-api-entry[data-appearance] select:focus-visible{background-position:calc(100% - 18px) 45%,calc(100% - 13px) 45%}
+.strip-api-entry[data-appearance] .strip-api-secret{position:relative}
+.strip-api-entry[data-appearance] .strip-api-secret button{border-radius:8px;transition:transform var(--entry-spring),background 180ms,color 180ms}
+.strip-api-entry[data-appearance] .strip-api-secret button:hover{background:var(--surface-2);color:var(--fg);transform:scale(1.08)}
+.strip-api-entry[data-appearance] .strip-api-secret button:active{transform:scale(.92)}
+.strip-api-entry[data-appearance] .strip-api-secret input{padding-right:64px;letter-spacing:.04em}
+.strip-api-entry[data-appearance] .strip-api-secret input[type="password"]{letter-spacing:.18em}
+.strip-api-entry[data-appearance] .strip-api-fetch{position:relative;overflow:hidden;transition:transform var(--entry-spring),background 200ms,border-color 200ms,box-shadow 200ms,color 200ms}
+.strip-api-entry[data-appearance] .strip-api-fetch:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(var(--accent-rgb),.45);color:var(--fg);box-shadow:0 6px 16px -10px rgba(var(--accent-rgb),.5)}
+.strip-api-entry[data-appearance] .strip-api-fetch:active:not(:disabled){transform:translateY(0) scale(.97)}
+.strip-api-entry[data-appearance] .strip-api-fetch[aria-busy="true"]{color:transparent!important;pointer-events:none}
+.strip-api-entry[data-appearance] .strip-api-fetch[aria-busy="true"]::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid rgba(var(--accent-rgb),.25);border-top-color:var(--accent);animation:entry-spin 700ms linear infinite}
+.strip-api-entry[data-appearance] .strip-api-model-placeholder{position:relative;overflow:hidden;border-radius:10px;transition:background 300ms,color 300ms,border-color 300ms}
+.strip-api-entry[data-appearance] .strip-api-model-placeholder:not(.is-loaded)::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:entry-sweep 2.4s ease-in-out infinite}
+.strip-api-entry[data-appearance="dark"] .strip-api-model-placeholder::after{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%)}
+.strip-api-entry[data-appearance] .strip-api-model-placeholder.is-loaded{color:var(--fg);border-color:rgba(var(--accent-rgb),.4);background:var(--card-bg);animation:entry-rise 320ms cubic-bezier(.22,1,.36,1)}
+.strip-api-entry[data-appearance] .strip-api-advanced{transition:border-color 200ms,box-shadow 220ms,background 200ms}
+.strip-api-entry[data-appearance] .strip-api-advanced:hover{border-color:rgba(var(--accent-rgb),.35)}
+.strip-api-entry[data-appearance] .strip-api-advanced[open]{box-shadow:0 10px 28px -18px rgba(var(--accent-rgb),.45)}
+.strip-api-entry[data-appearance] .strip-api-advanced summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;transition:color 180ms}
+.strip-api-entry[data-appearance] .strip-api-advanced summary::-webkit-details-marker{display:none}
+.strip-api-entry[data-appearance] .strip-api-advanced summary::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform var(--entry-spring);flex:none;margin-right:2px}
+.strip-api-entry[data-appearance] .strip-api-advanced[open] summary::before{transform:rotate(45deg)}
+.strip-api-entry[data-appearance] .strip-api-advanced summary:hover{color:var(--fg)}
+.strip-api-entry[data-appearance] .strip-api-advanced[open]>:not(summary){animation:entry-rise 320ms cubic-bezier(.22,1,.36,1) backwards}
+.strip-api-entry[data-appearance] .strip-api-error{border-radius:10px;border-left:3px solid #d9534f;animation:entry-rise 320ms cubic-bezier(.22,1,.36,1),entry-shake 420ms cubic-bezier(.36,.07,.19,.97) 120ms}
+.strip-api-entry[data-appearance] .strip-api-error[data-shake]{animation:entry-shake 420ms cubic-bezier(.36,.07,.19,.97)}
+
+/* 4. Primary button */
+.strip-api-entry[data-appearance] .strip-api-enter{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,var(--brand-blue)));box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 8px 22px -12px rgba(var(--accent-rgb),.7);transition:transform var(--entry-spring),box-shadow 220ms,filter 200ms,opacity 200ms,background 300ms}
+.strip-api-entry[data-appearance] .strip-api-enter::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);transition:transform 0s}
+.strip-api-entry[data-appearance] .strip-api-enter:not(:disabled):hover{background:linear-gradient(135deg,var(--accent-hover),color-mix(in srgb,var(--accent-hover) 70%,var(--brand-blue)));transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 14px 28px -12px rgba(var(--accent-rgb),.8)}
+.strip-api-entry[data-appearance] .strip-api-enter:not(:disabled):hover::before{transform:translateX(120%);transition:transform 700ms cubic-bezier(.22,1,.36,1)}
+.strip-api-entry[data-appearance] .strip-api-enter:not(:disabled):active{transform:translateY(0) scale(.98)}
+.strip-api-entry[data-appearance] .strip-api-enter:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(var(--accent-rgb),.3),0 8px 22px -12px rgba(var(--accent-rgb),.7)}
+.strip-api-entry[data-appearance] .strip-api-enter:disabled{opacity:.55;filter:saturate(.7)}
+.strip-api-entry[data-appearance] .strip-api-enter[aria-busy="true"],.strip-api-entry[data-appearance] form[data-state="loading"] .strip-api-enter{color:transparent!important;pointer-events:none;opacity:1;filter:none}
+.strip-api-entry[data-appearance] .strip-api-enter[aria-busy="true"]::after,.strip-api-entry[data-appearance] form[data-state="loading"] .strip-api-enter::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:var(--accent-contrast);animation:entry-spin 700ms linear infinite}
+.strip-api-entry[data-appearance] form[data-state="loading"] :is(input,select,.strip-api-fetch){opacity:.7;pointer-events:none}
+.strip-api-entry[data-appearance] form[data-state="success"] .strip-api-enter{animation:entry-success 520ms cubic-bezier(.34,1.56,.64,1);background:var(--brand-green);color:#1d3b27}
+
+/* 5. Top-right controls & misc */
+.strip-api-entry[data-appearance] .strip-entry-theme,.strip-api-entry[data-appearance] .strip-theme-switch--entry,.strip-api-entry[data-appearance] .strip-api-other button{transition:transform var(--entry-spring),background 200ms,color 200ms,border-color 200ms,box-shadow 200ms}
+.strip-api-entry[data-appearance] .strip-entry-theme:hover{transform:translateY(-1px);box-shadow:0 8px 18px -12px rgba(var(--accent-rgb),.6)}
+.strip-api-entry[data-appearance] .strip-entry-theme:active{transform:scale(.95)}
+.strip-api-entry[data-appearance] .strip-entry-theme .strip-font-glyph{display:inline-block;transition:transform var(--entry-spring)}
+.strip-api-entry[data-appearance] .strip-entry-theme:hover .strip-font-glyph{transform:rotate(-15deg) scale(1.15)}
+.strip-api-entry .strip-entry-controls{animation:entry-rise var(--entry-in) 200ms both}
+.strip-api-entry[data-appearance] .strip-api-card-mark img{transition:transform var(--entry-spring)}
+.strip-api-entry[data-appearance] .strip-api-card-mark:hover img{transform:rotate(-8deg) scale(1.1)}
+.strip-api-entry[data-appearance] .strip-api-advanced a{text-underline-offset:3px;transition:text-underline-offset 160ms,color 160ms}
+.strip-api-entry[data-appearance] .strip-api-advanced a:hover{text-underline-offset:5px}
+.strip-api-entry[data-appearance]{transition:background-color 320ms ease,color 320ms ease}
+.strip-api-entry[data-appearance] .strip-entry-hero{transition:background-color 320ms ease,border-color 320ms ease}
+
+@keyframes entry-fade{from{opacity:0}to{opacity:1}}
+@keyframes entry-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes entry-underline{to{transform:scaleX(1)}}
+@keyframes entry-hue{to{background-position:300% 0}}
+@keyframes entry-drift-a{from{transform:translate(0,0) scale(1)}to{transform:translate(9vmax,7vmax) scale(1.12)}}
+@keyframes entry-drift-b{from{transform:translate(0,0) scale(1)}to{transform:translate(-8vmax,-9vmax) scale(1.08)}}
+@keyframes entry-sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+@keyframes entry-spin{to{transform:rotate(360deg)}}
+@keyframes entry-shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+@keyframes entry-success{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@media (max-width:810px){.strip-entry-hero::before,.strip-entry-hero::after{display:none}}
+@media (prefers-reduced-motion:reduce){
+  .strip-api-entry[data-appearance] *,.strip-api-entry[data-appearance] *::before,.strip-api-entry[data-appearance] *::after,.strip-api-entry-layout,.strip-entry-hero>*,.strip-entry-hero-main>*,.strip-entry-steps span{animation:none!important;transition:none!important}
+  .strip-entry-hero h2 em::after{transform:scaleX(1)}
+  .strip-api-entry[data-appearance] .strip-api-enter[aria-busy="true"]::after,.strip-api-entry[data-appearance] form[data-state="loading"] .strip-api-enter::after,.strip-api-entry[data-appearance] .strip-api-fetch[aria-busy="true"]::after{animation:entry-spin 700ms linear infinite!important}
+}
+
+/* Adapt to the actual key-first screen: preserve eye-button centering and
+   use one loading indicator while retaining the accessible button name. */
+.strip-api-entry[data-appearance] .strip-api-secret .strip-entry-eye:hover:not(:disabled){transform:translateY(-50%) scale(1.08)}
+.strip-api-entry[data-appearance] .strip-api-secret .strip-entry-eye:active:not(:disabled){transform:translateY(-50%) scale(.92)}
+.strip-api-entry[data-appearance] .strip-api-enter[aria-busy="true"] > .strip-entry-spinner{visibility:hidden}
+.strip-api-entry[data-appearance] .strip-entry-progress .strip-entry-spinner{animation:entry-spin 700ms linear infinite}
+@media(prefers-reduced-motion:reduce){
+  .strip-api-entry[data-appearance] .strip-entry-progress .strip-entry-spinner{animation:entry-spin 700ms linear infinite!important}
+}
+
+/* Functional controls on the key-first entry screen. */
+.strip-api-entry[data-appearance] .strip-entry-theme{display:flex;align-items:center;gap:7px;z-index:2;min-height:40px;padding:8px 12px}
+.strip-api-entry[data-appearance] .strip-entry-model-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:16px 0}
+.strip-api-entry[data-appearance] .strip-api-fetch{min-height:40px;font-size:14px;padding:8px 14px}
+.strip-api-entry[data-appearance] .strip-entry-model-choice{flex:1;min-width:0;display:grid;gap:7px}
+.strip-api-entry[data-appearance] .strip-entry-model-choice select{min-width:0;width:100%;text-overflow:ellipsis}
+.strip-api-entry[data-appearance] .strip-api-advanced summary{min-height:24px;font-size:14px}
+.strip-api-entry[data-appearance] .strip-entry-advanced-help{font-size:13px;line-height:1.6;color:var(--muted-2)}
+

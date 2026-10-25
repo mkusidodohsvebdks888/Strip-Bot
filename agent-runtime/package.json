@@ -1,1 +1,8 @@
-{"name":"strip-bot-agent-runtime","private":true,"dependencies":{"@opencode/cli":"2.0.28"}}
+{
+  "name": "strip-bot-agent-runtime",
+  "private": true,
+  "description": "Codex CLI runtime for Strip Bot",
+  "dependencies": {
+    "@openai/codex": "0.163.0"
+  }
+}

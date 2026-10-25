@@ -1,0 +1,96 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const http=require('node:http');
+const fs=require('node:fs/promises');
+const os=require('node:os');
+const path=require('node:path');
+const {createApiConnection}=require('../backend/api-connection.cjs');
+const {createGateway}=require('../backend/gateway.cjs');
+const vault=async(value,decrypt)=>decrypt?Buffer.from(value.slice(5),'base64').toString():('test:'+Buffer.from(value).toString('base64'));
+const listen=server=>new Promise(resolve=>server.listen(0,'127.0.0.1',()=>resolve('http://127.0.0.1:'+server.address().port)));
+const close=server=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections?.();});
+const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(body));};
+
+test('unsaved API keys discover live models through gateway without persisting secrets',async t=>{
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'strip-live-models-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const requests=[];
+  const upstream=http.createServer((req,res)=>{
+    requests.push({url:req.url,auth:req.headers.authorization});
+    json(res,200,{object:'list',data:[{id:'gpt-live',name:'Live model',supported_parameters:['reasoning_effort']},{id:'gpt-live'}, {id:'bad model'},{id:'deepseek-live'}, {id:'gpt-alt'}]});
+  });
+  const api=await listen(upstream);t.after(()=>close(upstream));
+  const direct=createApiConnection({root,vault});
+  const gateway=createGateway({connectionOptions:true,ccOnly:true,ccSwitchOnly:true,apiConnection:direct,agentService:{handle:async()=>({}),close:async()=>{}}});
+  const local=await listen(gateway);t.after(()=>close(gateway));
+  const response=await fetch(local+'/api/connection/models',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({baseUrl:api+'/v1',apiKey:'unsaved-secret'})});
+  const result=await response.json();
+  assert.equal(response.status,200);
+  assert.deepEqual(result.models.map(model=>model.id),['gpt-live','deepseek-live','gpt-alt']);
+  assert.equal(result.models[0].supportsReasoning,true);
+  assert.equal(requests[0].url,'/v1/models');
+  assert.equal(requests[0].auth,'Bearer unsaved-secret');
+  assert.equal((await direct.status()).configured,false);
+  assert.ok(!(await fs.readdir(root)).includes('.runtime'));
+  assert.ok(!JSON.stringify(result).includes('unsaved-secret'));
+});
+
+test('live discovery never forwards saved keys to another destination and refuses invalid model endpoints',async t=>{
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'strip-key-isolation-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  let seenAuth;
+  const upstream=http.createServer((req,res)=>{seenAuth=req.headers.authorization;json(res,200,{data:[]});});
+  const address=await listen(upstream);t.after(()=>close(upstream));
+  const direct=createApiConnection({root,vault});
+  await direct.save({baseUrl:'https://original.example/v1',protocol:'responses',model:'gpt-live',apiKey:'saved-secret'});
+  await direct.models({baseUrl:address+'/v1'});
+  assert.equal(seenAuth,undefined);
+  await assert.rejects(direct.models({baseUrl:'http://external.example/v1',apiKey:'x'}),{status:400});
+  const invalid=createApiConnection({root,vault,fetchImpl:async()=>new Response('Not found',{status:404})});
+  await assert.rejects(invalid.models({}),error=>error.status===502 && /手动/.test(error.message));
+});
+
+test('API reasoning level updates persistent route revision and reaches real upstream requests',async t=>{
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'strip-direct-effort-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const calls=[];
+  const upstream=http.createServer(async(req,res)=>{
+    if(req.url==='/v1/models')return json(res,200,{data:[{id:'gpt-live'}]});
+    let raw='';for await(const chunk of req)raw+=chunk;
+    calls.push({url:req.url,body:JSON.parse(raw),auth:req.headers.authorization});
+    json(res,200,{object:'response',status:'completed',output:[]});
+  });
+  const endpoint=await listen(upstream);t.after(()=>close(upstream));
+  const direct=createApiConnection({root,vault});
+  const original=await direct.save({baseUrl:endpoint+'/v1',protocol:'responses',model:'gpt-live',apiKey:'secure-key',reasoningEnabled:true});
+  await assert.rejects(direct.setEffort({model:'wrong-model',effort:'low'}),{status:409});
+  await assert.rejects(direct.setEffort({model:'gpt-live',effort:'aggressive'}),{status:400});
+  const updated=await direct.setEffort({model:'gpt-live',effort:'high'});
+  assert.notEqual(updated.revision,original.revision);
+  assert.equal(updated.reasoningEffort,'high');
+  const request={input:'test',reasoning:{summary:'auto'}};
+  const gateway=createGateway({connectionOptions:true,ccOnly:true,ccSwitchOnly:true,apiConnection:direct,agentService:{handle:async()=>({}),close:async()=>{}}});
+  const local=await listen(gateway);t.after(()=>close(gateway));
+  const route=await direct.resolve(local);
+  const result=await fetch(route.endpoint,{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+route.apiKey},body:JSON.stringify(request)});
+  assert.equal(result.status,200);
+  assert.equal(calls.at(-1).body.reasoning.effort,'high');
+  assert.equal(calls.at(-1).body.reasoning.summary,'auto');
+  assert.equal(calls.at(-1).body.model,'gpt-live');
+  assert.equal(calls.at(-1).auth,'Bearer secure-key');
+  assert.ok(!JSON.stringify(await direct.status()).includes('secure-key'));
+  const previous=new URL(route.endpoint);
+  const auto=await direct.setEffort({model:'gpt-live',effort:''});
+  assert.equal(auto.reasoningEffort,'');
+  assert.notEqual(auto.revision,updated.revision);
+  assert.notEqual((await direct.resolve(local)).endpoint,previous.href);
+  await direct.save({baseUrl:endpoint+'/v1',protocol:'openai',model:'gpt-live',reasoningEnabled:true});
+  await direct.setEffort({model:'gpt-live',effort:'low'});
+  const chat=await direct.resolve(local);
+  await fetch(chat.endpoint,{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+chat.apiKey},body:JSON.stringify({messages:[{role:'user',content:'test'}]})});
+  assert.equal(calls.at(-1).url,'/v1/chat/completions');
+  assert.equal(calls.at(-1).body.reasoning_effort,'low');
+  await direct.save({baseUrl:endpoint+'/v1',protocol:'openai',model:'gpt-other'});
+  assert.equal((await direct.status()).reasoningEnabled,true);
+  assert.equal((await direct.status()).reasoningEffort,'');
+  await direct.save({baseUrl:endpoint+'/v1',protocol:'openai',model:'gpt-other',reasoningEnabled:false});
+  await assert.rejects(direct.setEffort({model:'gpt-other',effort:'high'}),{status:400});
+});

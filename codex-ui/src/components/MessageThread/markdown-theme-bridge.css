@@ -1,0 +1,58 @@
+/* Bridge between MarkdownReply.css (hard-coded dark code blocks: #111214 / #18191b / #d4d4d5)
+   and claude-theme.css, whose `.strip-app[data-appearance] .strip-markdown pre { background: var(--surface-3); color: var(--fg) }`
+   (specificity 0,3,1) beats `.strip-chat--codex .strip-md-code__pre` (0,2,0) regardless of order.
+   Without this file the light theme shows a dark toolbar on top of a light code body.
+   Import AFTER claude-theme.css and readability.css. */
+
+.strip-app[data-appearance] .strip-markdown .strip-md-code {
+  background: var(--surface-3);
+  border-color: var(--border-10);
+}
+.strip-app[data-appearance] .strip-markdown .strip-md-code__toolbar {
+  background: var(--surface-2);
+  border-bottom-color: var(--border-08);
+}
+.strip-app[data-appearance] .strip-markdown .strip-md-code__language {
+  color: var(--muted-2);
+}
+.strip-app[data-appearance] .strip-markdown .strip-md-code__pre,
+.strip-app[data-appearance] .strip-markdown .strip-md-code__pre code {
+  background: transparent;
+  color: var(--code-fg, var(--fg));
+}
+.strip-app[data-appearance] .strip-markdown .hljs-comment,
+.strip-app[data-appearance] .strip-markdown .hljs-quote {
+  color: var(--code-comment);
+}
+.strip-app[data-appearance] .strip-markdown .hljs-keyword,
+.strip-app[data-appearance] .strip-markdown .hljs-selector-tag,
+.strip-app[data-appearance] .strip-markdown .hljs-built_in {
+  color: var(--accent);
+}
+.strip-app[data-appearance] .strip-markdown .hljs-string,
+.strip-app[data-appearance] .strip-markdown .hljs-attr {
+  color: var(--diff-add-fg);
+}
+.strip-app[data-appearance] .strip-markdown .hljs-title,
+.strip-app[data-appearance] .strip-markdown .hljs-function {
+  color: var(--fg-strong);
+}
+.strip-app[data-appearance] .strip-markdown .hljs-number,
+.strip-app[data-appearance] .strip-markdown .hljs-literal {
+  color: var(--title-warning);
+}
+.strip-app[data-appearance] .strip-markdown .hljs-variable,
+.strip-app[data-appearance] .strip-markdown .hljs-params {
+  color: var(--text-secondary);
+}
+.strip-app[data-appearance] .strip-markdown a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.strip-app[data-appearance] .strip-markdown a:hover {
+  color: var(--accent-hover);
+}
+/* keep the old dark look only for the legacy non-themed codex layout */
+.strip-chat--codex:not(.strip-app[data-appearance] *) .strip-md-code {
+  background: #111214;
+}

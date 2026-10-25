@@ -1,0 +1,8 @@
+.strip-approval{border:1px solid #514637;background:#211f1b;border-radius:12px;padding:16px;margin:8px 0 14px;font-size:13px;line-height:1.6;color:#e4e4e7}
+.strip-approval header,.strip-approval nav{display:flex;align-items:center;gap:10px}.strip-approval header{justify-content:space-between}.strip-approval p{margin:10px 0;overflow-wrap:anywhere}
+.strip-approval button,.strip-approval-dialog button{border:1px solid #45454d;background:#2a2a30;color:#e4e4e7;border-radius:8px;padding:7px 12px;cursor:pointer;font:inherit}
+.strip-approval button:disabled,.strip-approval-dialog button:disabled{opacity:.4;cursor:default}.strip-approval button:focus-visible,.strip-approval-dialog button:focus-visible{outline:2px solid #b4b4c5;outline-offset:2px}
+.strip-approval button.strip-approval-primary,.strip-approval-dialog button.strip-approval-primary{background:#e4e4e7;border-color:#e4e4e7;color:#18181b}
+.strip-approval-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.strip-approval-muted{color:#aaa8a3;display:block;overflow-wrap:anywhere}.strip-approval summary{cursor:pointer;color:#c9c8c3}
+.strip-approval pre,.strip-approval-dialog pre{background:#141416;border:1px solid #38363a;border-radius:8px;padding:10px;font-size:12px;max-height:200px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.strip-approval-error{color:#fca5a5}.strip-approval-dialog{background:#202024;color:#e4e4e7;border:1px solid #49494f;border-radius:16px;max-width:480px;width:calc(100% - 48px);max-height:80vh;padding:22px;overflow:auto;font-size:13px;line-height:1.7;overflow-wrap:anywhere}.strip-approval-dialog h3{margin-top:0}.strip-approval-dialog::backdrop{background:#0009;backdrop-filter:blur(3px)}

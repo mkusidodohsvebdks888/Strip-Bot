@@ -1,0 +1,52 @@
+/* Minimal Codex/Claude-inspired narrow sidebar views for agent extensions. */
+.strip-extension{gap:13px;line-height:1.5}
+.strip-extension code{font-family:var(--font-code,ui-monospace,monospace);font-size:13px}
+.strip-ext-banner{display:flex;align-items:center;gap:10px;min-width:0;padding:13px 11px;border:1px solid var(--strip-line,var(--border-10));border-radius:var(--strip-radius-card,12px);background:var(--surface-2)}
+.strip-ext-banner>.strip-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:var(--surface-3);flex:none}
+.strip-ext-banner>.strip-icon svg{height:17px;width:17px}
+.strip-ext-banner>span:nth-child(2){min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
+.strip-ext-banner strong{font-size:13px;font-weight:640}
+.strip-ext-banner small{font-size:13px;color:var(--muted-4);line-height:1.35}
+.strip-ext-counter{flex:none;background:var(--surface-3);border-radius:99px;padding:4px 8px;font-size:13px;color:var(--muted)}
+.strip-ext-card{box-sizing:border-box;display:flex;flex-direction:column;gap:9px;padding:12px 11px;border:1px solid var(--strip-line,var(--border-10));background:var(--surface-search);border-radius:var(--strip-radius-card,12px);max-width:100%;min-width:0}
+.strip-ext-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.strip-ext-card-head strong{font-size:12px;min-width:0;overflow-wrap:anywhere}
+.strip-ext-state{font-size:13px;white-space:nowrap;color:var(--muted-4);border:1px solid var(--strip-line,var(--border-10));padding:3px 7px;border-radius:999px}
+.strip-ext-state.is-on{color:#4e9b6f;border-color:rgba(55,149,96,.32);background:rgba(69,170,112,.1)}
+.strip-ext-path{display:block;width:100%;box-sizing:border-box;padding:8px 9px;white-space:normal;overflow-wrap:anywhere;color:var(--muted);background:var(--surface-2);border:1px solid var(--strip-line-soft,var(--border-09));max-height:84px;overflow:auto;border-radius:var(--strip-radius-control,7px)}
+.strip-ext-mini{font-size:13px;color:var(--muted);line-height:1.65;margin:0;overflow-wrap:anywhere}
+.strip-ext-sub{font-size:13px;line-height:1.55;color:var(--muted-4);margin:0;overflow-wrap:anywhere}
+.strip-ext-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.strip-ext-actions button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;padding:5px 9px;border:1px solid var(--strip-line,var(--border-10));border-radius:var(--strip-radius-control,9px);color:var(--fg);background:transparent;font-family:inherit;font-size:13px;cursor:pointer;transition:background 130ms}
+.strip-ext-actions button:hover:not(:disabled){background:var(--surface-3)}
+.strip-ext-actions button.is-primary{background:var(--surface-2);font-weight:600}
+.strip-ext-actions button:disabled,.strip-ext-form button:disabled{opacity:.5;cursor:not-allowed}
+.strip-ext-actions button .strip-icon svg{width:13px;height:13px}
+.strip-ext-form{display:flex;flex-direction:column;gap:8px;min-width:0}
+.strip-ext-form label,.strip-ext-inline-label{font-size:13px;color:var(--fg);font-weight:550;margin:3px 0 0}
+.strip-ext-form label span{color:var(--muted-4);font-weight:400;font-size:13px}
+.strip-ext-form input,.strip-ext-form textarea,.strip-ext-card textarea{box-sizing:border-box;display:block;width:100%;min-height:39px;border:1px solid var(--strip-line,var(--border-10));border-radius:var(--strip-radius-control,9px);padding:10px 11px;background:var(--surface-search);color:var(--fg);font:11.5px/1.55 var(--font-code,ui-monospace,monospace);outline:none}
+.strip-ext-form input:focus,.strip-ext-form textarea:focus,.strip-ext-card textarea:focus{border-color:var(--muted-2)}
+.strip-ext-form textarea,.strip-ext-card textarea{min-height:74px;resize:vertical;white-space:pre-wrap;overflow-wrap:anywhere}
+.strip-ext-form>.strip-tool-action{margin-top:4px}
+.strip-ext-results{display:flex;flex-direction:column;gap:9px;padding:12px;background:var(--surface-2);border:1px solid var(--strip-line,var(--border-10));border-radius:var(--strip-radius-card,12px);min-width:0;font-size:13px}
+.strip-ext-results h3{display:flex;align-items:center;gap:7px;font-size:12px;margin:0 0 3px}
+.strip-ext-results h3 .strip-icon svg{height:15px;width:15px}
+.strip-ext-results h4{font-size:13px;margin:5px 0 0}
+.strip-ext-metric{display:flex;justify-content:space-between;align-items:flex-start;gap:11px;color:var(--muted)}
+.strip-ext-metric strong{font-weight:550;max-width:60%;color:var(--fg);text-align:right;overflow-wrap:anywhere}
+.strip-ext-results details,.strip-ext-details{padding:7px 0;border-top:1px solid var(--strip-line-soft,var(--border-09));color:var(--muted)}
+.strip-ext-results summary,.strip-ext-details summary{cursor:pointer;color:var(--fg);font-weight:500}
+.strip-ext-results ul{margin:8px 0 0;padding-left:16px;line-height:1.7;overflow-wrap:anywhere}
+.strip-ext-details pre{margin:9px 0 0;max-height:160px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:10px/1.55 var(--font-code);color:var(--muted)}
+.strip-ext-details p{font-size:13px;overflow-wrap:anywhere}
+.strip-ext-feedback{border:1px solid rgba(54,143,95,.22);background:rgba(54,143,95,.06);border-radius:8px;padding:10px;margin:0;color:#57a875;overflow-wrap:anywhere;font-size:13px;line-height:1.6}
+.strip-ext-feedback.is-error{color:#ce6765;background:rgba(211,93,90,.06);border-color:rgba(211,93,90,.2)}
+.strip-ext-tabs{display:flex;align-items:center;padding:3px;gap:3px;background:var(--surface-2);border-radius:9px}
+.strip-ext-tabs button{flex:1;min-width:0;background:transparent;border:0;border-radius:7px;padding:8px 5px;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit}
+.strip-ext-tabs button[aria-pressed=true]{background:var(--surface-search);color:var(--fg);box-shadow:0 1px 3px #0001;font-weight:600}
+.strip-ext-text-button{font-size:inherit;line-height:inherit;color:var(--fg);padding:0;display:inline-flex;align-items:center;border:0;background:transparent;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.strip-ext-text-button svg{height:12px;width:12px}
+.strip-ext-warning{padding:9px;background:rgba(199,141,65,.08);border:1px solid rgba(199,141,65,.22);border-radius:8px;color:var(--fg);font-size:13px;margin:0;line-height:1.5}
+.strip-ext-small-action{width:100%;font-size:13px!important}
+@media(prefers-reduced-motion:reduce){.strip-ext-actions button{transition:none}}

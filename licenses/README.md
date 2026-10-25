@@ -19,3 +19,5 @@ Strip UI Kit (buttons + 48 basic icons): authored as a standalone MIT work, lice
 MingCute supplemental icons: MingCute Icons (https://www.mingcute.com, https://github.com/mingcute-design/mingcute-icons), Apache License 2.0 preserved in mingcute-Apache-2.0.txt. The soft variants (folder-soft, terminal-soft, chat-soft, settings-soft) come from assets/svg/core/regular with the same normalization as Lucide.
 
 Lobe Icons: @lobehub/icons-static-svg 1.95.1. Source: https://github.com/lobehub/lobe-icons . MIT license preserved in lobe-icons-MIT.txt. Selected brand SVG assets are bundled locally in public/model-icons.js; decorative accessibility attributes and a CSS class were added. Brand artwork retains its original fills and gradients.
+
+Codex CLI 0.163.0: OpenAI, https://github.com/openai/codex . Licensed under Apache-2.0 (see codex-Apache-2.0.txt). Distributed native Windows components are copied intact from @openai/codex-win32-x64, including codex-package.json and runtime helpers. Strip Bot's adapter communicates with the official app-server protocol.

@@ -1,0 +1,13 @@
+{
+  "id": "nono-desktop",
+  "name": "糯糯桌面宠物",
+  "version": "0.3.4",
+  "host": "stripbot",
+  "entry": "desktop.cjs",
+  "platform": "win32",
+  "runtime": "Strip Bot Electron / WebGL 2 (offline Three.js)",
+  "permissions": [
+    "loopback-chat"
+  ],
+  "description": "独立桌面窗口，复用 Strip Bot 已保存的 API 连接进行问答。"
+}

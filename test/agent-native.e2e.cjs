@@ -85,7 +85,7 @@ const mock = http.createServer(async (req,res) => {
       assert.equal(content,'Strip Bot native agent updated this file.\n');
       assert.ok(JSON.stringify(tools.find(t => t.name === 'shell')).includes('STRIP_AGENT_TERMINAL_OK'));
       assert.ok(approvals.length > 0,'Permissions must be exercised');
-      const report = {engine:'OpenCode 2.0.28',model:'deterministic local mock',sessionID:session.id,tools:tools.map(t => ({name:t.name,status:t.state.status})),approvals,actualFile:output,actualContent:content,passed:true};
+      const report = {engine:'OpenCode 2.1.1',model:'deterministic local mock',sessionID:session.id,tools:tools.map(t => ({name:t.name,status:t.state.status})),approvals,actualFile:output,actualContent:content,passed:true};
       await fs.writeFile(path.join(workspace,'verification.json'),JSON.stringify(report,null,2));
       console.log(JSON.stringify(report,null,2));return;
     }

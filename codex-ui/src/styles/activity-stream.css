@@ -1,0 +1,94 @@
+/* Codex-style grouped activity stream — theme variables only. Import after claude-theme.css. */
+.strip-act { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-family: var(--font-ui); }
+.strip-act__row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 4px;
+  border-radius: 12px;
+  color: var(--fg);
+}
+.strip-act__row--group { background: color-mix(in srgb, var(--surface-3) 70%, transparent); }
+.strip-act__row--group.is-running { background: color-mix(in srgb, var(--accent) 6%, var(--surface-3)); }
+.strip-act__icon {
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 9px;
+  background: var(--quiet-white);
+  border: 1px solid var(--border-08);
+  color: var(--muted-2);
+}
+.strip-act__icon .strip-icon svg { width: 15px; height: 15px; }
+.strip-act__row.is-running .strip-act__icon { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.strip-act__body { min-width: 0; }
+.strip-act__head, .strip-act__summary {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 28px;
+  width: 100%;
+  text-align: left;
+}
+.strip-act__summary { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 0 4px 0 0; border-radius: 8px; font: inherit; }
+.strip-act__summary:hover { background: var(--surface-2); }
+.strip-act__summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.strip-act__title { font: 550 13.5px var(--font-ui); color: var(--fg); white-space: nowrap; }
+.strip-act__current {
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: 12px var(--font-code, ui-monospace, monospace);
+  color: var(--muted-2);
+}
+.strip-act__status {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 12px var(--font-ui);
+  color: var(--muted-2);
+  white-space: nowrap;
+}
+.strip-act__status.is-running { color: var(--accent); }
+.strip-act__status.is-failed { color: var(--diff-del-sign); }
+.strip-act__spinner {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  animation: strip-act-spin 0.9s linear infinite;
+}
+@keyframes strip-act-spin { to { transform: rotate(360deg); } }
+.strip-act__chev { display: inline-flex; color: var(--muted-3); }
+.strip-act__chev .strip-icon svg { width: 14px; height: 14px; }
+
+/* expanded list */
+.strip-act__list { list-style: none; margin: 4px 0 2px; padding: 0 0 0 2px; display: grid; gap: 2px; }
+.strip-act__item-line {
+  display: grid; grid-template-columns: 10px auto minmax(0, 1fr) 16px;
+  align-items: center; gap: 8px;
+  width: 100%; min-height: 26px; padding: 2px 6px;
+  border: 0; border-radius: 7px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: default;
+}
+.strip-act__item-line[aria-expanded] { cursor: pointer; }
+.strip-act__item-line[aria-expanded]:hover { background: var(--surface-2); }
+.strip-act__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-5); }
+.strip-act__item.is-running .strip-act__dot { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); animation: strip-act-pulse 1.2s ease-in-out infinite; }
+.strip-act__item.is-failed .strip-act__dot { background: var(--diff-del-sign); }
+@keyframes strip-act-pulse { 50% { opacity: 0.4; } }
+.strip-act__item-prefix { font: 12px var(--font-ui); color: var(--muted-2); white-space: nowrap; }
+.strip-act__item-cmd {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: 12px var(--font-code, ui-monospace, monospace);
+  color: var(--text-secondary);
+}
+.strip-act__more {
+  border: 0; background: transparent; color: var(--accent); cursor: pointer;
+  font: 500 12px var(--font-ui); padding: 4px 6px; border-radius: 6px;
+}
+.strip-act__more:hover { background: var(--surface-2); }
+.strip-act__detail {
+  margin: 4px 0 6px 24px; padding: 10px 12px;
+  max-height: 260px; overflow: auto;
+  background: var(--surface-3); color: var(--code-fg, var(--fg));
+  border: 1px solid var(--border-09); border-radius: 10px;
+  font: 12px/1.6 var(--font-code, ui-monospace, monospace);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .strip-act__spinner, .strip-act__item.is-running .strip-act__dot { animation: none; }
+}

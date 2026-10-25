@@ -1,0 +1,440 @@
+/* Strip Bot slider variants: original CSS, no additional UI dependency.
+   Deliberately loaded after legacy model/composer styles. */
+.strip-app .smp-response-options[data-slider-style] {
+  --strip-slider-rest: color-mix(in srgb, var(--smp-muted, #90909a) 29%, var(--smp-bg, #262627));
+  --strip-slider-active: color-mix(in srgb, var(--smp-text, #e7e7e9) 85%, var(--smp-muted, #999));
+  --strip-slider-knob: var(--smp-text, #e8e8ed);
+  --strip-slider-outline: var(--smp-bg, #1d1e21);
+}
+.strip-app .smp-response-options .strip-five-step-slider {
+  position:relative;
+  display:block;
+  width:100%;
+  min-width:0;
+  height:36px;
+  margin:0;
+  --strip-slider-height:4px;
+  --strip-slider-thumb:18px;
+}
+.strip-app .smp-response-options .strip-five-step-slider__rail {
+  position:absolute;
+  top:50%;
+  left:9px;
+  right:9px;
+  height:var(--strip-slider-height);
+  border-radius:30px;
+  transform:translateY(-50%);
+  background:var(--strip-slider-rest);
+  pointer-events:none;
+}
+.strip-app .smp-response-options .strip-five-step-slider__fill {
+  width:var(--strip-slider-progress);
+  height:100%;
+  border-radius:inherit;
+  background:var(--strip-slider-active);
+  transition:width .1s linear;
+}
+.strip-app .smp-response-options .strip-five-step-slider__tick {
+  position:absolute;
+  top:50%;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--strip-slider-rest);
+  border:1px solid var(--strip-slider-outline);
+  transform:translate(-50%,-50%);
+  display:none;
+}
+.strip-app .smp-response-options .strip-five-step-slider__tick.is-unsupported {opacity:.32;}
+/* Native range remains focusable/keyboard-accessible and keeps existing business logic. */
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range'] {
+  display:block;
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:36px;
+  padding:0;
+  margin:0;
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent;
+  border:0;
+  outline:none;
+  cursor:pointer;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-webkit-slider-runnable-track {
+  height:36px;
+  background:transparent;
+  border:0;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  appearance:none;
+  width:var(--strip-slider-thumb);
+  height:var(--strip-slider-thumb);
+  margin-top:calc((36px - var(--strip-slider-thumb)) / 2);
+  border:3px solid var(--strip-slider-outline);
+  border-radius:50%;
+  background:var(--strip-slider-knob);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--smp-text, #fff) 21%, transparent),0 2px 5px #0002;
+  transition:box-shadow .15s ease, transform .15s ease;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-moz-range-track {
+  height:36px;
+  background:transparent;
+  border:0;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-moz-range-thumb {
+  width:calc(var(--strip-slider-thumb) - 6px);
+  height:calc(var(--strip-slider-thumb) - 6px);
+  border:3px solid var(--strip-slider-outline);
+  border-radius:50%;
+  background:var(--strip-slider-knob);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--smp-text, #fff) 21%, transparent);
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:hover::-webkit-slider-thumb {
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--smp-text, #aaa) 9%, transparent),0 2px 5px #0002;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:focus-visible {
+  outline:2px solid var(--smp-focus, #8c9cbd);
+  outline-offset:2px;
+  border-radius:7px;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:disabled {
+  opacity:.4;
+  cursor:not-allowed;
+}
+.strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:3px;
+}
+.strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button {
+  min-width:0;
+  min-height:27px;
+  padding:4px 0;
+  white-space:nowrap;
+}
+.strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button::before {content:none;}
+/* A · Thin Codex line */
+.strip-app .smp-response-options .strip-five-step-slider--line {
+  --strip-slider-height:2px;
+  --strip-slider-thumb:14px;
+}
+/* B · Discrete dots, default; five positions line up with native slider steps. */
+.strip-app .smp-response-options .strip-five-step-slider--dots {
+  --strip-slider-thumb:18px;
+  --strip-slider-height:4px;
+}
+.strip-app .smp-response-options .strip-five-step-slider--dots .strip-five-step-slider__tick {display:block;}
+.strip-app .smp-response-options .strip-five-step-slider--dots .strip-five-step-slider__tick:not(.is-unsupported) {
+  background:color-mix(in srgb, var(--strip-slider-active) 68%, var(--strip-slider-outline));
+}
+/* C · Claude-like soft warm capsule */
+.strip-app .smp-response-options .strip-five-step-slider--pill {
+  --strip-slider-height:13px;
+  --strip-slider-thumb:23px;
+  --strip-slider-active:#c3a48a;
+  --strip-slider-knob:#fbf4eb;
+}
+.strip-app .smp-response-options .strip-five-step-slider--pill .strip-five-step-slider__rail {background:color-mix(in srgb, #dcc7b3 48%, var(--smp-bg, #fff));}
+.strip-app .smp-response-options .strip-five-step-slider--pill > input[type='range']::-webkit-slider-thumb {border:3px solid #bc9d82;}
+.strip-app .smp-response-options .strip-five-step-slider--pill > input[type='range']::-moz-range-thumb {border-color:#bc9d82;}
+/* D · Click-to-select segments; transparent keyboard range still works. */
+.strip-app .smp-response-options .strip-five-step-slider--segments {height:1px;min-height:1px;}
+.strip-app .smp-response-options .strip-five-step-slider--segments .strip-five-step-slider__rail {display:none;}
+.strip-app .smp-response-options .strip-five-step-slider--segments > input[type='range'] {
+  position:absolute;
+  width:1px;
+  height:1px;
+  margin:0;
+  padding:0;
+  opacity:.01;
+  clip-path:inset(50%);
+  overflow:hidden;
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) {
+  gap:4px;
+  margin-top:10px;
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button {
+  min-height:34px;
+  padding:6px 0;
+  background:var(--smp-hover, #333);
+  border:1px solid var(--smp-border, #444);
+  border-radius:9px;
+  font-size:10px;
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button[aria-pressed='true'] {
+  background:color-mix(in srgb, var(--smp-text,#fff) 16%, var(--smp-bg,#222));
+  border-color:color-mix(in srgb, var(--smp-text,#fff) 34%, var(--smp-border,#555));
+}
+/* E · Gentle fluid gradient */
+.strip-app .smp-response-options .strip-five-step-slider--gradient {
+  --strip-slider-height:10px;
+  --strip-slider-thumb:22px;
+  --strip-slider-knob:#f9fafb;
+}
+.strip-app .smp-response-options .strip-five-step-slider--gradient .strip-five-step-slider__rail {
+  background:linear-gradient(90deg, #a6cbbf5e, #acb9d75e, #d6b1c75e);
+}
+.strip-app .smp-response-options .strip-five-step-slider--gradient .strip-five-step-slider__fill {
+  background:linear-gradient(90deg, #8bbda9, #a1b6d9 53%, #cfafc7);
+}
+.strip-app .smp-response-options .strip-five-step-slider--gradient > input[type='range']::-webkit-slider-thumb {
+  border:3px solid #a0b9be;
+  box-shadow:0 0 0 3px #a7c9cd22,0 3px 8px #0002;
+}
+/* Style selector inside the same model-speed popup */
+.strip-app .smp-style-settings {
+  flex:0 0 auto;
+  border-top:1px solid var(--smp-border, #37373e);
+  padding:3px 11px 10px;
+  font-family:inherit;
+}
+.strip-app .smp-style-toggle {
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-height:32px;
+  padding:3px 4px;
+  border:0;
+  background:transparent;
+  color:var(--smp-muted, #999);
+  font-size:11px;
+  font-family:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.strip-app .smp-style-toggle:hover {color:var(--smp-text, #eee);}
+.strip-app .smp-style-selected {margin-left:auto;color:var(--smp-text, #ddd);font-size:11px;}
+.strip-app .smp-style-toggle .strip-control-icon {margin-left:7px;transition:transform .15s ease;}
+.strip-app .smp-style-toggle[aria-expanded='true'] .strip-control-icon {transform:rotate(180deg);}
+.strip-app .smp-style-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  margin:5px 0 7px;
+}
+.strip-app .smp-style-option {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:8px;
+  min-width:0;
+  min-height:68px;
+  padding:10px 9px;
+  border-radius:10px;
+  border:1px solid var(--smp-border,#444);
+  background:var(--smp-hover,#262627);
+  color:var(--smp-muted,#aaa);
+  cursor:pointer;
+  font:inherit;
+  text-align:left;
+}
+.strip-app .smp-style-option:hover {border-color:color-mix(in srgb, var(--smp-text,#fff) 30%, var(--smp-border,#444));}
+.strip-app .smp-style-option[aria-pressed='true'] {
+  color:var(--smp-text,#eee);
+  border-color:color-mix(in srgb, var(--smp-text,#fff) 53%, var(--smp-border,#444));
+  background:color-mix(in srgb, var(--smp-text,#fff) 9%, var(--smp-bg,#202023));
+}
+.strip-app .smp-style-option__name {font-size:10.5px;white-space:nowrap;}
+.strip-app .smp-style-option > .strip-control-icon {position:absolute;right:9px;bottom:9px;color:var(--smp-text,#fff);}
+.strip-app .smp-style-thumbnail {display:block;position:relative;width:100%;height:20px;}
+.strip-app .smp-style-thumbnail__track {position:absolute;left:3px;right:3px;top:50%;height:4px;transform:translateY(-50%);border-radius:30px;background:var(--smp-border,#555);}
+.strip-app .smp-style-thumbnail__thumb {position:absolute;left:59%;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);border-radius:50%;background:var(--smp-text,#eee);border:2px solid var(--smp-hover,#222);box-shadow:0 1px 3px #0002;}
+.strip-app .smp-style-thumbnail--line .smp-style-thumbnail__track {height:2px;}
+.strip-app .smp-style-thumbnail--dots .smp-style-thumbnail__track {
+  background:radial-gradient(circle,#b2b9c0 2px,transparent 2.6px) 0 50%/25% 100% repeat-x,linear-gradient(var(--smp-border,#555),var(--smp-border,#555)) center/100% 3px no-repeat;
+}
+.strip-app .smp-style-thumbnail--pill .smp-style-thumbnail__track {height:13px;background:#d9c5b3;}
+.strip-app .smp-style-thumbnail--pill .smp-style-thumbnail__thumb {width:18px;height:18px;background:#fff5e9;border-color:#c2a68c;}
+.strip-app .smp-style-thumbnail--segments .smp-style-thumbnail__track {
+  height:18px;border-radius:5px;background:linear-gradient(90deg,var(--smp-border,#555) 19%,transparent 19% 21%,var(--smp-border,#555) 21% 39%,transparent 39% 41%,var(--smp-text,#eee) 41% 59%,transparent 59% 61%,var(--smp-border,#555) 61% 79%,transparent 79% 81%,var(--smp-border,#555) 81%);
+}
+.strip-app .smp-style-thumbnail--segments .smp-style-thumbnail__thumb {display:none;}
+.strip-app .smp-style-thumbnail--gradient .smp-style-thumbnail__track {height:10px;background:linear-gradient(90deg,#8cbeaa,#9eafd6,#cdabc6);opacity:.82;}
+.strip-app .smp-style-thumbnail--gradient .smp-style-thumbnail__thumb {background:#fdfafa;border-color:#a6b5c7;}
+.strip-app .smp-style-hint {margin:5px 3px 1px;color:var(--smp-muted,#aaa);font-size:10px;line-height:1.5;}
+@media (prefers-reduced-motion:reduce) {
+  .strip-app .smp-response-options .strip-five-step-slider__fill,
+  .strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-webkit-slider-thumb,
+  .strip-app .smp-style-toggle .strip-control-icon {transition:none;}
+}
+
+/* Match the current compact response popup and comfortable text sizes. */
+.strip-app .smp-response-options .smp-style-settings {margin-top:8px;padding:3px 0 0;}
+.strip-app .smp-response-options .smp-style-toggle {min-height:40px;font-size:13px;}
+.strip-app .smp-response-options .smp-style-selected,
+.strip-app .smp-response-options .smp-style-option__name {font-size:12px;}
+.strip-app .smp-response-options .smp-style-hint {font-size:12px;}
+.strip-app .smp-response-options .smp-speed-slider-labels > button {min-height:40px;font-size:12px;}
+.strip-app .smp-response-options .strip-five-step-slider:focus-within {outline:2px solid var(--smp-muted);outline-offset:3px;border-radius:6px;}
+
+.strip-app .smp-response-options:has(.strip-five-step-slider--segments input:focus-visible) .smp-response-steps {outline:2px solid var(--smp-muted);outline-offset:3px;border-radius:8px;}
+.strip-app .smp-response-options[data-slider-style='segments'] .smp-speed-slider-labels > button {min-height:40px;font-size:12px;}
+
+
+/* =====================================================================
+   Motion layer (added 2026-10-20): shared animation for every visual.
+   Pure CSS; the only component change is the tick `is-filled` class + --i.
+   ===================================================================== */
+.strip-app .smp-response-options .strip-five-step-slider {
+  --strip-spring: 380ms cubic-bezier(.34,1.56,.64,1);
+  --strip-ease: 220ms cubic-bezier(.22,1,.36,1);
+}
+
+/* Fill springs into place instead of a linear 100ms slide */
+.strip-app .smp-response-options .strip-five-step-slider__fill {
+  transition: width var(--strip-spring), background 220ms ease, box-shadow 220ms ease;
+}
+.strip-app .smp-response-options .strip-five-step-slider:active .strip-five-step-slider__fill { transition: none; }
+
+/* Ticks (dots visual): pop when passed, halo on the current one, staggered twinkle on hover */
+.strip-app .smp-response-options .strip-five-step-slider__tick {
+  transition: transform var(--strip-spring), background 200ms ease, box-shadow 200ms ease, opacity 200ms;
+}
+.strip-app .smp-response-options .strip-five-step-slider__tick.is-filled {
+  background: var(--strip-slider-active);
+  border-color: var(--strip-slider-outline);
+  animation: strip-tick-pop 340ms cubic-bezier(.34,1.56,.64,1);
+}
+.strip-app .smp-response-options .strip-five-step-slider__tick.is-current {
+  transform: translate(-50%,-50%) scale(1.5);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--strip-slider-active) 25%, transparent);
+  animation: strip-tick-pop-current 340ms cubic-bezier(.34,1.56,.64,1);
+}
+.strip-app .smp-response-options .strip-five-step-slider:is(:hover,:focus-within) .strip-five-step-slider__tick.is-filled:not(.is-current) {
+  animation: strip-tick-twinkle 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i,0) * 140ms);
+}
+
+/* Native thumb: hover lift, press squash, focus pulse (WebKit/Blink; Firefox stays static) */
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-webkit-slider-thumb {
+  transition: box-shadow 200ms ease, transform 220ms cubic-bezier(.34,1.56,.64,1), background 200ms ease;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:hover::-webkit-slider-thumb { transform: scale(1.1); }
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:active::-webkit-slider-thumb {
+  transform: scale(1.22);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--smp-text, #aaa) 12%, transparent), 0 3px 8px #0003;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:focus-visible::-webkit-slider-thumb {
+  animation: strip-thumb-focus 1.6s ease-in-out infinite;
+}
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range'] { cursor: grab; }
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:active { cursor: grabbing; }
+
+/* A · Line: rail thickens on hover */
+.strip-app .smp-response-options .strip-five-step-slider--line .strip-five-step-slider__rail {
+  transition: height var(--strip-ease), background 200ms;
+}
+.strip-app .smp-response-options .strip-five-step-slider--line:is(:hover,:focus-within) .strip-five-step-slider__rail { height: 3px; }
+
+/* C · Pill: warm glow builds on hover, fill breathes while pressed */
+.strip-app .smp-response-options .strip-five-step-slider--pill .strip-five-step-slider__rail { transition: box-shadow 260ms ease; }
+.strip-app .smp-response-options .strip-five-step-slider--pill:is(:hover,:focus-within) .strip-five-step-slider__rail {
+  box-shadow: 0 0 0 3px #c3a48a22, 0 2px 10px #c3a48a33;
+}
+.strip-app .smp-response-options .strip-five-step-slider--pill .strip-five-step-slider__fill {
+  background: linear-gradient(90deg, #d4b89f, #c3a48a);
+}
+.strip-app .smp-response-options .strip-five-step-slider--pill:active .strip-five-step-slider__fill {
+  animation: strip-pill-breathe 1.2s ease-in-out infinite;
+}
+
+/* E · Gradient: rail drifts slowly, light sweeps the fill on hover and speeds up while pressed */
+.strip-app .smp-response-options .strip-five-step-slider--gradient .strip-five-step-slider__fill { position: relative; overflow: hidden; }
+.strip-app .smp-response-options .strip-five-step-slider--gradient .strip-five-step-slider__fill::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, #ffffffb3 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: strip-gradient-sweep 2.6s linear infinite paused;
+}
+.strip-app .smp-response-options .strip-five-step-slider--gradient:is(:hover,:focus-within) .strip-five-step-slider__fill::after { animation-play-state: running; }
+.strip-app .smp-response-options .strip-five-step-slider--gradient:active .strip-five-step-slider__fill::after { animation-duration: 1.1s; }
+.strip-app .smp-response-options .strip-five-step-slider--gradient .strip-five-step-slider__rail {
+  background-size: 200% 100%;
+  animation: strip-gradient-drift 6s ease-in-out infinite alternate;
+}
+
+/* D · Segments: buttons lift on hover, squash on press, selected one pops */
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button {
+  transition: background 200ms ease, border-color 200ms ease, transform 220ms cubic-bezier(.34,1.56,.64,1), box-shadow 200ms ease;
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--smp-text,#fff) 28%, var(--smp-border,#555));
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button:active:not(:disabled) {
+  transform: translateY(0) scale(.96);
+}
+.strip-app .smp-response-options[data-slider-style='segments'] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button[aria-pressed='true'] {
+  animation: strip-segment-pop 320ms cubic-bezier(.34,1.56,.64,1);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--smp-text,#fff) 20%, transparent);
+}
+
+/* Level labels under the other visuals: active label bumps up with a spring */
+.strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button {
+  transition: color 180ms ease, transform 260ms cubic-bezier(.34,1.56,.64,1), opacity 180ms;
+}
+.strip-app .smp-response-options[data-slider-style]:not([data-slider-style='segments']) :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button[aria-pressed='true'] {
+  transform: translateY(-2px);
+  animation: strip-label-bump 320ms cubic-bezier(.34,1.56,.64,1);
+}
+.strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button:hover:not(:disabled):not([aria-pressed='true']) {
+  transform: translateY(-1px);
+}
+
+/* Disabled: fade + desaturate smoothly */
+.strip-app .smp-response-options .strip-five-step-slider:has(> input:disabled) { filter: saturate(.6); transition: filter 200ms; }
+.strip-app .smp-response-options .strip-five-step-slider > input[type='range']:disabled { transition: opacity 200ms; }
+
+/* Style picker: grid unfolds, cards stagger in and lift on hover, thumbnails preview motion */
+.strip-app .smp-style-grid { animation: strip-grid-in 260ms cubic-bezier(.22,1,.36,1); transform-origin: top; }
+.strip-app .smp-style-grid > .smp-style-option { animation: strip-card-in 320ms cubic-bezier(.22,1,.36,1) both; }
+.strip-app .smp-style-grid > .smp-style-option:nth-child(2) { animation-delay: 30ms; }
+.strip-app .smp-style-grid > .smp-style-option:nth-child(3) { animation-delay: 60ms; }
+.strip-app .smp-style-grid > .smp-style-option:nth-child(4) { animation-delay: 90ms; }
+.strip-app .smp-style-grid > .smp-style-option:nth-child(5) { animation-delay: 120ms; }
+.strip-app .smp-style-grid > .smp-style-option:nth-child(6) { animation-delay: 150ms; }
+.strip-app .smp-style-option {
+  transition: border-color 200ms ease, background 200ms ease, transform 220ms cubic-bezier(.34,1.56,.64,1), box-shadow 200ms ease;
+}
+.strip-app .smp-style-option:hover { transform: translateY(-2px); box-shadow: 0 6px 16px #0003; }
+.strip-app .smp-style-option:active { transform: translateY(0) scale(.98); }
+.strip-app .smp-style-option > .strip-control-icon { animation: strip-check-in 260ms cubic-bezier(.34,1.56,.64,1); }
+.strip-app .smp-style-thumbnail__thumb { transition: left 420ms cubic-bezier(.34,1.56,.64,1), box-shadow 220ms ease; }
+.strip-app .smp-style-option:hover .smp-style-thumbnail__thumb { left: 78%; }
+.strip-app .smp-style-option:hover .smp-style-thumbnail--energy .smp-style-thumbnail__thumb { box-shadow: 0 0 14px #9689f5cc; }
+.strip-app .smp-style-hint { animation: strip-grid-in 260ms cubic-bezier(.22,1,.36,1); }
+.strip-app .smp-style-toggle .strip-control-icon { transition: transform 260ms cubic-bezier(.34,1.56,.64,1); }
+
+@keyframes strip-tick-pop { 0% { transform: translate(-50%,-50%) scale(.6); } 60% { transform: translate(-50%,-50%) scale(1.5); } 100% { transform: translate(-50%,-50%) scale(1); } }
+@keyframes strip-tick-pop-current { 0% { transform: translate(-50%,-50%) scale(.8); } 60% { transform: translate(-50%,-50%) scale(1.85); } 100% { transform: translate(-50%,-50%) scale(1.5); } }
+@keyframes strip-tick-twinkle { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+@keyframes strip-thumb-focus {
+  0%,100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--smp-text,#fff) 21%, transparent), 0 2px 5px #0002; }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--smp-focus,#8c9cbd) 35%, transparent), 0 2px 5px #0002; }
+}
+@keyframes strip-pill-breathe { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.08); } }
+@keyframes strip-gradient-sweep { to { transform: translateX(100%); } }
+@keyframes strip-gradient-drift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@keyframes strip-segment-pop { 0% { transform: scale(.94); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes strip-label-bump { 0% { transform: translateY(0); } 55% { transform: translateY(-4px); } 100% { transform: translateY(-2px); } }
+@keyframes strip-grid-in { from { opacity: 0; transform: translateY(-4px) scaleY(.96); } to { opacity: 1; transform: translateY(0) scaleY(1); } }
+@keyframes strip-card-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes strip-check-in { 0% { opacity: 0; transform: scale(.4) rotate(-20deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip-app .smp-response-options .strip-five-step-slider *,
+  .strip-app .smp-response-options .strip-five-step-slider *::before,
+  .strip-app .smp-response-options .strip-five-step-slider *::after,
+  .strip-app .smp-response-options .strip-five-step-slider > input[type='range']::-webkit-slider-thumb,
+  .strip-app .smp-response-options[data-slider-style] :is(.smp-speed-slider-labels,.smp-display-slider-labels) > button,
+  .strip-app .smp-style-grid, .strip-app .smp-style-option, .strip-app .smp-style-option *, .strip-app .smp-style-hint {
+    animation: none !important;
+    transition: none !important;
+  }
+}

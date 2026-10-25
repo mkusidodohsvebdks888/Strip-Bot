@@ -1,0 +1,18 @@
+.strip-integrations__summary,.strip-integrations__item-head,.strip-integrations__item-buttons{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.strip-integrations__summary{font-size:13px;margin:8px 0 14px}
+.strip-integrations__summary span,.strip-integrations__detail{color:var(--text-tertiary,var(--text-secondary,#888));font-size:12px}
+.strip-integrations__item{padding:12px;margin-bottom:8px;border:1px solid var(--border-subtle,rgba(127,127,127,.2));border-radius:12px;background:var(--surface-soft,rgba(127,127,127,.04))}
+.strip-integrations__item-head strong{font-size:13px;overflow-wrap:anywhere}
+.strip-integrations__badge{font-size:11px;border-radius:999px;padding:3px 8px;background:rgba(127,127,127,.1);white-space:nowrap}
+.strip-integrations__badge.is-enabled{background:rgba(30,157,94,.12);color:var(--color-success,#26945b)}
+.strip-integrations__detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:9px 0}
+.strip-integrations__item-buttons{justify-content:flex-end}
+.strip-integrations__item-buttons button{background:transparent;border:1px solid var(--border-subtle,rgba(127,127,127,.25));border-radius:8px;padding:6px 10px;color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.strip-integrations__item-buttons button:disabled{opacity:.5;cursor:not-allowed}
+.strip-integrations__form{display:flex;flex-direction:column;gap:8px}
+.strip-integrations__form input,.strip-integrations__form select,.strip-integrations__form textarea{display:block;width:100%;box-sizing:border-box;min-height:36px;padding:8px;border-radius:9px;font:inherit;font-size:13px;color:inherit;background:var(--surface-base,transparent);border:1px solid var(--border-subtle,rgba(127,127,127,.25))}
+.strip-integrations__form textarea{resize:vertical;line-height:1.5}
+.strip-integrations__form .strip-tool-label{margin-top:7px;font-size:12px}
+.strip-integrations__apply{margin-top:8px}
+.strip-integrations__feedback{font-size:12px;line-height:1.55;overflow-wrap:anywhere;color:var(--color-success,#26945b)}
+.strip-integrations__feedback.is-error{color:var(--color-error,#c04747)}

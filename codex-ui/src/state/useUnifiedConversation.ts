@@ -1,59 +1,65 @@
+import {mergePrompt} from '../lib/workflow-input.mjs';
 import {useEffect,useRef,useState} from 'react';
-import type {Snapshot} from '../components/AgentPanel';
+import type {Snapshot,ApprovalDecision,ApprovalConfirmation,ApprovalMode} from '../components/AgentPanel';
 import type {Chat} from '../domain/chat';
 import {readStored,restoreChats} from './chat-storage.mjs';
+import {readApprovalPreference,writeApprovalPreference} from './approval-preference.mjs';
 
-type Session = {id:string;title:string;updatedAt?:number;legacyId?:string};
-type LocalTurn = {id:string;type:'user'|'assistant';text:string};
-type LocalChat = {model:string;messages:LocalTurn[]};
+type Session = {id:string;title:string;updatedAt?:number;legacyId?:string;workspace?:string};
+type SendOptions={parallel?:boolean;workspace?:string};
+type TaskOverview={maxParallel:number;activeCount:number;queued:number;pausedSessions:string[];runningSessions:string[]};
 const SESSION_KEY = 'strip_cc_agent_sessions_v1', ACTIVE_KEY = 'strip_unified_active_v1';
-async function api<T>(route:string,body?:unknown):Promise<T> {
-  const response = await fetch('/api/agent'+route,{method:body === undefined ? 'GET':'POST',headers:{'Content-Type':'application/json'},body:body === undefined ? undefined:JSON.stringify(body)});
+function abortedRequest(): Error {
+  const error = new Error('请求已停止');
+  error.name = 'AbortError';
+  return error;
+}
+function isAbortError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && 'name' in error && (error as {name?: unknown}).name === 'AbortError');
+}
+async function api<T>(route:string,body?:unknown,signal?:AbortSignal):Promise<T> {
+  const response = await fetch('/api/agent'+route,{method:body === undefined ? 'GET':'POST',headers:{'Content-Type':'application/json'},body:body === undefined ? undefined:JSON.stringify(body),signal});
   const value = await response.json();
   if (!response.ok) throw new Error(value.error || `HTTP ${response.status}`);
   return value;
 }
-export function useUnifiedConversation() {
+export function useUnifiedConversation(connection:'ccswitch'|'direct'|'codex'|'opencode'='ccswitch',nativeModel='',reasoningVariant='',startFresh=false) {
   const [sessions,setSessions] = useState<Session[]>(() => {
     const cc = readStored<Session[]>(localStorage,SESSION_KEY,[]);
     const local = localStorage.getItem('strip_unified_migrated_v1') === '1' ? []:readStored<Session[]>(localStorage,'strip_agent_sessions_v1',[]);
-    return Array.from(new Map([...Array.isArray(cc) ? cc:[],...Array.isArray(local) ? local:[]].filter(s=>s && /^(?:ses|loc)_[a-zA-Z0-9]+$/.test(s.id) && typeof s.title === 'string').map(s=>[s.id,s])).values());
+    return Array.from(new Map([...Array.isArray(cc) ? cc:[],...Array.isArray(local) ? local:[]].filter(s=>s && /^ses_[a-zA-Z0-9]+$/.test(s.id) && typeof s.title === 'string').map(s=>[s.id,s])).values());
   });
   const [legacyChats,setLegacyChats] = useState<Chat[]>(() => restoreChats(localStorage));
-  const [active,setActive] = useState(() => {const value = readStored<unknown>(localStorage,ACTIVE_KEY,'');return typeof value === 'string' ? value:'';});
-  const [agentSnapshot,setAgentSnapshot] = useState<Snapshot|null>(null);
-  const [localChats,setLocalChats] = useState<Record<string,LocalChat>>(() => {
-    const value = readStored<unknown>(localStorage,'strip_implicit_local_chats_v1',{});
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-    return Object.fromEntries(Object.entries(value).filter(([id,chat]) =>
-      /^loc_[a-zA-Z0-9]+$/.test(id) && chat && typeof chat === 'object' && typeof (chat as LocalChat).model === 'string' && Array.isArray((chat as LocalChat).messages)
-    )) as Record<string,LocalChat>;
-  });
+  const [active,setActive] = useState(() => {if(startFresh)return '';const value = readStored<unknown>(localStorage,ACTIVE_KEY,'');return typeof value === 'string' ? value:'';});
+  const [snapshot,setSnapshot] = useState<Snapshot|null>(null);
+  const [overview,setOverview]=useState<TaskOverview>({maxParallel:3,activeCount:0,queued:0,pausedSessions:[],runningSessions:[]});
   const [workspace,setWorkspace] = useState('');
   const [drafts,setDrafts] = useState<Record<string,string>>(() => {
     const value=readStored<unknown>(localStorage,'strip_unified_drafts_v1',{});
     return value && typeof value === 'object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).filter(([,v])=>typeof v === 'string')):{};
   });
-  const [error,setError] = useState(''),[sending,setSending] = useState(false),[loading,setLoading] = useState(false),[deciding,setDeciding] = useState('');
+  const [error,setError] = useState(''),[sending,setSending] = useState(false),[loading,setLoading] = useState(false),[deciding,setDeciding] = useState(''),[removing,setRemoving] = useState('');
   const sendingRef = useRef(false),activeRef = useRef(active),runningRef = useRef<string|null>(null);
   const cancelRequested = useRef(false);
-  const localAbort = useRef<AbortController|null>(null);
+  const requestController = useRef<AbortController|null>(null);
+  const decidingRef=useRef(false);
+  const [newApprovalMode,setNewApprovalMode]=useState<ApprovalMode>('ask');
+  const [modeUpdating,setModeUpdating]=useState(false);
+  const modeLock=useRef(false),modeRevision=useRef(0);
+  const approvalMode:ApprovalMode=snapshot?.approvalMode || (!/^ses_/.test(active)?newApprovalMode:'ask');
+  useEffect(()=>{setNewApprovalMode(readApprovalPreference(localStorage,workspace,connection));},[workspace,connection]);
   activeRef.current = active;
   const legacy = active.startsWith('legacy:') ? legacyChats.find(c=>c.id === active.slice(7)) : undefined;
   const selected = sessions.find(s=>s.id === active);
   const legacyContext = legacy || (selected?.legacyId ? legacyChats.find(c=>c.id === selected.legacyId):undefined);
   const draft = drafts[active] || '';
-  const localSnapshot:Snapshot|null = active.startsWith('loc_') ? {
-    running: sending,
-    messages:[...(localChats[active]?.messages || [])].reverse(),
-    permissions:[],diff:[],forms:[],workspace,
-    model:{providerID:'implicit-local',id:localChats[active]?.model || '本地模型',name:localChats[active]?.model || '本地模型'},
-  }:null;
-  const snapshot = localSnapshot || agentSnapshot;
   const setDraft = (value:string) => setDrafts(all=>({...all,[active]:value}));
   const busy = sending || Boolean(snapshot?.running);
   const busySession = sending ? active : snapshot?.running ? active : runningRef.current;
-  useEffect(() => {try {localStorage.setItem('strip_implicit_local_chats_v1',JSON.stringify(localChats));}catch {setError('无法保存本地会话记录。');}},[localChats]);
+  useEffect(()=>{let dead=false,timer:ReturnType<typeof setTimeout>;const tick=async()=>{
+    try{const next=await api<TaskOverview>('/tasks');if(!dead)setOverview(next);}catch{/* The selected-session poll provides the actual error UI. */}
+    finally{if(!dead)timer=setTimeout(tick,1500);}
+  };void tick();return()=>{dead=true;clearTimeout(timer);};},[]);
   useEffect(() => {api<{workspace:string}>('/status').then(s=>setWorkspace(s.workspace)).catch(e=>setError(e.message));},[]);
   useEffect(() => {
     try {localStorage.setItem(SESSION_KEY,JSON.stringify(sessions));localStorage.setItem(ACTIVE_KEY,JSON.stringify(active));localStorage.setItem('strip_unified_migrated_v1','1');}
@@ -61,118 +67,160 @@ export function useUnifiedConversation() {
   },[sessions,active]);
   useEffect(()=>{try {localStorage.setItem('strip_unified_drafts_v1',JSON.stringify(drafts));} catch {setError('无法保存草稿，请检查存储空间。');}},[drafts]);
   useEffect(() => {
-    setAgentSnapshot(null);setError('');
+    setSnapshot(null);setError('');
     if (!/^ses_/.test(active)) {setLoading(false);return;}
     let disposed = false,timer:ReturnType<typeof setTimeout>;
     setLoading(true);
     const poll = async () => {
+      let nextPollMs=1200;
       try {
-        const result = await api<Snapshot>('/sessions/'+active);
-        if (!disposed) {setAgentSnapshot(result);if (result.running) runningRef.current = active;else if (runningRef.current === active) runningRef.current = null;}
+        const revision=modeRevision.current;
+        let result = await api<Snapshot>('/sessions/'+active);
+        if(!disposed && activeRef.current===active && !modeLock.current && !decidingRef.current && result.approvalMode==='allow-all' && result.permissions.length){
+          const batch=await api<{approved:string[];failures:{message:string}[];approvalMode:ApprovalMode}>('/sessions/'+active+'/approve-all',{automatic:true,requestIDs:result.permissions.map(p=>p.id)});
+          const approved=new Set(batch.approved);result={...result,approvalMode:batch.approvalMode,permissions:result.permissions.filter(p=>!approved.has(p.id))};
+          if(batch.failures.length && !disposed)setError('自动批准已停止：'+batch.failures[0].message);
+        }
+        nextPollMs=result.running || result.permissions?.length || result.forms?.length ? 350 : 1200;
+        if (!disposed) {setSnapshot(current=>revision===modeRevision.current?result:{...result,approvalMode:current?.approvalMode || 'ask'});if(result.workspace)setSessions(items=>items.some(item=>item.id===active && item.workspace!==result.workspace)?items.map(item=>item.id===active?{...item,workspace:result.workspace}:item):items);if (result.running) runningRef.current = active;else if (runningRef.current === active) runningRef.current = null;}
       } catch(e) {if (!disposed) setError(e instanceof Error ? e.message:'读取对话失败');}
-      finally {if (!disposed) {setLoading(false);timer = setTimeout(poll,800);}}
+      finally {if (!disposed) {setLoading(false);timer = setTimeout(poll,nextPollMs);}}
     };
     void poll();return () => {disposed = true;clearTimeout(timer);};
   },[active]);
   function select(id:string) {if (sendingRef.current) return;setActive(id);}
-  function newConversation(preservedDraft?:string) {if (sendingRef.current) return;if(preservedDraft !== undefined)setDrafts(all=>({...all,'':preservedDraft}));setActive('');setAgentSnapshot(null);setError('');}
-  async function send(text:string,files:File[] = [],options:{forceLocal?:boolean} = {}) {
-    const localRequested = options.forceLocal === true || active.startsWith('loc_');
-    if (sendingRef.current || snapshot?.running || (!text.trim() && !files.length) || (!localRequested && !workspace)) return;
+  function newConversation(preservedDraft?:string) {if (sendingRef.current) return;setNewApprovalMode(readApprovalPreference(localStorage,workspace,connection));if(preservedDraft !== undefined)setDrafts(all=>({...all,'':preservedDraft}));setActive('');setSnapshot(null);setError('');}
+  async function send(text:string,files:File[] = [],options:SendOptions={}) {
+    const targetWorkspace=options.workspace?.trim() || workspace;
+    if (sendingRef.current || (!text.trim() && !files.length) || !targetWorkspace) return;
+    const controller = new AbortController();
+    requestController.current = controller;
     sendingRef.current = true;cancelRequested.current=false;setSending(true);setError('');
     const originalActive = active;
-    let id = active;
+    let id = options.parallel ? '' : active;
     try {
-      if (localRequested) {
-        const cleaned = options.forceLocal ? text.trim().replace(/^\/本地(?:\s+|$)/,'') : text.trim();
-        if (!cleaned && !files.length) throw new Error('请输入本地模型需要回答的内容。');
-        let prompt = cleaned;
-        for (const file of files) {
-          if (file.size > 150000 || (file.type && !file.type.startsWith('text/') && !/json|javascript|xml/.test(file.type))) throw new Error('请添加小于 150 KB 的文本或代码文件。');
-          const content = await file.text();
-          if (content.includes('\0')) throw new Error('暂不支持二进制附件，请添加文本或代码文件。');
-          prompt += '\n\n附件 '+file.name+'：\n'+content;
-        }
-        if (prompt.length > 60000) throw new Error('消息与附件合计超过 60000 字符。');
-        const localId = active.startsWith('loc_') ? active : 'loc_'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
-        const prior = localChats[localId]?.messages || [];
-        const userTurn:LocalTurn = {id:'local-user-'+Date.now(),type:'user',text:cleaned || '请阅读附件'};
-        if (!active.startsWith('loc_')) {
-          setSessions(all=>[{id:localId,title:cleaned.slice(0,30) || '本地对话',updatedAt:Date.now()},...all]);
-          activeRef.current = localId;setActive(localId);
-        }
-        setLocalChats(all=>({...all,[localId]:{model:all[localId]?.model || '本地模型',messages:[...prior,userTurn].slice(-48)}}));
-        const controller = new AbortController();
-        localAbort.current = controller;
-        const response = await fetch('/api/local-model/chat',{
-          method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,
-          body:JSON.stringify({messages:[...prior.slice(-23).map(m=>({role:m.type,content:m.text})),{role:'user',content:prompt}]}),
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || '本地模型请求失败。');
-        if (typeof result.reply !== 'string' || !result.reply.trim()) throw new Error('本地模型未返回有效回复。');
-        setLocalChats(all=>({...all,[localId]:{
-          model:typeof result.model === 'string' ? result.model:'本地模型',
-          messages:[...(all[localId]?.messages || []),{id:'local-assistant-'+Date.now(),type:'assistant' as const,text:result.reply}].slice(-48),
-        }}));
-        setSessions(all=>all.map(item=>item.id===localId ? {...item,updatedAt:Date.now()}:item));
-        setDrafts(all=>({...all,[originalActive]:'',[localId]:''}));
-        return;
-      }
-      let prompt = text.trim() ? text : '请阅读并分析以下附件。';
-      for (const file of files) {
-        if (file.size > 150000 || (file.type && !file.type.startsWith('text/') && !/json|javascript|xml/.test(file.type))) throw new Error('请添加小于 150 KB 的文本或代码文件。');
-        const content = await file.text();
-        if (content.includes('\0')) throw new Error('暂不支持二进制附件，请添加文本或代码文件。');
-        prompt += `\n\n附件 ${file.name}：\n${content}`;
-      }
+      let prompt = await mergePrompt(text,files);
+      if (controller.signal.aborted || cancelRequested.current) throw abortedRequest();
       if (!id || id.startsWith('legacy:')) {
-        if (legacy) {
+        if (legacy && !options.parallel) {
           const history = legacy.messages.filter(m=>!['error','stopped','streaming'].includes(m.status || '')).map(m=>`${m.role === 'user' ? '用户':'助手'}：${m.content}`).join('\n\n');
           if (history.length > 40000) throw new Error('旧对话上下文过长，请新建对话或精简内容后继续。');
-          prompt = `以下是此前对话的文本记录，作为背景信息：\n<previous_conversation>\n${history}\n</previous_conversation>\n\n现在用户的请求：\n${prompt}`;
+          prompt = await mergePrompt(text,files,history);
         }
-        if (prompt.length > 60000) throw new Error('消息与附件合计超过 60000 字符，请减少内容。');
-        const result = await api<{session:Session}>('/sessions',{workspace,provider:'ccswitch',title:legacy?.title || text.trim().slice(0,30) || '附件分析'});
+        if (controller.signal.aborted || cancelRequested.current) throw abortedRequest();
+        const result = await api<{session:Session}>('/sessions',{workspace:targetWorkspace,provider:connection,...['codex','opencode'].includes(connection)?{modelOverride:nativeModel,...reasoningVariant?{reasoningVariant}:{}}:{},approvalMode:newApprovalMode,confirmApprovalMode:newApprovalMode==='allow-all',title:(!options.parallel && legacy?.title) || text.trim().slice(0,30) || '附件分析'},controller.signal);
         id = result.session.id;
-        setSessions(all=>[{id,title:result.session.title || text.slice(0,30),updatedAt:Date.now(),legacyId:legacy?.id},...all]);
+        setSessions(all=>[{id,title:result.session.title || text.slice(0,30),updatedAt:Date.now(),workspace:targetWorkspace,legacyId:!options.parallel?legacy?.id:undefined},...all]);
         activeRef.current = id;setActive(id);
       }
-      if (prompt.length > 60000) throw new Error('消息与附件合计超过 60000 字符，请减少内容。');
-      if (cancelRequested.current) {setDrafts(all=>({...all,[id]:text}));return;}
-      await api('/sessions/'+id+'/prompt',{text:prompt,provider:'ccswitch'});
-      if (cancelRequested.current) {await api('/sessions/'+id+'/interrupt',{});setDrafts(all=>({...all,[id]:text}));return;}
-      runningRef.current = id;
+      if (controller.signal.aborted || cancelRequested.current) throw abortedRequest();
+      await api('/sessions/'+id+'/prompt',{text:prompt,provider:connection},controller.signal);
+      if (controller.signal.aborted || cancelRequested.current) throw abortedRequest();
+      // The scheduler may queue this request; only polling sets runningRef.
       setDrafts(all=>({...all,[originalActive]:'',[id]:''}));
       setSessions(all=>all.map(s=>s.id === id ? {...s,updatedAt:Date.now()}:s));
     } catch(e) {
-      setDrafts(all=>({...all,[id]:text}));
-      if (!(localRequested && cancelRequested.current && e instanceof Error && e.name === 'AbortError')) {setError(e instanceof Error ? e.message:'发送失败');throw e;}
-    } finally {localAbort.current = null;sendingRef.current = false;setSending(false);}
+      setDrafts(all=>({...all,[originalActive]:originalActive===id?text:'',[id]:text}));
+      if (controller.signal.aborted || cancelRequested.current || isAbortError(e)) throw isAbortError(e) ? e : abortedRequest();
+      setError(e instanceof Error ? e.message:'发送失败');
+      throw e;
+    } finally {
+      if (requestController.current === controller) requestController.current = null;
+      sendingRef.current = false;setSending(false);
+    }
+  }
+  async function sendParallel(text:string,files:File[]=[],targetWorkspace?:string){
+    return send(text,files,{parallel:true,workspace:targetWorkspace});
+  }
+  async function queueAction(action:'pause'|'resume'|'interrupt') {
+    const id=activeRef.current;if(!/^ses_/.test(id))return;
+    setError('');
+    try{const response=await api<{paused:boolean;tasks:Snapshot['tasks']}>('/sessions/'+id+'/'+action,{});
+      if(activeRef.current===id)setSnapshot(current=>current?{...current,queuePaused:response.paused,tasks:response.tasks||current.tasks}:current);
+    }catch(error){setError(error instanceof Error?error.message:'无法更改任务状态');throw error;}
+  }
+  async function pause(){return queueAction('pause');}
+  async function resume(){return queueAction('resume');}
+  async function cancelTask(taskID:string){
+    const id=activeRef.current;if(!/^ses_/.test(id))return;setError('');
+    try{const response=await api<{tasks:Snapshot['tasks']}>('/sessions/'+id+'/tasks/'+taskID+'/cancel',{});
+      if(activeRef.current===id)setSnapshot(current=>current?{...current,tasks:response.tasks||current.tasks}:current);
+    }catch(error){setError(error instanceof Error?error.message:'取消任务失败');throw error;}
   }
   async function stop() {
+    setNewApprovalMode('ask');setSnapshot(s=>s?{...s,approvalMode:'ask'}:s);modeRevision.current++;
     cancelRequested.current=true;
-    if (activeRef.current.startsWith('loc_')) {localAbort.current?.abort();return;}
-    const id = runningRef.current || activeRef.current;
+    const controller = requestController.current;
+    if (controller && !controller.signal.aborted) controller.abort();
+    const id = activeRef.current;
     if (!/^ses_/.test(id)) return;
-    try {await api('/sessions/'+id+'/interrupt',{});runningRef.current = null;}
-    catch(e) {setError(e instanceof Error ? e.message:'停止失败');}
+    try {
+      await api('/sessions/'+id+'/interrupt',{});
+      runningRef.current = null;
+      setSnapshot(current=>current && current.running ? {...current,running:false} : current);
+    }
+    catch(e) {
+      setError(e instanceof Error ? e.message:'停止失败');
+      throw e instanceof Error ? e : new Error('停止失败');
+    }
   }
-  async function decide(id:string,decision:'once'|'reject') {
+  async function setApprovalMode(mode:ApprovalMode){
+    if(modeLock.current)throw new Error('权限模式正在更新。');
+    const session=activeRef.current;modeLock.current=true;setModeUpdating(true);modeRevision.current++;
+    const preferenceWorkspace=/^ses_/.test(session)?snapshot?.workspace || workspace:workspace;
+    const previous=readApprovalPreference(localStorage,preferenceWorkspace,connection);
+    let saved=false;
+    try{
+      writeApprovalPreference(localStorage,preferenceWorkspace,connection,mode);saved=true;
+      if(/^ses_/.test(session)){
+        await api('/sessions/'+session+'/approval-mode',{mode,confirmed:mode==='allow-all'});
+        if(activeRef.current===session)setSnapshot(s=>s?{...s,approvalMode:mode}:s);
+      }
+      setNewApprovalMode(readApprovalPreference(localStorage,workspace,connection));
+    }catch(error){if(saved){try{writeApprovalPreference(localStorage,preferenceWorkspace,connection,previous);}catch{/* Keep the original request failure visible. */}}throw error;}
+    finally{modeRevision.current++;modeLock.current=false;setModeUpdating(false);}
+  }
+  async function approveAllPending(requestIDs?:string[]){
+    if(decidingRef.current)throw new Error('另一项审批正在提交。');
+    const session=activeRef.current,ids=requestIDs || snapshot?.permissions.map(p=>p.id) || [];
+    if(!/^ses_/.test(session) || !ids.length)throw new Error('当前没有待审批请求。');
+    decidingRef.current=true;setDeciding('all');
+    try{
+      const result=await api<{approved:string[];failures:{message:string}[];approvalMode:ApprovalMode}>('/sessions/'+session+'/approve-all',{requestIDs:ids,confirmed:true});
+      if(activeRef.current===session){const approved=new Set(result.approved);setSnapshot(s=>s?{...s,approvalMode:result.approvalMode,permissions:s.permissions.filter(p=>!approved.has(p.id))}:s);}
+      if(result.failures.length)throw new Error('部分操作未批准：'+result.failures[0].message);
+    }finally{decidingRef.current=false;setDeciding('');}
+  }
+  async function decide(id:string,decision:ApprovalDecision,confirmation?:ApprovalConfirmation) {
+    if(decidingRef.current)throw new Error('另一项审批正在提交，请稍后重试。');
+    decidingRef.current=true;
+    const session=active;
     setDeciding(id);
-    try {await api('/sessions/'+active+'/permissions',{requestID:id,decision});setAgentSnapshot(s=>s ? {...s,permissions:s.permissions.filter(p=>p.id !== id)}:s);}
-    catch(e) {setError(e instanceof Error ? e.message:'审批失败');}finally {setDeciding('');}
+    try {await api('/sessions/'+session+'/permissions',{requestID:id,decision,...confirmation});if(activeRef.current===session)setSnapshot(s=>s ? {...s,permissions:s.permissions.filter(p=>p.id !== id)}:s);}
+    catch(e) {throw e instanceof Error?e:new Error('审批失败');}finally {decidingRef.current=false;setDeciding('');}
   }
   async function answer(formID:string,value:Record<string,unknown>) {
     await api('/sessions/'+active+'/forms',{formID,answer:value});
-    setAgentSnapshot(s=>s ? {...s,forms:s.forms.filter(f=>f.id !== formID)}:s);
+    setSnapshot(s=>s ? {...s,forms:s.forms.filter(f=>f.id !== formID)}:s);
   }
-  function remove(id:string) {
-    if (id === busySession) return;
-    if (id.startsWith('legacy:')) {const next = legacyChats.filter(c=>c.id !== id.slice(7));localStorage.setItem('lucent_conversations_v1',JSON.stringify(next));setLegacyChats(next);}
-    else {setSessions(all=>all.filter(s=>s.id !== id));if (id.startsWith('loc_')) setLocalChats(all=>{const next={...all};delete next[id];return next;});}
-    if (active === id) newConversation();
+  async function remove(id:string) {
+    if (id===busySession || sendingRef.current || removing)return;
+    setRemoving(id);setError('');
+    try{
+      if(id.startsWith('legacy:')){
+        const next=legacyChats.filter(chat=>chat.id!==id.slice(7));
+        localStorage.setItem('lucent_conversations_v1',JSON.stringify(next));setLegacyChats(next);
+      }else{
+        const response=await fetch('/api/agent/sessions/'+encodeURIComponent(id),{method:'DELETE'});
+        const value=await response.json();
+        if(!response.ok)throw new Error(value.error || '删除会话失败。');
+        setSessions(all=>all.filter(session=>session.id!==id));
+      }
+      setDrafts(all=>{const next={...all};delete next[id];return next;});
+      if(activeRef.current===id)newConversation();
+    }catch(e){setError(e instanceof Error?e.message:'删除失败，请重试。');}
+    finally{setRemoving('');}
   }
-  return {sessions,legacyChats,active,selected,legacyContext,snapshot,workspace,setWorkspace,draft,setDraft,error,loading,sending,busy,busySession,deciding,select,newConversation,send,stop,decide,answer,remove};
+  return {sessions,legacyChats,active,selected,legacyContext,snapshot,overview,workspace,setWorkspace,draft,setDraft,error,loading,sending,busy,busySession,deciding,removing,select,newConversation,send,sendParallel,pause,resume,cancelTask,stop,decide,answer,remove,approvalMode,modeUpdating,setApprovalMode,approveAllPending};
 }
 

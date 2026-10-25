@@ -1,0 +1,146 @@
+/* home-motion.css — homepage / composer / reply motion layer.
+   Imported after the existing theme and composer styles. */
+.strip-app[data-appearance] {
+  --home-ease: 560ms cubic-bezier(.22, 1, .36, 1);
+  --home-spring: 420ms cubic-bezier(.34, 1.56, .64, 1);
+  --brand-orange: #f6a36b;
+  --brand-blue: #86b4e8;
+  --brand-green: #a3d1ad;
+}
+
+/* 1. Home entrance: logo -> title -> subtitle -> composer */
+.strip-home-enter { animation: home-fade var(--home-ease) backwards; }
+.strip-home-logo {
+  animation: home-rise var(--home-ease) 60ms backwards;
+  transition: transform var(--home-spring), filter 260ms;
+}
+.strip-home-logo:hover {
+  filter: saturate(1) drop-shadow(0 8px 18px rgba(134,180,232,.3));
+}
+.strip-home-heading { animation: home-rise var(--home-ease) 160ms backwards; }
+.strip-home-subtext { animation: home-rise var(--home-ease) 260ms backwards; }
+.strip-app[data-appearance] .strip-composer-region {
+  animation: home-fade var(--home-ease) 340ms backwards;
+}
+.strip-home-heading em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--accent), var(--brand-orange), var(--brand-blue), var(--accent));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: home-hue 9s linear infinite;
+}
+
+/* 2. Composer: soft focus lift, elastic send, stream pulse */
+.strip-app[data-appearance] .strip-codex-composer__panel {
+  transform: none !important;
+  transition: border-color 180ms ease, box-shadow 220ms ease;
+}
+.strip-app[data-appearance] .strip-codex-composer__panel:focus-within {
+  transform: none !important;
+  box-shadow:
+    var(--scc-surface-shadow),
+    0 10px 24px color-mix(in srgb, var(--accent) 12%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.strip-app[data-appearance] .strip-codex-composer__send {
+  transition: transform var(--home-spring), background 180ms, box-shadow 200ms, opacity 160ms;
+}
+.strip-app[data-appearance] .strip-codex-composer__send:not(:disabled):hover { transform: translateY(-1px) scale(1.06); }
+.strip-app[data-appearance] .strip-codex-composer__send:not(:disabled):active { transform: scale(.92); }
+.strip-app[data-appearance] .strip-codex-composer__send:not(:disabled) {
+  animation: home-pop 320ms cubic-bezier(.34,1.56,.64,1);
+}
+.strip-app[data-appearance] .strip-codex-composer__send.is-streaming { position: relative; }
+.strip-app[data-appearance] .strip-codex-composer__send.is-streaming::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  animation: home-pulse 1.4s ease-out infinite;
+}
+.strip-app[data-appearance] .strip-codex-composer__file {
+  animation: home-rise 260ms cubic-bezier(.22,1,.36,1) backwards;
+}
+.strip-app[data-appearance] .strip-codex-composer__textarea { transition: height 140ms ease-out; }
+
+/* 3. Reply stream: message entrance, activity steps, cursor and skeleton */
+.strip-app[data-appearance] .strip-chat__message {
+  animation: home-rise 320ms cubic-bezier(.22,1,.36,1) backwards;
+}
+.strip-app[data-appearance] .strip-chat__message--user .strip-chat__body {
+  transform-origin: right bottom;
+  animation: home-pop 300ms cubic-bezier(.34,1.56,.64,1) backwards;
+}
+.strip-app[data-appearance] .strip-stream-step {
+  animation: home-rise 260ms cubic-bezier(.22,1,.36,1) backwards;
+}
+.strip-app[data-appearance] .strip-markdown--streaming .strip-md-cursor {
+  background: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.strip-reply-skeleton {
+  display: grid;
+  gap: 9px;
+  padding: 4px 0;
+  max-width: 520px;
+}
+.strip-reply-skeleton span {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface-3) 50%, var(--surface-2) 70%);
+  background-size: 200% 100%;
+  animation: home-sweep 1.6s ease-in-out infinite;
+}
+.strip-reply-skeleton span:nth-child(2) { width: 86%; }
+.strip-reply-skeleton span:nth-child(3) { width: 62%; }
+.strip-copy-done {
+  animation: home-pop 360ms cubic-bezier(.34,1.56,.64,1);
+  color: var(--diff-add-sign);
+}
+
+/* 4. Notifications and popovers */
+.strip-app[data-appearance] .strip-notification {
+  animation: home-rise 280ms cubic-bezier(.22,1,.36,1) backwards;
+}
+.strip-app[data-appearance] .strip-dropdown__popup {
+  animation: home-pop 220ms cubic-bezier(.22,1,.36,1) backwards;
+  transform-origin: bottom left;
+}
+.strip-app[data-appearance] .smp-popup {
+  animation: home-fade 160ms ease-out backwards;
+  transform-origin: bottom left;
+}
+
+@keyframes home-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes home-rise { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes home-pop { 0% { transform: scale(.94); opacity: .6 } 60% { transform: scale(1.03) } 100% { transform: scale(1); opacity: 1 } }
+@keyframes home-pulse { 0% { transform: scale(.9); opacity: .9 } 100% { transform: scale(1.35); opacity: 0 } }
+@keyframes home-hue { to { background-position: 300% 0 } }
+@keyframes home-sweep { 0% { background-position: 100% 0 } 100% { background-position: -100% 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip-home-enter,
+  .strip-home-logo,
+  .strip-home-heading,
+  .strip-home-subtext,
+  .strip-app[data-appearance] .strip-composer-region,
+  .strip-app[data-appearance] .strip-chat__message,
+  .strip-app[data-appearance] .strip-chat__message--user .strip-chat__body,
+  .strip-app[data-appearance] .strip-stream-step,
+  .strip-app[data-appearance] .strip-codex-composer__send,
+  .strip-app[data-appearance] .strip-codex-composer__file,
+  .strip-app[data-appearance] .strip-notification,
+  .strip-app[data-appearance] .strip-dropdown__popup,
+  .strip-app[data-appearance] .smp-popup,
+  .strip-home-heading em {
+    animation: none !important;
+    transition: none !important;
+  }
+  .strip-app[data-appearance] .strip-codex-composer__send.is-streaming::after { animation: none; opacity: .5; }
+  .strip-reply-skeleton span { animation: none; }
+}
+

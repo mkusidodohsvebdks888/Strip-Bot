@@ -1,0 +1,174 @@
+{
+  "parts": [
+    {
+      "name": "body",
+      "kind": "torus",
+      "mat": "cream",
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "eye_left",
+      "kind": "sphere",
+      "mat": "eye",
+      "pos": [
+        -0.55,
+        0.47,
+        0.5504747739944599
+      ],
+      "scale": [
+        0.185,
+        0.27,
+        0.13
+      ]
+    },
+    {
+      "name": "eye_right",
+      "kind": "sphere",
+      "mat": "eye",
+      "pos": [
+        0.55,
+        0.55,
+        0.5519127291568197
+      ],
+      "scale": [
+        0.175,
+        0.26,
+        0.13
+      ]
+    },
+    {
+      "name": "cheek_left",
+      "kind": "sphere",
+      "mat": "pink",
+      "pos": [
+        -0.88,
+        0.12,
+        0.5130059329884903
+      ],
+      "scale": [
+        0.22,
+        0.16,
+        0.035
+      ]
+    },
+    {
+      "name": "cheek_right",
+      "kind": "sphere",
+      "mat": "pink",
+      "pos": [
+        0.89,
+        0.22,
+        0.5085224336380744
+      ],
+      "scale": [
+        0.205,
+        0.15,
+        0.035
+      ]
+    },
+    {
+      "name": "hand_left",
+      "kind": "sphere",
+      "mat": "cream",
+      "pos": [
+        -1.25,
+        -0.55,
+        0.2
+      ],
+      "scale": [
+        0.35,
+        0.36,
+        0.34
+      ]
+    },
+    {
+      "name": "hand_right",
+      "kind": "sphere",
+      "mat": "cream",
+      "pos": [
+        1.27,
+        -0.36,
+        0.2
+      ],
+      "scale": [
+        0.34,
+        0.35,
+        0.33
+      ]
+    },
+    {
+      "name": "foot_left",
+      "kind": "sphere",
+      "mat": "cream",
+      "pos": [
+        -0.65,
+        -1.4,
+        0.1
+      ],
+      "scale": [
+        0.4,
+        0.26,
+        0.42
+      ]
+    },
+    {
+      "name": "foot_right",
+      "kind": "sphere",
+      "mat": "cream",
+      "pos": [
+        0.65,
+        -1.4,
+        0.1
+      ],
+      "scale": [
+        0.4,
+        0.26,
+        0.42
+      ]
+    }
+  ],
+  "materials": {
+    "cream": {
+      "color": [
+        0.95,
+        0.925,
+        0.9,
+        1
+      ],
+      "roughness": 0.48
+    },
+    "eye": {
+      "color": [
+        0.012,
+        0.012,
+        0.016,
+        1
+      ],
+      "roughness": 0.12
+    },
+    "pink": {
+      "color": [
+        1,
+        0.63,
+        0.68,
+        1
+      ],
+      "roughness": 0.65
+    }
+  },
+  "floor": -1.69,
+  "base_rotation": [
+    0,
+    -0.2,
+    0.06
+  ]
+}

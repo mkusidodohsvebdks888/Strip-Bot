@@ -1,0 +1,93 @@
+/* Shared Alpha eye animation surface. Keep image and SVG on identical cover geometry. */
+.alpha-eye{
+  position:relative;
+  display:inline-block;
+  width:70px;
+  height:70px;
+  aspect-ratio:1/1;
+  flex:0 0 auto;
+  overflow:hidden;
+  border-radius:22%;
+  isolation:isolate;
+  vertical-align:middle;
+  line-height:0;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+  contain:layout paint;
+  transition:filter .24s ease;
+}
+.alpha-eye__stage{
+  position:absolute;
+  inset:0;
+  display:block;
+  overflow:hidden;
+  border-radius:inherit;
+  transform-style:preserve-3d;
+  will-change:transform;
+  transition:transform .25s ease;
+}
+.alpha-eye__image,
+.alpha-eye__overlay{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+}
+.alpha-eye__image{
+  border-radius:inherit;
+  object-fit:cover;
+  object-position:center;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-user-drag:none;
+  pointer-events:none;
+}
+.alpha-eye__overlay{
+  overflow:hidden;
+  pointer-events:none;
+}
+.alpha-eye:hover{
+  filter:drop-shadow(0 7px 16px rgba(0,0,0,.22));
+}
+
+/* Existing project sizing and placement. */
+.strip-app[data-appearance] .alpha-eye.strip-welcome-logo{
+  width:70px;
+  height:70px;
+  margin:0 0 9px;
+  filter:none;
+}
+.strip-api-entry[data-appearance] .strip-entry-monogram .alpha-eye{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+}
+.strip-api-entry[data-appearance] .strip-entry-monogram:hover .alpha-eye{
+  filter:drop-shadow(0 6px 14px color-mix(in srgb,var(--accent) 25%,transparent));
+}
+.strip-app .alpha-eye.strip-tool-brand{
+  width:26px;
+  height:26px;
+  border-radius:7px;
+}
+.strip-app .alpha-eye.strip-tool-brand .alpha-eye__stage{
+  transition-duration:160ms;
+}
+
+@media(max-width:760px){
+  .strip-app[data-appearance] .alpha-eye.strip-welcome-logo{width:64px;height:64px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .alpha-eye,
+  .alpha-eye__stage,
+  .alpha-eye:hover{
+    transition:none;
+    filter:none;
+    transform:none!important;
+  }
+}
+
+
+

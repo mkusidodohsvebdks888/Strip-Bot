@@ -18,19 +18,32 @@ async function build() {
   const entries = [...html.matchAll(/(?:src|href)="(\/assets\/[a-zA-Z0-9._-]+\.(?:js|css))"/g)].map(match => match[1].slice(1));
   const manifest = JSON.parse((await fs.readFile(path.join(publicDir,'build-manifest.json'),'utf8')).replace(/^\uFEFF/,''));
   const assets = manifest.assets;
-  if (!Array.isArray(assets) || !assets.every(name => /^assets\/[a-zA-Z0-9._-]+\.(js|css|woff2?|png|svg)$/.test(name)) || !entries.every(name => assets.includes(name))) throw new Error('UI build manifest is invalid or stale.');
+  if (!Array.isArray(assets) || !assets.every(name => /^assets\/[a-zA-Z0-9._-]+\.(js|css|woff2?|png|jpe?g|webp|svg)$/.test(name)) || !entries.every(name => assets.includes(name))) throw new Error('UI build manifest is invalid or stale.');
   if (!assets.length) throw new Error('UI assets missing; run scripts/BuildUI.ps1 first.');
-  for (const name of ['index.html','brand-logo.png','strip-bot.ico', ...assets]) {
+  for (const name of ['index.html','brand-logo.png','login-brand.jpg','strip-bot.ico', ...assets]) {
     const target = path.join(staging,'public',name);
     await fs.mkdir(path.dirname(target),{recursive:true});
     await fs.copyFile(path.join(publicDir,name),target);
   }
+  const stripButtons = path.join(publicDir,'strip-buttons');
+  try {
+    await fs.access(stripButtons);
+    await fs.cp(stripButtons, path.join(staging,'public','strip-buttons'), {recursive:true});
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
   await fs.cp(path.join(root, 'licenses'), path.join(staging, 'licenses'), {recursive:true});
-  await fs.writeFile(path.join(staging, 'package.json'), JSON.stringify({name:'strip-bot',productName:'Strip Bot',version:'1.0.0',main:'main.cjs',description:'Strip Bot local desktop AI chat'}));
+  await fs.writeFile(path.join(staging, 'package.json'), JSON.stringify({name:'strip-bot',productName:'Strip Bot',version:'1.0.1',main:'main.cjs',description:'Strip Bot local desktop AI chat'}));
   const {packager} = await import('@electron/packager');
-  const agentBinary = path.join(root,'agent-runtime','node_modules','@opencode','cli','bin','opencode.exe');
-  await fs.access(agentBinary);
-  const paths = await packager({dir:staging,name:'Strip Bot',platform:'win32',arch:'x64',out:output,overwrite:true,asar:true,extraResource:[agentBinary,path.join(root,'licenses','opencode-MIT.txt')],icon:path.join(root,'public','strip-bot.ico'),electronVersion:require('./node_modules/electron/package.json').version,electronZipDir:path.join(root,'.runtime'),appCopyright:'Strip Bot',win32metadata:{CompanyName:'Strip Bot',FileDescription:'Strip Bot Desktop',ProductName:'Strip Bot'},prune:false});
+  const agentVendor = path.join(root,'agent-runtime','node_modules','@openai','codex-win32-x64','vendor','x86_64-pc-windows-msvc');
+  await fs.access(path.join(agentVendor,'bin','codex.exe'));
+  const agentResources = path.join(__dirname,'codex');
+  await fs.mkdir(agentResources,{recursive:true});
+  await fs.cp(agentVendor,agentResources,{recursive:true});
+  const paths = await packager({dir:staging,name:'Strip Bot',platform:'win32',arch:'x64',out:output,overwrite:true,asar:true,extraResource:[agentResources,path.join(root,'plugins','nono-desktop'),path.join(root,'plugins','astrbot-desktop')],icon:path.join(root,'public','strip-bot.ico'),electronVersion:require('./node_modules/electron/package.json').version,electronZipDir:path.join(root,'.runtime'),appCopyright:'Strip Bot',win32metadata:{CompanyName:'Strip Bot',FileDescription:'Strip Bot Desktop',ProductName:'Strip Bot'},prune:false});
   console.log('Desktop application:', paths.join(', '));
 }
 build().catch(error=>{console.error(error.message);process.exitCode=1;});
+
+
+

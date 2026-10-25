@@ -1,0 +1,76 @@
+{
+  "canvas": [
+    1374,
+    1145
+  ],
+  "coordinates": "viewer left/right",
+  "order": [
+    "shadow",
+    "foot_left",
+    "foot_right",
+    "body",
+    "hand_left",
+    "hand_right"
+  ],
+  "boxes_xywh": {
+    "hand_left": [
+      219,
+      630,
+      219,
+      225
+    ],
+    "hand_right": [
+      1005,
+      544,
+      200,
+      208
+    ],
+    "foot_left": [
+      377,
+      866,
+      244,
+      151
+    ],
+    "foot_right": [
+      763,
+      871,
+      251,
+      140
+    ],
+    "body": [
+      257,
+      133,
+      868,
+      817
+    ],
+    "shadow": [
+      158,
+      936,
+      963,
+      101
+    ]
+  },
+  "pivots_xy": {
+    "body": [
+      684,
+      943
+    ],
+    "hand_left": [
+      414,
+      715
+    ],
+    "hand_right": [
+      1031,
+      656
+    ],
+    "foot_left": [
+      498,
+      898
+    ],
+    "foot_right": [
+      895,
+      902
+    ]
+  },
+  "note": "Hidden surfaces are inferred. Large gestures need additional painted coverage."
+}

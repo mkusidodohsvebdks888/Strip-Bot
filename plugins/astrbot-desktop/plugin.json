@@ -1,0 +1,13 @@
+{
+  "id": "astrbot-desktop",
+  "name": "AstrBot QQ",
+  "version": "0.1.0",
+  "host": "stripbot",
+  "entry": "toolbar",
+  "platform": "all",
+  "permissions": [
+    "loopback-status",
+    "loopback-open"
+  ],
+  "description": "在 Strip Bot 工具栏查看 AstrBot、NapCat 和本地模型状态，并打开管理后台。"
+}

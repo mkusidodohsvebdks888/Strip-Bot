@@ -1,11 +1,17 @@
 'use strict';
+if(process.argv.includes('--nono-pet')){
+  require(require('node:path').join(process.resourcesPath,'nono-desktop','desktop.cjs'));
+}else{
 const { app, BrowserWindow, Menu, dialog, shell, ipcMain, nativeTheme } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const {findWorkspace, startLocalService} = require('./runtime/local-service.cjs');
+const {getAppearance}=require('./runtime/window-appearance.cjs');
 const {registerStorageMigration} = require('./runtime/storage-migration.cjs');
 const resources = fs.existsSync(path.join(__dirname,'backend','gateway.cjs')) ? __dirname : path.resolve(__dirname,'..');
-const workspace = findWorkspace(resources);
+const discoveredWorkspace = findWorkspace(resources);
+const workspace = app.isPackaged && !process.env.STRIPBOT_WORKSPACE_ROOT ? null : discoveredWorkspace;
+let dataRoot;
 let BASE_URL;
 function trace(stage) {
   try { if (process.env.STRIPBOT_VERIFY_FILE) fs.appendFileSync(`${process.env.STRIPBOT_VERIFY_FILE}.startup.log`, `${stage}\n`); } catch {}
@@ -16,8 +22,9 @@ let service;
 app.setName('Strip Bot');
 // An explicit acceptance run uses its own profile, leaving the active app alone.
 if (process.env.STRIPBOT_VERIFY_PROFILE) app.setPath('userData',path.resolve(process.env.STRIPBOT_VERIFY_PROFILE));
+dataRoot = app.getPath('userData');
 app.setAppUserModelId('local.stripbot.desktop');
-nativeTheme.themeSource = 'dark';
+nativeTheme.themeSource = 'light';
 if (!app.requestSingleInstanceLock()) { trace('another-instance'); app.quit(); }
 else {
   app.on('second-instance', () => { if (window) { if (window.isMinimized()) window.restore(); window.show(); window.focus(); } });
@@ -26,20 +33,28 @@ else {
 async function start() {
   trace('app-ready');
   Menu.setApplicationMenu(null);
-  service = await startLocalService({resources,workspace,port:Number(process.env.STRIPBOT_PORT || 3060),agentExecutable:app.isPackaged ? path.join(process.resourcesPath,'opencode.exe'):undefined});
+  service = await startLocalService({resources,workspace,dataRoot,port:Number(process.env.STRIPBOT_PORT || 3060),agentExecutable:app.isPackaged ? path.join(process.resourcesPath,'codex','bin','codex.exe'):undefined});
   BASE_URL = service.baseUrl;
   registerStorageMigration(ipcMain,BASE_URL,workspace);
+  ipcMain.on('stripbot:appearance',(event,appearance)=>{
+    if(!window || window.isDestroyed() || event.sender!==window.webContents || event.senderFrame!==window.webContents.mainFrame)return;
+    const palette=getAppearance(appearance);if(!palette)return;
+    nativeTheme.themeSource=palette.theme;
+    window.setBackgroundColor(palette.backgroundColor);
+    window.setTitleBarOverlay({color:palette.color,symbolColor:palette.symbolColor,height:44});
+  });
   window = new BrowserWindow({
-    title: 'Strip Bot', width: 1200, height: 850, minWidth: 420, minHeight: 560,
-    show: false, backgroundColor: '#0a0a0b', autoHideMenuBar: true,
+    title: 'Strip Bot', width: 1200, height: 850, minWidth: 420, minHeight: 700,
+    show: false, backgroundColor: '#faf9f6', autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#0a0a0b', symbolColor: '#cfcfd2', height: 34 },
+    titleBarOverlay: { color: '#faf9f6', symbolColor: '#4a4139', height: 44 },
     icon: path.join(resources, 'public', 'strip-bot.ico'),
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, partition: 'persist:stripbot', preload:path.join(__dirname,'preload.cjs') },
   });
   trace('window-created');
   window.webContents.setWindowOpenHandler(({url}) => {
-    if (url === 'https://github.com/saoudi-h/solar-icons') void shell.openExternal(url);
+    const allowExternal = (()=>{try{const target=new URL(url);if(target.protocol==='https:' && target.hostname==='auth.openai.com' && !target.username && !target.password)return true;if(target.protocol==='http:' && ['127.0.0.1','localhost','[::1]'].includes(target.hostname) && ['6185','6099'].includes(target.port) && (target.pathname==='/' || target.pathname.startsWith('/webui')))return true;return url === 'https://github.com/saoudi-h/solar-icons';}catch{return false;}})();
+    if (allowExternal) void shell.openExternal(url);
     return { action: 'deny' };
   });
   window.webContents.on('will-navigate', (event, url) => { if (!url.startsWith(`${BASE_URL}/`)) event.preventDefault(); });
@@ -62,3 +77,6 @@ async function start() {
 }
 app.on('window-all-closed', () => { trace('window-all-closed'); app.quit(); });
 app.on('before-quit', () => { void service?.close(); });
+}
+
+

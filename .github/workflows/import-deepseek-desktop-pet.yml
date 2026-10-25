@@ -1,0 +1,54 @@
+name: Import DeepSeek Harness Desktop Pet (one time)
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-deepseek-desktop-pet.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the destination repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Copy the complete upstream source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SOURCE_URL="https://github.com/wraven68/deepseek-harness-pet.git"
+          SOURCE_COMMIT="727554719360d58c49a16d3f4a4cc736ec95b4d8"
+          DEST="桌宠/DeepSeek-Harness-Pet"
+          SOURCE_DIR="${RUNNER_TEMP}/deepseek-harness-pet"
+
+          git clone --quiet "$SOURCE_URL" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" checkout --quiet --detach "$SOURCE_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test -f "$SOURCE_DIR/LICENSE"
+          test -s "$SOURCE_DIR/assets/selected/01_idle_open.png"
+          test -s "$SOURCE_DIR/assets/selected/02_idle_blink.png"
+          test -s "$SOURCE_DIR/assets/selected/03_working.png"
+          test -s "$SOURCE_DIR/assets/selected/04_complete.png"
+          test -s "$SOURCE_DIR/assets/selected/05_resting.png"
+
+          mkdir -p "$DEST"
+          rsync -a --exclude='.git' "$SOURCE_DIR/" "$DEST/"
+          test -s "$DEST/assets/selected/01_idle_open.png"
+          test -f "$DEST/pet.py"
+          test -f "$DEST/LICENSE"
+
+          echo "Imported $(find "$DEST" -type f | wc -l) files into $DEST"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$DEST"
+          git rm -- ".github/workflows/import-deepseek-desktop-pet.yml"
+          git commit -m "feat: archive complete DeepSeek Harness pet in 桌宠 folder"
+          git push origin "HEAD:main"

@@ -1,0 +1,74 @@
+
+/* 背景素材 / 自有示例。以下样式为独立编写，可自由调整，不依赖外部 CDN 或图片。 */
+.sbg-demo{
+  min-height:220px; position:relative; overflow:hidden; padding:20px; border-radius:22px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 24px rgba(27,46,73,.08);
+}
+.sbg-panel{
+  min-width:155px; padding:18px 24px; border-radius:18px; text-align:center;
+  font:600 17px/1.5 system-ui,"Microsoft YaHei",sans-serif;
+}
+.sbg-glass{
+  background:radial-gradient(circle at 20% 30%,#79b9d9,transparent 45%),
+             radial-gradient(circle at 86% 65%,#bfa8ff,transparent 55%),
+             linear-gradient(120deg,#d7ecff,#e3eefc);
+}
+.sbg-glass .sbg-panel {
+  color:#213e60;background:rgba(255,255,255,.25);
+  border:1px solid rgba(255,255,255,.62);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  backdrop-filter:blur(20px) saturate(150%);
+  box-shadow:0 10px 28px rgba(38,65,116,.12);
+}
+.sbg-liquid{
+  background:radial-gradient(ellipse at 15% 30%,#90dcec,transparent 56%),
+             radial-gradient(ellipse at 85% 75%,#b9a7ed,transparent 52%),
+             linear-gradient(125deg,#bfd9fe,#e7dcf5);
+}
+.sbg-liquid .sbg-panel{
+  color:#243957;position:relative;
+  background:linear-gradient(140deg,rgba(255,255,255,.55),rgba(255,255,255,.1));
+  border:1px solid rgba(255,255,255,.72);
+  -webkit-backdrop-filter:blur(24px) saturate(185%);backdrop-filter:blur(24px) saturate(185%);
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.88),inset 0 -2px 1px rgba(255,255,255,.24),0 16px 34px rgba(53,87,152,.18);
+}
+.sbg-acrylic{background:linear-gradient(120deg,#c9d4e6,#b3c6de,#e1e8f3)}
+.sbg-acrylic .sbg-panel{
+  color:#2f435b;background:rgba(243,249,255,.48);border:1px solid rgba(255,255,255,.46);
+  -webkit-backdrop-filter:blur(34px);backdrop-filter:blur(34px);
+}
+.sbg-mica{background:linear-gradient(130deg,#edf0f8,#e1e5f1,#f3eaf3)}
+.sbg-mica .sbg-panel{background:linear-gradient(120deg,#f7f8fd,#e5eaf3);color:#475069;border:1px solid #ffffffaa}
+.sbg-aurora{
+  background:radial-gradient(ellipse at 20% 15%,#4bbbdc96,transparent 65%),
+             radial-gradient(ellipse at 88% 25%,#b487eb99,transparent 63%),
+             radial-gradient(ellipse at 48% 96%,#6adfbd99,transparent 65%),#eaf7fb;
+}
+.sbg-aurora .sbg-panel{color:#2c5560;background:#ffffff70;border:1px solid #fff}
+.sbg-neumorphic{background:#e9eef7}
+.sbg-neumorphic .sbg-panel{
+  color:#61718c;background:#e9eef7;border-radius:22px;
+  box-shadow:11px 11px 24px #c9d0dd,-11px -11px 24px #fff;
+}
+.sbg-grid{
+  background-color:#f5f8fd;
+  background-image:linear-gradient(#8daac027 1px,transparent 1px),linear-gradient(90deg,#8daac027 1px,transparent 1px);
+  background-size:27px 27px;
+}
+.sbg-grid .sbg-panel{color:#476078;background:#fffdf5d9;border:1px solid #dfe8f2}
+.sbg-night{
+  color:#fff;
+  background:radial-gradient(circle at 50% 17%,#263e72,#101b38 65%,#0b1026);
+}
+.sbg-night::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.8;
+  background-image:radial-gradient(1px 1px at 15% 10%,white 99%,transparent),
+  radial-gradient(2px 2px at 45% 80%,white 99%,transparent),radial-gradient(1px 1px at 68% 30%,white 99%,transparent),
+  radial-gradient(2px 2px at 85% 65%,white 99%,transparent);
+  background-size:190px 170px;
+  animation:sbg-twinkle 4s ease-in-out infinite alternate;
+}
+.sbg-night .sbg-panel{z-index:1;background:#d6e6ff19;color:#fff;border:1px solid #d6e6ff4d}
+@keyframes sbg-twinkle {from{opacity:.25}to{opacity:.82}}
+@media(prefers-reduced-motion:reduce){.sbg-night::before{animation:none}}

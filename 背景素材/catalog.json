@@ -1,0 +1,72 @@
+{
+  "title": "背景素材",
+  "subtitle": "UI 背景样式与开源独立源码快照",
+  "type": "independent-snapshot-collection",
+  "autoSyncWithUpstream": false,
+  "gitSubmodules": false,
+  "automaticallyLoadedByStripBot": false,
+  "collections": [
+    {
+      "id": "classic-glass",
+      "label": "经典毛玻璃",
+      "path": "01-经典毛玻璃/Nimu-Glass-UI",
+      "upstream": "NimuStudio/Nimu-glass-ui",
+      "commit": "9056160083024395993d7d0b9bee43b317d0a354",
+      "license": "MIT",
+      "files": [
+        "ysti-glass.css",
+        "LICENSE",
+        "来源说明.md"
+      ]
+    },
+    {
+      "id": "liquid-glass",
+      "label": "液态玻璃",
+      "path": "02-液态玻璃/GlassKit",
+      "upstream": "JUNGHERZ/GlassKit",
+      "commit": "af6f9e69c0c81bd163c592fbae18ae2f22dd6d73",
+      "license": "MIT",
+      "files": [
+        "glasskit.css",
+        "theme-override.css",
+        "LICENSE",
+        "来源说明.md"
+      ]
+    },
+    {
+      "id": "patterns",
+      "label": "纹理背景",
+      "path": "03-纹理背景/Uiverse-Patterns",
+      "upstream": "uiverse-io/galaxy",
+      "commit": "adbd2adde0a299a3956ea288fb444ec01891ca41",
+      "license": "MIT",
+      "files": [
+        "01-点阵图案.html",
+        "02-笔记本横线.html",
+        "03-复古科技网格.html",
+        "LICENSE",
+        "来源说明.md"
+      ]
+    },
+    {
+      "id": "self-contained-css",
+      "label": "独立 CSS 背景合集",
+      "path": "04-独立CSS样式",
+      "files": [
+        "背景合集.css"
+      ],
+      "license": "Original example"
+    },
+    {
+      "id": "vector-backgrounds",
+      "label": "SVG 背景",
+      "path": "05-SVG背景",
+      "files": [
+        "01-柔和极光.svg",
+        "02-细线网格.svg",
+        "03-点阵背景.svg"
+      ],
+      "license": "Original example"
+    }
+  ]
+}

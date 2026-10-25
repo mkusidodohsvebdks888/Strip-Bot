@@ -1,0 +1,222 @@
+/* ============================================================
+   THEME OVERRIDE TEMPLATE
+   
+   Einbindung NACH der glasskit.css:
+   <link rel="stylesheet" href="glasskit.css">
+   <link rel="stylesheet" href="theme-override.css">
+   
+   Hier nur die Werte überschreiben, die abweichen.
+   Alles andere wird von der Basis-Library geerbt.
+   ============================================================ */
+
+
+/* ============================================================
+   MARKENFARBE — seit 1.11.0 genügen zwei Zeilen
+
+   Gradient-Mitte, warmer Rand, Fokusring, das Leuchten unter dem
+   Primärknopf und der Reglerknopf werden daraus gemischt. Vor 1.11.0
+   standen dort feste Bernsteinwerte; ein umgefärbter Knopf bekam
+   deshalb einen orangen Halo und einen bernsteinfarbenen Fokusring.
+
+   Wichtig: auf :root deklarieren. Eine Custom Property wird dort
+   ersetzt, wo sie deklariert ist — auf einem Teilbaum gesetzt, erreicht
+   die Marke die von :root geerbten Tokens nicht.
+   ============================================================ */
+
+/* Ocean Blue */
+/*
+:root {
+  --gl-color-primary:        #007AFF;
+  --gl-color-primary-dark:   #0055CC;
+}
+*/
+
+/* Emerald Green */
+/*
+:root {
+  --gl-color-primary:        #34c759;
+  --gl-color-primary-dark:   #248a3d;
+}
+*/
+
+/* Rose */
+/*
+:root {
+  --gl-color-primary:        #FF2D55;
+  --gl-color-primary-dark:   #CC1A40;
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Einzelne abgeleitete Werte biegen
+
+   Die Ableitungen sind gewöhnliche Vorgaben und verlieren gegen eine
+   spätere Deklaration. Nur setzen, was wirklich abweichen soll.
+   ============================================================ */
+
+/*
+:root {
+  --gl-color-primary-mid:    #0066E0;
+  --gl-shadow-focus:         0 0 0 3px rgba(0, 122, 255, 0.4);
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Primärfarbe als Text (seit 1.26.0)
+
+   Links in .glass-prose, der aktive Tab, die primäre Modal-Aktion,
+   Akzent-Listenzeilen, der Wert eines Reglers und das Akkordeon
+   schreiben in --gl-color-primary-text, ohne eigenen Wert in der
+   Primärfarbe. Eine Marke, die ihre Primärfarbe für weiße
+   Button-Schrift abdunkelt, hellt hier die Schrift im dunklen Theme
+   auf; die Buttons behalten ihre Farbe. Die helle Regel steht nach
+   der dunklen, weil :root auch eine Seite im hellen Theme trifft.
+   --gl-tab-bar-active-color färbt Icon und Label des aktiven Tabs
+   allein, wo das Spotlight einen noch helleren Ton braucht.
+   ============================================================ */
+
+/*
+:root, [data-theme="dark"] {
+  --gl-color-primary-text:   color-mix(in srgb, var(--gl-color-primary) 18%, #ffffff);
+}
+[data-theme="light"] {
+  --gl-color-primary-text:   var(--gl-color-primary);
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Dunklerer Hintergrund
+   ============================================================ */
+
+/*
+:root {
+  --gl-color-bg-dark:        #060e14;
+  --gl-color-bg-mid:         #0c1e2a;
+  --gl-color-bg-light:       #102838;
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Hellerer / stärkerer Glaseffekt
+   ============================================================ */
+
+/*
+:root {
+  --gl-surface-1:            rgba(255, 255, 255, 0.12);
+  --gl-surface-2:            rgba(255, 255, 255, 0.15);
+  --gl-surface-3:            rgba(255, 255, 255, 0.20);
+  --gl-surface-4:            rgba(255, 255, 255, 0.24);
+  --gl-surface-5:            rgba(255, 255, 255, 0.30);
+  --gl-blur:                 32px;
+  --gl-blur-light:           20px;
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Andere Typografie
+   ============================================================ */
+
+/*
+:root {
+  --gl-font-family:          'Inter', -apple-system, sans-serif;
+  --gl-font-size-title:      28px;
+  --gl-radius-card:          28px;
+  --gl-radius-btn:           20px;
+  --gl-radius-input:         16px;
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Komponenten-Haken (seit 1.20.0)
+
+   Breitere Dialoge für Formulare und Tabellen, und ein eigener
+   Chevron für das Select. Der Chevron ist pro Theme gesetzt — wer
+   ihn ersetzt, setzt ihn für beide.
+   ============================================================ */
+
+/*
+:root {
+  --gl-modal-max-width:      560px;
+}
+[data-theme="light"] {
+  --gl-select-chevron:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230055CC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Dichtere Bedienelemente (seit 1.21.0)
+
+   Für die ganze Seite genügt <html data-density="compact">.
+   Einzelne Größen lassen sich setzen wie jedes Token: auf :root
+   für beide Dichten, auf [data-density="compact"] nur für die
+   kompakte. Knopf und Zeilenausrichtung von Toggle, Checkbox
+   und Radio folgen der gesetzten Größe.
+   ============================================================ */
+
+/*
+:root {
+  --gl-btn-height:           48px;
+}
+[data-density="compact"] {
+  --gl-btn-height:           36px;
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Tab-Bar und Segmentwahl (seit 1.28.0)
+
+   Kräftigere inaktive Tabs, größere Labels, eine Leiste unter
+   einer Seitenschublade (z-index 101), und eine gewählte
+   Segmentwahl-Option in der Markenfarbe — ihr Tropfen nimmt
+   dieselbe Fläche. Wer die inaktive Farbe heller setzt als
+   --gl-icon-default, setzt die Hover-Farbe mit.
+   ============================================================ */
+
+/*
+:root {
+  --gl-tab-bar-color:            var(--gl-icon-strong);
+  --gl-tab-bar-hover-color:      var(--gl-color-text);
+  --gl-tab-bar-label-size:       12px;
+  --gl-tab-bar-z-index:          100;
+  --gl-segmented-active-bg:      var(--gl-color-primary);
+  --gl-segmented-active-color:   var(--gl-color-on-primary);
+}
+*/
+
+
+/* ============================================================
+   BEISPIEL: Buttons und Zähler (seit 1.31.0)
+
+   Buttons in Pillenform, ohne Listen, Toasts und Segmentwahl
+   mitzurunden, ein knapperer Innenabstand für kleine Buttons,
+   und Zähler der Segmentwahl in der Größe eines Badges.
+   ============================================================ */
+
+/*
+:root {
+  --gl-btn-radius:                 9999px;
+  --gl-btn-padding-x-sm:           16px;
+  --gl-segmented-badge-height:     20px;
+  --gl-segmented-badge-font-size:  12px;
+}
+*/
+
+
+/* ============================================================
+   DEIN CUSTOM THEME
+   Entkommentiere und passe an:
+   ============================================================ */
+
+/*
+:root {
+
+}
+*/

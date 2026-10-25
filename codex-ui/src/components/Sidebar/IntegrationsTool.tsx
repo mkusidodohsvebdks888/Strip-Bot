@@ -31,6 +31,7 @@ export function IntegrationsTool(){
   const [copied,setCopied]=useState<string|null>(null);
   const [importText,setImportText]=useState('');
   const [showImport,setShowImport]=useState(false);
+  const [selectedImport,setSelectedImport]=useState('');
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -56,7 +57,8 @@ export function IntegrationsTool(){
       if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error('配置必须是 JSON 对象');
       const data=parsed as Record<string,unknown>;
       const servers=data.mcpServers;
-      const source=servers&&typeof servers==='object'&&!Array.isArray(servers)?Object.entries(servers)[0]:null;
+      const source=servers&&typeof servers==='object'&&!Array.isArray(servers)?Object.entries(servers).find(([name])=>name===selectedImport):null;
+      if(servers&&typeof servers==='object'&&!Array.isArray(servers)&&!source)throw new Error('请先选择要导入的服务器');
       const raw=source?source[1]:data;
       if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('没有找到 MCP 服务器配置');
       const config=raw as Record<string,unknown>;
@@ -105,7 +107,8 @@ export function IntegrationsTool(){
     catch(e){setError(e instanceof Error?e.message:'应用失败');}
     finally{setBusy(false);}
   };
-  const redact=(value:string)=>value.replace(/(bearer\\s+)[^\\s]+/gi,'$1••••').replace(/((?:token|key|secret|password|authorization)[=:]\\s*)[^\\s&,]+/gi,'$1••••');
+  const redact=(value:string)=>value.replace(/(bearer\s+)[^\s]+/gi,'$1••••').replace(/((?:token|key|secret|password|authorization)[=:]\s*)[^\s&,]+/gi,'$1••••');
+  const importChoices=(()=>{try{const value:unknown=JSON.parse(importText);if(value&&typeof value==='object'&&!Array.isArray(value)){const servers=(value as Record<string,unknown>).mcpServers;if(servers&&typeof servers==='object'&&!Array.isArray(servers))return Object.keys(servers);}return [];}catch{return [];}})();
   const search=query.trim().toLocaleLowerCase();
   const visibleItems=items.filter(item=>(filter==='all'||(filter==='enabled'?item.enabled:!item.enabled))&&(!search||[item.id,item.label,item.type,item.type==='local'?item.command?.join(' '):item.url].some(value=>value?.toLocaleLowerCase().includes(search))));
   return <section className="strip-tool-content strip-integrations" aria-label="项目工具连接">
@@ -126,7 +129,7 @@ export function IntegrationsTool(){
     </div>)}
     <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>
     <div className="strip-integrations__import-toggle"><StripButton size="sm" variant="ghost" aria-expanded={showImport} aria-controls="strip-mcp-import" onClick={()=>setShowImport(value=>!value)}>{showImport?'收起导入':'从 JSON 导入配置'}</StripButton></div>
-    {showImport && <div id="strip-mcp-import" className="strip-integrations__create"><label className="strip-tool-label" htmlFor="strip-mcp-import-json">粘贴单个服务器配置或 mcpServers JSON</label><textarea id="strip-mcp-import-json" className="strip-integrations__import-input" rows={6} spellCheck={false} value={importText} onChange={event=>setImportText(event.target.value)}/><StripButton size="sm" variant="primary" onClick={importConfig} disabled={!importText.trim()}>解析并填入表单</StripButton><p className="strip-tool-note">仅在本地解析 JSON，不执行命令或连接服务器。</p></div>}
+    {showImport && <div id="strip-mcp-import" className="strip-integrations__create"><label className="strip-tool-label" htmlFor="strip-mcp-import-json">粘贴单个服务器配置或 mcpServers JSON</label><textarea id="strip-mcp-import-json" className="strip-integrations__import-input" rows={6} spellCheck={false} value={importText} onChange={event=>setImportText(event.target.value)}/>{importChoices.length>0&&<><label className="strip-tool-label" htmlFor="strip-mcp-import-select">选择服务器（共 {importChoices.length} 个）</label><select id="strip-mcp-import-select" className="strip-integrations__import-select" value={selectedImport} onChange={event=>setSelectedImport(event.target.value)}><option value="">请选择服务器</option>{importChoices.map(name=><option key={name} value={name}>{name}</option>)}</select></>}<StripButton size="sm" variant="primary" onClick={importConfig} disabled={!importText.trim()||(importChoices.length>0&&!selectedImport)}>解析并填入表单</StripButton><p className="strip-tool-note">仅在本地解析 JSON，不执行命令或连接服务器。</p></div>}
     {showForm && <div id="strip-mcp-create" className="strip-integrations__create"><h3 className="strip-tool-section-heading">新增 MCP 服务器</h3>
     <form className="strip-integrations__form" onSubmit={event=>void add(event)}>
       <label className="strip-tool-label" htmlFor="strip-integ-name">项目名称</label>

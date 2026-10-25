@@ -16,3 +16,28 @@
 .strip-integrations__apply{margin-top:8px}
 .strip-integrations__feedback{font-size:12px;line-height:1.55;overflow-wrap:anywhere;color:var(--color-success,#26945b)}
 .strip-integrations__feedback.is-error{color:var(--color-error,#c04747)}
+
+/* Codex-inspired MCP connection manager. Scoped to the MCP panel. */
+.strip-integrations__intro{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 14px}
+.strip-integrations__intro h3{font-size:16px;line-height:1.35;margin:4px 0 5px;color:var(--fg)}
+.strip-integrations__intro .strip-tool-description{font-size:12px;line-height:1.5;margin:0;color:var(--muted)}
+.strip-integrations__eyebrow{font-size:10px;letter-spacing:.09em;color:var(--muted)}
+.strip-integrations__intro .strip-action-control{flex-shrink:0}
+.strip-integrations__summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.strip-integrations__metric{display:flex;flex-direction:column;gap:3px;padding:11px;border:1px solid var(--border-09);border-radius:11px;background:var(--surface-3)}
+.strip-integrations__metric strong{font-size:19px;font-weight:650;color:var(--fg)}
+.strip-integrations__metric span{font-size:11px;color:var(--muted)}
+.strip-integrations__filters{display:flex;gap:4px;margin:10px 0 14px;padding:3px;border-radius:10px;background:var(--surface-2)}
+.strip-integrations__filters button{flex:1;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:12px;min-height:30px;cursor:pointer}
+.strip-integrations__filters button[aria-pressed=true]{background:var(--card-bg);color:var(--fg);box-shadow:0 1px 4px var(--border-09)}
+.strip-integrations__filters button:focus-visible{outline:2px solid var(--border-focus);outline-offset:1px}
+.strip-integrations__item{background:var(--card-bg);border-color:var(--border-09);border-radius:12px}
+.strip-integrations__item-head strong{font-size:13px;color:var(--fg)}
+.strip-integrations__detail{display:flex;align-items:center;gap:7px;min-width:0;margin:10px 0}
+.strip-integrations__detail code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)}
+.strip-integrations__protocol{font-size:10px;padding:3px 6px;border-radius:6px;background:var(--surface-2);color:var(--muted);flex-shrink:0}
+.strip-integrations__item-buttons{justify-content:flex-start}
+.strip-integrations__create{margin-top:14px;padding:14px;border:1px solid var(--border-09);border-radius:12px;background:var(--surface-3)}
+.strip-integrations__create h3{margin:0 0 12px;font-size:13px;color:var(--fg)}
+.strip-integrations__apply{width:100%;margin-top:8px}
+@media(max-width:480px){.strip-integrations__intro{flex-wrap:wrap}.strip-integrations__intro .strip-action-control{width:100%}}

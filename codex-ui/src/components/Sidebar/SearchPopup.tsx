@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {KeyboardEvent as ReactKeyboardEvent} from 'react';
 import {Icon} from '../../Icons';
+import {StripIconButton} from '../ui/StripIconButton';
 import styles from './SearchPopup.module.css';
 
 type SearchEntry = {
@@ -131,20 +132,18 @@ export function SearchPopup({entries, active, busy, onSelect}: SearchPopupProps)
   }
 
   return <div className={styles.root} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))closeSearch();}}>
-    <button
+    <StripIconButton
       ref={triggerRef}
-      type="button"
+      icon="search"
+      label="搜索聊天记录"
       className={styles.trigger+' strip-tool-btn'}
       title="搜索聊天记录 (Ctrl+K)"
       aria-keyshortcuts="Control+K Meta+K"
-      aria-label="搜索聊天记录"
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-controls={open ? popupId : undefined}
       onClick={() => open ? closeSearch(true) : openSearch()}
-    >
-      <Icon name="search" />
-    </button>
+    />
     {open && <div
       id={popupId}
       ref={popupRef}
@@ -171,7 +170,7 @@ export function SearchPopup({entries, active, busy, onSelect}: SearchPopupProps)
           onChange={event => {setQuery(event.target.value); setHighlighted(0);}}
           onKeyDown={onInputKeyDown}
         />
-        {!!query && <button type="button" className={styles.clear} aria-label="清空搜索" onClick={() => {setQuery(''); setHighlighted(0); inputRef.current?.focus();}}><Icon name="x" /></button>}
+        {!!query && <StripIconButton className={styles.clear} label="清空搜索" icon="x" onClick={() => {setQuery(''); setHighlighted(0); inputRef.current?.focus();}}/>}
         <kbd className={styles.escapeHint}>Esc</kbd>
       </div>
       <div className={styles.caption}>

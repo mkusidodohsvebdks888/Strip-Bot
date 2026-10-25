@@ -58,3 +58,9 @@
 .strip-integrations__item-buttons .strip-action-control--ghost{background:transparent;border-color:transparent;color:var(--fg)}
 .strip-integrations__item-buttons .strip-action-control--danger{background:var(--diff-del-bg);border-color:transparent;color:var(--diff-del-fg)}
 .strip-integrations__item-buttons .strip-action-control:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+
+.strip-integrations__import-toggle{display:flex;justify-content:center;margin:12px 0}
+.strip-integrations__import-input{display:block;box-sizing:border-box;width:100%;min-height:110px;margin:8px 0 12px;padding:10px;border:1px solid var(--border-10);border-radius:9px;background:var(--card-bg);color:var(--fg);font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}
+.strip-integrations__import-input:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+.strip-integrations__sensitive-toggle{display:flex;align-items:center;gap:7px;margin:9px 0;color:var(--muted);font-size:11px;line-height:1.5}
+.strip-integrations__sensitive-toggle input{accent-color:var(--accent)}

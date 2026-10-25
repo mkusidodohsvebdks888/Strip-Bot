@@ -1,0 +1,20 @@
+{
+  "id": "office-pdf",
+  "name": "LibreOffice PDF 转换插件",
+  "version": "1.0.0",
+  "host": "stripbot",
+  "entry": "index.cjs",
+  "permissions": [
+    "local-file-read",
+    "local-file-write",
+    "local-process"
+  ],
+  "actions": [
+    {
+      "id": "convert",
+      "label": "转换为 PDF"
+    }
+  ],
+  "description": "免费的 Word、PPT、Excel 转 PDF 插件；需另行安装 LibreOffice",
+  "source": "../../PDF转换/LibreOffice"
+}

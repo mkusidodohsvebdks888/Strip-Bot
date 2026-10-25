@@ -2,6 +2,7 @@ import {IntegrationsTool} from './components/Sidebar/IntegrationsTool';
 import {BackendProjectsTool} from './components/Sidebar/BackendProjectsTool';
 import {SkillsTool} from './components/Sidebar/SkillsTool';
 import {GithubToolsTool} from './components/Sidebar/GithubToolsTool';
+import {BuiltinPluginsTool} from './components/Sidebar/BuiltinPluginsTool';
 import {AstrBotTool} from './components/Sidebar/AstrBotTool';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
 import {useManualCommands} from './state/useManualCommands';
@@ -263,6 +264,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
       {activeTool==='astrbot' && <AstrBotTool/>}
       {activeTool==='skills' && <SkillsTool/>}
       {activeTool==='github-tools' && <GithubToolsTool onOpenSkills={()=>setActiveTool('skills')}/>}
+      {activeTool==='plugins' && <BuiltinPluginsTool/>}
       {activeTool==='history' && <>
         <ChatHistory entries={entries} search="" active={active} busy={conversation.sending || !!conversation.removing || conversation.loading} workspace={workspace} onOpenProject={openProject} onProjectSettings={openProjectSettings} onSelect={selectConversation} onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>
         <p className="strip-attribution">Strip Bot · <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide Icons</a></p>

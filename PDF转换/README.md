@@ -52,6 +52,7 @@ node "PDF转换/convert-to-pdf.mjs" "./demo.pptx" --soffice "C:/Program Files/Li
 - ✅ 已纳入 StripBot 源码目录，并有可从命令行使用的本地转换脚本。
 - ✅ 保留了你的 LibreOffice Fork 的固定版本指针。
 - ❌ 未安装 LibreOffice，也未验证实际 PDF 转换。
-- ❌ 尚未接入 StripBot 的 AI 工具注册、前端按钮或自动任务执行器。
+- ✅ 新增插件入口：`plugins/office-pdf/`，可在 Strip Bot 左侧「插件」页面单独启用并手动执行。
+- ❌ 尚未自动授权给 AI Agent；需要用户每次确认本地转换操作。
 
 复杂字体、公式和动画的转换质量取决于 LibreOffice 环境，不保证与 Microsoft Office 完全一致。此工具只负责 Office → PDF，不提供 PDF → Word/PPT 逆向转换。

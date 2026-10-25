@@ -1,0 +1,24 @@
+{
+  "id": "archive-7zip",
+  "name": "7-Zip 压缩插件",
+  "version": "1.0.0",
+  "host": "stripbot",
+  "entry": "index.cjs",
+  "permissions": [
+    "local-file-read",
+    "local-file-write",
+    "local-process"
+  ],
+  "actions": [
+    {
+      "id": "extract",
+      "label": "解压"
+    },
+    {
+      "id": "compress",
+      "label": "压缩"
+    }
+  ],
+  "description": "免费的本地压缩和解压插件；需另行安装 7-Zip",
+  "source": "../../解压缩/7-Zip"
+}

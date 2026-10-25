@@ -13,6 +13,7 @@ const {createSkillsRegistry} = require('./skills.cjs');
 const {createGithubTools} = require('./github-tools.cjs');
 const {createNonoPlugin} = require('./nono-plugin.cjs');
 const {createAstrBotPlugin} = require('./astrbot-plugin.cjs');
+const {createBundledPlugins} = require('./bundled-plugins.cjs');
 const APP_VERSION = '1.5.2';
 const DEFAULTS = Object.freeze({provider:'openai', endpoint:'http://127.0.0.1:3010/v1/chat/completions', model:'chatgpt', systemPrompt:'你是一个清晰、准确的中文 AI 助手。'});
 const MIME = {
@@ -50,6 +51,7 @@ function createGateway({defaults = {}, apiKey = '', ccOnly = false, nativeAgent 
   const account=accountService || createAccount({root:agentRoot,executable:agentExecutable});
   const nono=createNonoPlugin({root:agentRoot,chat:(messages,signal)=>direct.companionChat(messages,signal)});
   const astrbot=astrbotPlugin || createAstrBotPlugin();
+  const bundledPlugins=createBundledPlugins({root:agentRoot});
   const PUBLIC_DIR = publicDir;
   const HOST = '127.0.0.1';
   const PORT = 3060; // URL parsing base only; Origin validation uses the actual bound port.
@@ -244,7 +246,7 @@ async function serveStatic(res, pathname) {
 const app = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, `http://${HOST}:${PORT}`).pathname;
-    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/') || pathname.startsWith('/api/connection/') || pathname.startsWith('/api/plugins/nono') || pathname.startsWith('/api/plugins/astrbot') || ['/api/integrations','/api/backend-projects','/api/skills','/api/github-tools'].some(prefix=>pathname===prefix || pathname.startsWith(prefix+'/'))) {
+    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/') || pathname.startsWith('/api/connection/') || pathname.startsWith('/api/plugins/nono') || pathname.startsWith('/api/plugins/astrbot') || pathname.startsWith('/api/plugins/bundled') || ['/api/integrations','/api/backend-projects','/api/skills','/api/github-tools'].some(prefix=>pathname===prefix || pathname.startsWith(prefix+'/'))) {
       try {const host = requireLocalUrl(`http://${req.headers.host}`);if (Number(host.port || 80) !== req.socket.localPort) throw new Error();}
       catch {return respondJson(res,403,{error:'无效的本机来源。'});}
       const origin = req.headers.origin;
@@ -262,6 +264,12 @@ const app = http.createServer(async (req, res) => {
       }
       const deletingSession=req.method==='DELETE' && /^\/api\/agent\/sessions\/ses_[a-zA-Z0-9]+$/.test(pathname);
       if (!['GET','POST'].includes(req.method) && !deletingSession) return respondJson(res,405,{error:'Method not allowed'});
+      if(pathname.startsWith('/api/plugins/bundled')) {
+        if(pathname==='/api/plugins/bundled' && req.method==='GET')return respondJson(res,200,{items:await bundledPlugins.list()});
+        if(pathname==='/api/plugins/bundled/enable' && req.method==='POST')return respondJson(res,200,await bundledPlugins.enable(await readJsonBody(req,2048)));
+        if(pathname==='/api/plugins/bundled/execute' && req.method==='POST')return respondJson(res,200,await bundledPlugins.execute(await readJsonBody(req,8192)));
+        throw httpError(404,'内置插件接口不存在。');
+      }
       if(pathname.startsWith('/api/plugins/nono')){
         if(pathname==='/api/plugins/nono' && req.method==='GET')return respondJson(res,200,nono.status());
         if(pathname==='/api/plugins/nono/enable' && req.method==='POST')return respondJson(res,200,await nono.setEnabled((await readJsonBody(req,1024)).enabled));

@@ -11,6 +11,9 @@ async function build() {
   await fs.copyFile(path.join(__dirname, 'main.cjs'), path.join(staging, 'main.cjs'));
   await fs.copyFile(path.join(__dirname, 'preload.cjs'), path.join(staging, 'preload.cjs'));
   await fs.cp(path.join(root, 'backend'), path.join(staging, 'backend'), {recursive:true});
+   await fs.mkdir(path.join(staging,'plugins'),{recursive:true});
+   await fs.copyFile(path.join(root,'plugins','_shared.cjs'),path.join(staging,'plugins','_shared.cjs'));
+   for (const plugin of ['archive-7zip','office-pdf']) await fs.cp(path.join(root,'plugins',plugin),path.join(staging,'plugins',plugin),{recursive:true});
   await fs.cp(path.join(__dirname, 'runtime'), path.join(staging, 'runtime'), {recursive:true});
   // Package only the active UI, not retired bundles, history, or project sources.
   const publicDir = path.join(root,'public');

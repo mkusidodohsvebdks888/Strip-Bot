@@ -26,6 +26,8 @@ export function IntegrationsTool(){
   const [url,setUrl]=useState('http://127.0.0.1:3001/mcp');
   const [showForm,setShowForm]=useState(false);
   const [filter,setFilter]=useState<'all'|'enabled'|'disabled'>('all');
+  const [query,setQuery]=useState('');
+  const [expanded,setExpanded]=useState<string[]>([]);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
     setItems(data.items);
@@ -63,17 +65,22 @@ export function IntegrationsTool(){
     catch(e){setError(e instanceof Error?e.message:'应用失败');}
     finally{setBusy(false);}
   };
-  const visibleItems=items.filter(item=>filter==='all'||(filter==='enabled'?item.enabled:!item.enabled));
+  const search=query.trim().toLocaleLowerCase();
+  const visibleItems=items.filter(item=>(filter==='all'||(filter==='enabled'?item.enabled:!item.enabled))&&(!search||[item.id,item.label,item.type,item.type==='local'?item.command?.join(' '):item.url].some(value=>value?.toLocaleLowerCase().includes(search))));
   return <section className="strip-tool-content strip-integrations" aria-label="项目工具连接">
     <div className="strip-integrations__intro"><div><span className="strip-integrations__eyebrow">MODEL CONTEXT PROTOCOL</span><h3>MCP 服务器</h3><p className="strip-tool-description">连接本地或远程工具服务，授权 Agent 使用。</p></div><StripButton size="sm" variant="primary" aria-expanded={showForm} aria-controls="strip-mcp-create" onClick={()=>setShowForm(value=>!value)}>{showForm?'收起表单':'+ 添加服务器'}</StripButton></div>
     <div className="strip-integrations__summary"><div className="strip-integrations__metric"><strong>{items.length}</strong><span>服务器总数</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>x.enabled).length}</strong><span>已启用</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>!x.enabled).length}</strong><span>未启用</span></div></div>
     <div className="strip-integrations__filters" role="group" aria-label="筛选 MCP 服务器">{([["all","全部"],["enabled","已启用"],["disabled","未启用"]] as const).map(([value,label])=><button key={value} type="button" aria-pressed={filter===value} onClick={()=>setFilter(value)}>{label}</button>)}</div>
+    <label className="strip-integrations__search-label" htmlFor="strip-mcp-search">搜索服务器</label>
+    <input id="strip-mcp-search" type="search" className="strip-integrations__search" placeholder="按名称、标识或地址搜索" value={query} onChange={event=>setQuery(event.target.value)}/>
     {loading && <p className="strip-tool-note">读取连接列表中…</p>}
     {!loading && !items.length && <p className="strip-tool-note">还没有连接项目。请在下方新增一个 MCP 服务器。</p>}
+    {!loading && items.length>0 && visibleItems.length===0 && <p className="strip-tool-note">没有符合条件的 MCP 服务器。</p>}
     {visibleItems.map(item=><div key={item.id} className="strip-integrations__item">
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail" title={item.type==='local'?item.command?.join(' '):item.url}><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{item.type==='local'?item.command?.join(' '):item.url}</code></div>
-      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}
     </div>)}
     <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>
     {showForm && <div id="strip-mcp-create" className="strip-integrations__create"><h3 className="strip-tool-section-heading">新增 MCP 服务器</h3>

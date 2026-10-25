@@ -15,3 +15,7 @@
 | API 请求 | `src/api/` |
 
 修改后运行 `npm run build`，并用根目录 `scripts/BuildUI.ps1` 发布构建资源。
+
+## 独立主题设置模块
+
+主题管理现集中于 `src/modules/theme/`，包含设置状态、控件、壁纸与 CSS 样式。旧 `state/useAppearance.ts`、`components/ThemePicker.tsx` 和 `styles/theme.css` 等保留兼容导出/样式导入，避免现有功能中断。详见 [主题模块说明](src/modules/theme/README.md)。

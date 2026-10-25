@@ -1,13 +1,2 @@
-/* No backdrop filters on layout ancestors: fixed model and tool popups stay viewport anchored. */
-.strip-app[data-wallpaper=true]{position:relative;isolation:isolate;}
-.strip-wallpaper-layer{position:absolute;inset:0;z-index:-1;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;background:var(--bg);}
-.strip-wallpaper-layer img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;opacity:var(--wallpaper-opacity,.95);mask-image:linear-gradient(to right,transparent,#000 var(--wallpaper-fade),#000 calc(100% - var(--wallpaper-fade)),transparent),linear-gradient(to bottom,transparent,#000 var(--wallpaper-fade),#000 calc(100% - var(--wallpaper-fade)),transparent);mask-composite:intersect;}
-.strip-wallpaper-layer[data-fit=cover] img{width:100%;height:100%;object-fit:cover;}
-.strip-app[data-wallpaper=true]>.strip-wallpaper-main{background:transparent!important;}
-.strip-app[data-wallpaper=true] .strip-tool-rail,.strip-app[data-wallpaper=true] .strip-tool-panel{background:color-mix(in srgb,var(--sidebar-bg) 82%,transparent)!important;}
-.strip-app[data-wallpaper=true] .strip-tool-panel__header{background:transparent;}
-.strip-app[data-wallpaper=true] .strip-connection-settings{background:transparent!important;}
-.strip-app[data-wallpaper=true] .strip-composer-region{background:transparent!important;}
-.strip-app[data-wallpaper=true] .strip-codex-composer{background:transparent!important;}
-.strip-app[data-wallpaper=true] .strip-connection-card,.strip-app[data-wallpaper=true] .strip-codex-composer__panel{background:color-mix(in srgb,var(--card-bg) 92%,transparent)!important;}
-.strip-app[data-wallpaper=true] .strip-chat__message--assistant .strip-chat__body{background:color-mix(in srgb,var(--bg) 78%,transparent);border-radius:10px;padding:12px;}
+/* Compatibility CSS entrypoint; edit codex-ui/src/modules/theme/styles/wallpaper.css instead. */
+@import '../modules/theme/styles/wallpaper.css';

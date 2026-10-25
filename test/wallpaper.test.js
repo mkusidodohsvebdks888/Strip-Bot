@@ -9,7 +9,7 @@ function harness(shared={prefs:null,record:null},options={}){
  const storage={getItem(){if(options.blockPrefs)throw Error('blocked');return shared.prefs;},setItem(key,value){if(options.blockPrefs)throw Error('blocked');shared.prefs=value;}};
  class Image {naturalWidth=600;naturalHeight=400;set src(value){queueMicrotask(()=>options.badImage?this.onerror():this.onload());}}
  const url={createObjectURL(){return 'blob:test-'+(++counter);},revokeObjectURL(value){revoked.push(value);}};
- const file=path.join(__dirname,'../codex-ui/src/state/useWallpaper.ts'),code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,m={exports:{}};
+ const file=path.join(__dirname,'../codex-ui/src/modules/theme/state/useWallpaper.ts'),code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,m={exports:{}};
  new Function('require','module','exports','window','localStorage','indexedDB','URL','Image',code)(()=>hooks,m,m.exports,{indexedDB:idb},storage,idb,url,Image);
  return {shared,revoked,render(){cursor=0;const w=m.exports.useWallpaper();effects.splice(0).forEach(fn=>fn());return w;},unmount(){cleanups.forEach(fn=>fn());}};
 }

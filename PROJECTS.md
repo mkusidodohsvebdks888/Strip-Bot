@@ -13,6 +13,7 @@
 | 桌宠及机器人 | `modules/companions/` | 糯糯、AstrBot 后端 |
 | 通用协议 | `modules/core/` | 模型协议、校验和共享依赖 |
 | 网页界面 | `codex-ui/` | React/Vite、聊天框、主题及侧栏 |
+| 主题设置模块 | `codex-ui/src/modules/theme/` | 主题配色、外观设置、背景图片及 CSS；原路径保持兼容 |
 | 背景素材 | `背景素材/` | 独立保存的毛玻璃、液态玻璃、纹理与背景 CSS/SVG 素材，不自动覆盖 UI |
 | 桌面程序 | `desktop-app/` | Electron、预加载及打包 |
 | 独立插件 | `plugins/` | 糯糯桌宠、DeepSeek Harness 桌宠、7-Zip、Office→PDF、AstrBot |

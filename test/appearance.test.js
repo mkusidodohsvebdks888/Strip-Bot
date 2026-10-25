@@ -5,7 +5,7 @@ function harness(saved=null,legacy=null,blocked=false){
  let state,stored=saved;const attrs={},style={},native=[];
  const storage={getItem(k){if(blocked)throw Error('blocked');return k==='strip_appearance_v1'?stored:legacy;},setItem(k,v){if(blocked)throw Error('blocked');assert.equal(k,'strip_appearance_v1');stored=v;}};
  const hooks={useState(init){if(state===undefined)state=typeof init==='function'?init():init;return [state,next=>{state=typeof next==='function'?next(state):next;}];},useLayoutEffect(fn){fn();}};
- const code=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../codex-ui/src/state/useAppearance.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+ const code=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../codex-ui/src/modules/theme/state/useAppearance.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
  const mod={exports:{}};
  new Function('require','module','exports','localStorage','document','window',code)(()=>hooks,mod,mod.exports,storage,{documentElement:{dataset:attrs,style}},{stripWindowAppearance:{sync:v=>native.push(v)}});
  return {render:()=>mod.exports.useAppearance(),saved:()=>stored,attrs,style,native,choices:mod.exports.THEME_CHOICES};

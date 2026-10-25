@@ -1,0 +1,29 @@
+{
+  "id": "ui/theme",
+  "name": "StripBot 主题设置",
+  "version": "1.0.0",
+  "type": "front-end-module",
+  "root": "codex-ui/src/modules/theme",
+  "publicEntrypoint": "index.ts",
+  "settingsKeys": [
+    "strip_appearance_v1",
+    "strip_ui_theme_v1",
+    "strip_wallpaper_preferences_v1"
+  ],
+  "assets": {
+    "styles": "styles",
+    "components": "components",
+    "state": "state",
+    "native": "desktop-app/runtime/theme",
+    "optionalMaterials": "背景素材/"
+  },
+  "capabilities": [
+    "5 classic appearance choices",
+    "local image wallpaper",
+    "theme palette token styles",
+    "Electron titlebar sync"
+  ],
+  "preservePreviousPreferences": true,
+  "scope": "appearance only",
+  "compatibleWithLegacyImports": true
+}

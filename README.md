@@ -1,5 +1,7 @@
 # Strip Bot
 
+> **独立主题管理：** UI 的主题设置已抽取至 [主题模块](codex-ui/src/modules/theme/README.md)，现有主题与自定义壁纸保持兼容。背景素材仍独立存放在 [背景素材](背景素材/README.md)。
+
 > **模块化导航：** 程序已按执行、模型、插件、桌宠等拆分，参见 [模块索引](modules/README.md) 与 [分类清单](modules/catalog.json)、[全部项目分类](PROJECTS.md)。旧 backend 路径保持兼容。
 
 React + Node.js + Electron 本地 AI 对话程序，使用深色 Codex 风格界面，只向本机 API 地址发送请求。当前架构、构建和回滚说明见 [ARCHITECTURE.md](ARCHITECTURE.md)。下文保留早期 Lucent 版本的说明作为历史参考。

@@ -470,6 +470,12 @@
       "path": "plugins/deepseek-harness-pet",
       "source": "桌宠/DeepSeek-Harness-Pet",
       "description": "独立 Windows 桌宠启动插件"
+    },
+    {
+      "id": "ui-theme",
+      "category": "application-module",
+      "path": "codex-ui/src/modules/theme",
+      "description": "Independent React theme settings module: appearance, wallpapers, style sheets, picker components, native appearance companion"
     }
   ]
 }

@@ -23,5 +23,9 @@ jobs:
         run: npm ci --prefix codex-ui
       - name: Type-check React UI
         run: npm exec --prefix codex-ui -- tsc --noEmit -p codex-ui/tsconfig.json
+      - name: Full regression tests
+        run: npm test
+      - name: Build React UI
+        run: npm run build --prefix codex-ui
 
 # Second verification after strict TypeScript fix.

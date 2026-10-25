@@ -19,6 +19,7 @@ export default function App() {
   const [routeModel,setRouteModel] = useState('');
   const [modelError,setModelError] = useState(''),[modelsLoading,setModelsLoading] = useState(true);
   const [search,setSearch] = useState(''),[mobile,setMobile] = useState(false),[notice,setNotice] = useState('');
+  const [localStatus,setLocalStatus] = useState<{available:boolean;model:string;reason?:string}|null>(null);
   const conversation = useUnifiedConversation();
   const {active,snapshot,legacyContext,workspace,draft,busy} = conversation;
   const scroll = useRef<HTMLDivElement>(null);
@@ -36,6 +37,17 @@ export default function App() {
   }
   useEffect(()=>{void refreshModels();},[]);
   useEffect(()=>{
+    let disposed=false;
+    const sync=async()=>{try {
+      const response=await fetch('/api/local-model/status',{signal:AbortSignal.timeout(4500)});
+      const status=await response.json();
+      if(!disposed)setLocalStatus(response.ok ? status:{available:false,model:'',reason:'本地模型状态读取失败。'});
+    }catch{if(!disposed)setLocalStatus({available:false,model:'',reason:'本地模型服务不可用。'});}};
+    void sync();const timer=setInterval(()=>void sync(),8000);
+    window.addEventListener('focus',sync);
+    return()=>{disposed=true;clearInterval(timer);window.removeEventListener('focus',sync);};
+  },[]);
+  useEffect(()=>{
 
     let disposed=false;
     const sync=async()=>{try{const response=await fetch('/api/cc-switch/status',{signal:AbortSignal.timeout(5000)});const value=await response.json();if(!disposed && response.ok){setRouteModel(value.codex?.model || '');setModelError(!value.healthy ? 'CC Switch 代理未启动，请开启 Codex 本地路由。':!value.codex?.model ? '未读取到 CC Switch 的 Codex 模型。':'');}}catch{if(!disposed)setModelError('CC Switch 状态读取失败，请检查本地代理。');}};
@@ -43,15 +55,17 @@ export default function App() {
     return()=>{disposed=true;clearInterval(timer);window.removeEventListener('focus',sync);};
   },[]);
   useEffect(()=>{const el=scroll.current;if(el && el.scrollHeight-el.scrollTop-el.clientHeight<180)el.scrollTo({top:el.scrollHeight});},[snapshot,active]);
-  const selectedModel=routeModel;
-  const model = active.startsWith('ses_') ? snapshot?.model?.id || '读取会话模型…' : selectedModel;
-  const models=active.startsWith('ses_') ? [{value:model,label:model,description:'会话已绑定模型'}]: [{value:routeModel,label:routeModel || '等待 CC Switch 模型',description:'自动跟随 CC Switch · Codex 路由'}];
+  const explicitLocal = /^\/本地(?:\s|$)/.test(draft.trim());
+  const localMode = active.startsWith('loc_') || (!active.startsWith('ses_') && (explicitLocal || (Boolean(modelError) && Boolean(localStatus?.available))));
+  const selectedModel=localMode ? localStatus?.model || snapshot?.model?.id || '本地模型' : routeModel;
+  const model = active.startsWith('ses_') ? snapshot?.model?.id || '读取会话模型…' : active.startsWith('loc_') ? snapshot?.model?.id || selectedModel : selectedModel;
+  const models=active.startsWith('ses_') ? [{value:model,label:model,description:'会话已绑定模型'}]:localMode ? [{value:model,label:model,description:'本机 Ollama · 无需云端 API Key'}]:[{value:routeModel,label:routeModel || '等待 CC Switch 模型',description:'自动跟随 CC Switch · Codex 路由'}];
   const entries=[...conversation.sessions.map(s=>({id:s.id,title:s.title,description:'对话 · 编程',updatedAt:s.updatedAt || 0})),...conversation.legacyChats.filter(c=>!conversation.sessions.some(s=>s.legacyId===c.id)).map(c=>({id:'legacy:'+c.id,title:c.title,description:'历史对话',updatedAt:c.updatedAt}))].sort((a,b)=>b.updatedAt-a.updatedAt);
   const title=conversation.selected?.title || legacyContext?.title || '新对话';
   const messages=[...(snapshot?.messages || [])].reverse().filter(m=>m.type==='user' || m.type==='assistant' || m.error);
-  const modelChanged = Boolean(snapshot?.configurationChanged || (snapshot?.model && snapshot.model.providerID!=='strip-local') || (routeModel && snapshot?.model && snapshot.model.id !== routeModel));
+  const modelChanged = !active.startsWith('loc_') && Boolean(snapshot?.configurationChanged || (snapshot?.model && snapshot.model.providerID!=='strip-local') || (routeModel && snapshot?.model && snapshot.model.id !== routeModel));
   const waiting = Boolean(snapshot?.permissions.length || snapshot?.forms.length);
-  const blockedReason = modelChanged ? '连接或模型已变化，请保留输入并新建对话。':conversation.loading ? '正在读取会话，请稍候。':waiting ? '请先处理上方的工具审批或问题。':!workspace ? '请填写有效的项目目录。':modelsLoading ? '正在加载模型，请稍候。':modelError ? modelError:!active.startsWith('ses_') && !selectedModel ? '未读取到模型，请先在 CC Switch 中配置 Codex 模型。':'';
+  const blockedReason = modelChanged ? '连接或模型已变化，请保留输入并新建对话。':conversation.loading ? '正在读取会话，请稍候。':waiting ? '请先处理上方的工具审批或问题。':localMode ? (localStatus?.available ? '':localStatus?.reason || '未检测到本地模型，请启动 Ollama 并下载模型。') :!workspace ? '请填写有效的项目目录。':modelsLoading ? '正在加载模型，请稍候。':modelError ? modelError:!active.startsWith('ses_') && !selectedModel ? '未读取到模型，请先在 CC Switch 中配置 Codex 模型。':'';
   const blocked = Boolean(blockedReason);
   function newChat(){conversation.newConversation();setCcView(false);setMobile(false);}
   return <div className={shell.app+' strip-app strip-ui'} data-theme="dark">
@@ -71,8 +85,8 @@ export default function App() {
       <p className="strip-attribution">Strip UI Kit · MIT · <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide Icons · ISC</a></p>
     </aside>
     <main className={shell.main}>{ccView ? <div className="strip-messages"><button className="strip-btn strip-btn--secondary" onClick={()=>setCcView(false)}>返回对话</button><h2>CC Switch 连接</h2><p>聊天与编程统一通过 CC Switch 的 Codex 路由连接模型。</p><p>接口：http://127.0.0.1:15721/v1/responses</p><p>当前模型：{routeModel || '未识别'}</p><p>请在 CC Switch 的 Codex 页面配置 API 供应商并切换模型。新对话自动跟随最新配置，旧对话保留原模型。</p><button className="strip-btn strip-btn--secondary" disabled={modelsLoading} onClick={()=>void refreshModels()}>{modelsLoading ? '正在检测…':'重新检测'}</button>{modelError && <p role="alert">{modelError}</p>}<p className="strip-muted">代理在线不代表上游认证或额度可用，需以真实请求结果为准。</p></div> : <>
-      <header className="strip-header"><div><button className="strip-mobile strip-btn strip-btn--ghost strip-btn--icon" aria-label="打开导航" onClick={()=>setMobile(true)}><Icon name="hamburger-menu"/></button>Strip Bot <span className="strip-muted"> / {title}</span></div><span className="strip-muted">CC Switch</span><span className="strip-muted">{waiting ? '等待审批':busy ? '正在处理':'对话与编程'}</span></header>
-      <div className="strip-unified-project"><Icon name="code"/><label>项目目录<input aria-label="项目目录" value={snapshot?.workspace || workspace} disabled={Boolean(active.startsWith('ses_')) || busy} onChange={e=>conversation.setWorkspace(e.target.value)} placeholder="选择 G:\p 内的项目目录"/></label><span className="strip-muted">文件与命令逐次审批</span></div>
+      <header className="strip-header"><div><button className="strip-mobile strip-btn strip-btn--ghost strip-btn--icon" aria-label="打开导航" onClick={()=>setMobile(true)}><Icon name="hamburger-menu"/></button>Strip Bot <span className="strip-muted"> / {title}</span></div><span className="strip-muted">{localMode ? '本地模型':'CC Switch'}</span><span className="strip-muted">{waiting ? '等待审批':busy ? '正在处理':'对话与编程'}</span></header>
+      <div className="strip-unified-project"><Icon name="code"/><label>项目目录<input aria-label="项目目录" value={snapshot?.workspace || workspace} disabled={Boolean(active.startsWith('ses_')) || busy} onChange={e=>conversation.setWorkspace(e.target.value)} placeholder="选择 G:\p 内的项目目录"/></label><span className="strip-muted">{localMode ? '本地模型仅支持文本对话，不执行文件命令':'文件与命令逐次审批'}</span></div>
       <div className="strip-thread strip-unified-thread" ref={scroll}>
         {!messages.length && !legacyContext?.messages.length && !conversation.loading && <div className={empty.root}>
           <img className="strip-welcome-logo" src="/brand-logo.png" alt="Strip Bot"/><h1 className={empty.heading}>从对话到构建，都在这里。</h1><p className={empty.subtext}>直接提问，或描述编程任务。需要操作文件时，由你确认。</p>
@@ -92,13 +106,13 @@ export default function App() {
           {!!snapshot?.permissions.length && <section className="strip-unified-approval" aria-label="待审批工具操作"><strong>需要你确认</strong>{snapshot.permissions.map(p=><article key={p.id}><p>{p.action}</p><pre>{p.resources.join('\n')}</pre>{!!p.metadata && <details><summary>操作详情</summary><pre>{pretty(p.metadata)}</pre></details>}<button className="strip-btn strip-btn--primary strip-btn--sm" disabled={Boolean(conversation.deciding)} onClick={()=>void conversation.decide(p.id,'once')}>允许本次</button><button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={Boolean(conversation.deciding)} onClick={()=>void conversation.decide(p.id,'reject')}>拒绝</button></article>)}</section>}
           {snapshot?.forms.map(form=><div className="strip-unified-approval" key={form.id}><QuestionForm form={form} onAnswer={answer=>conversation.answer(form.id,answer)}/></div>)}
           {modelChanged && <div className="strip-unified-alert" role="status">当前连接模型已变化。此会话保留原模型，请新建对话继续。<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={newChat}>新建对话</button></div>}
-          {modelError && <div role="alert" className="strip-unified-alert strip-error">{modelError}</div>}{conversation.error && <div role="alert" className="strip-unified-alert strip-error">{conversation.error}</div>}
+          {!localMode && modelError && <div role="alert" className="strip-unified-alert strip-error">{modelError}</div>}{conversation.error && <div role="alert" className="strip-unified-alert strip-error">{conversation.error}</div>}
         </div>
       </div>
-      <div className={box.wrapper}><StripCodexComposer key={active} value={draft} onValueChange={conversation.setDraft} busy={busy} onStop={()=>void conversation.stop()} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model}  modelType="CC Switch · Responses" efforts={[{value:'default',label:'自动'}]} environments={[{value:'local',label:'项目'}]} permissions={[{value:'ask',label:'逐次批准'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>setNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{await conversation.send(text,files);setMobile(false);}}/>
+      <div className={box.wrapper}><StripCodexComposer key={active} value={draft} onValueChange={conversation.setDraft} busy={busy} onStop={()=>void conversation.stop()} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model}  modelType={localMode ? '本地 · Ollama':'CC Switch · Responses'} efforts={[{value:'default',label:'自动'}]} environments={[{value:'local',label:'项目'}]} permissions={[{value:'ask',label:'逐次批准'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>setNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{await conversation.send(text,files,{forceLocal:localMode && !active.startsWith("loc_")});setMobile(false);}}/>
         {blockedReason && <div className="strip-unified-alert" role="status">{blockedReason}{modelChanged && <button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>conversation.newConversation(draft)}>保留输入并新建对话</button>}{!modelsLoading && (modelError || !selectedModel) && <button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>}</div>}
         {!busy && !blocked && !draft.trim() && <p className="strip-unified-caption">输入消息或添加文本附件后即可发送</p>}
-        <p className="strip-unified-caption">同一段对话中提问与编程 · OpenCode 执行工具 · 操作前由你批准</p>
+        <p className="strip-unified-caption">{localMode ? '本地 Ollama 推理 · 不使用云端 AI API · 仅文本对话':'对话与编程由 OpenCode 执行 · 输入 /本地 问题可使用本机模型'}</p>
       </div>
     </>}</main>
     {notice && <div className="strip-toast" role="status">{notice}<button className="strip-btn strip-btn--ghost" aria-label="关闭提示" onClick={()=>setNotice('')}>×</button></div>}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StripBot · Codex 风格 CSS 预览</title><link rel="stylesheet" href="./strip-codex-inspired.css">
+<style>body{margin:0}.preview-tools{display:flex;align-items:center;gap:8px;margin:8px 0 18px}.preview-title{font-size:28px;font-weight:500;letter-spacing:-.02em;margin:15px 0 4px}.preview-muted{color:var(--sc-muted)}.preview-spacer{flex:1}.preview-menu{margin-top:22px}</style></head>
+<body><div class="sb-codex" data-theme="light" id="preview"><div class="sc-shell">
+<aside class="sc-sidebar"><div class="sc-brand"><span>StripBot</span><button class="sc-icon-btn" aria-label="折叠侧栏">☰</button></div>
+<a class="sc-nav" aria-current="page" href="#">＋ &nbsp;新建聊天</a><a class="sc-nav" href="#">⌕ &nbsp;搜索</a>
+<div class="sc-section">工作空间</div><a class="sc-nav" href="#">▣ &nbsp;项目</a><a class="sc-nav" href="#">◇ &nbsp;执行任务</a><a class="sc-nav" href="#">▤ &nbsp;插件</a><a class="sc-nav" href="#">◷ &nbsp;计划任务</a>
+<div class="sc-section">最近会话</div><a class="sc-nav" href="#">优化软件界面</a><a class="sc-nav" href="#">组件开发</a><div class="preview-spacer"></div><a class="sc-nav" href="#">⚙ &nbsp;设置</a></aside>
+<main class="sc-main"><header class="sc-header"><h1 class="sc-title">新建聊天 <span class="preview-muted"> / StripBot</span></h1><div style="display:flex;align-items:center;gap:6px"><span class="sc-chip">Medium · 推理</span><button class="sc-icon-btn" aria-label="更多操作">•••</button></div></header>
+<div class="sc-body"><h2 class="preview-title">今天想构建什么？</h2><p class="preview-muted" style="margin:0 0 30px">Codex 风格的低对比度、极简开发者工作区</p>
+<div class="preview-tools"><button class="sc-btn sc-btn--primary">主要按钮</button><button class="sc-btn sc-btn--subtle">次要操作</button><button class="sc-btn sc-btn--outline">查看变更</button><span class="sc-chip">全局工具</span></div>
+<div class="sc-chat"><div class="sc-message sc-message--user">请检查项目并提出优化建议。</div><div class="sc-message sc-message--agent"><p>已读取项目结构，正在核对依赖与模块边界。</p><div class="sc-panel"><div class="sc-row"><span>读取 package.json</span><span class="sc-status" data-status="ok">已完成</span></div><div class="sc-row"><span>检查主题模块</span><span class="sc-status" data-status="ok">已完成</span></div><div class="sc-row"><span>准备代码建议</span><span class="sc-status">进行中</span></div></div><pre class="sc-code">src/modules/theme/
+├── state/
+├── components/
+└── styles/</pre></div></div>
+<div class="preview-menu"><div class="sc-label">弹出菜单与快捷键</div><div class="sc-popover"><button class="sc-menu-item">重命名 <span class="sc-kbd">⌘ R</span></button><button class="sc-menu-item">固定 <span class="sc-kbd">⌘ P</span></button></div></div>
+</div><footer class="sc-footer"><div class="sc-composer"><textarea aria-label="对话输入" placeholder="向 StripBot 发送消息..."></textarea><div class="sc-composer-controls"><div class="sc-composer-tools"><button class="sc-icon-btn" aria-label="添加附件">＋</button><button class="sc-btn sc-btn--subtle">模型 · High ▾</button></div><button class="sc-btn sc-btn--primary sc-btn--send" aria-label="发送消息">↑</button></div></div><div class="sc-helper">独立 CSS 视觉预览 · 非 Codex 官方资源</div></footer></main>
+</div></div><script>
+const root=document.getElementById("preview");
+const select=document.createElement("select");
+select.className="sc-input";select.style.cssText="position:fixed;right:12px;bottom:12px;width:130px;z-index:10";
+for(const name of ["light","dark","auto"]){const op=document.createElement("option");op.value=name;op.textContent="主题: "+name;select.appendChild(op);}
+select.addEventListener("change",()=>{root.dataset.theme=select.value;});
+document.body.appendChild(select);
+</script></body></html>

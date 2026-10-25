@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+assets/raw/
+*.zip
+.DS_Store
+.build-venv/
+build/
+dist/
+release/

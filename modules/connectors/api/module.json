@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "connectors/api",
+  "description": "直连 AI 模型 API 与账号连接",
+  "entrypoints": [
+    "modules/connectors/api/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/api-connection.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

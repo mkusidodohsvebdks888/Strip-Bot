@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 1,
+  "description": "Independent classified code modules with backwards-compatible exports",
+  "entrypoints": {
+    "api": "backend/gateway.cjs",
+    "web": "codex-ui/src/App.tsx",
+    "desktop": "desktop-app/main.cjs"
+  },
+  "modules": [
+    {
+      "id": "agent/engine",
+      "category": "agent",
+      "name": "engine",
+      "description": "Codex/OpenCode 引擎、进程与事件流管理",
+      "files": [
+        "modules/agent/engine/codex-engine.cjs",
+        "modules/agent/engine/legacy-engine.cjs",
+        "modules/agent/engine/event-stream.cjs",
+        "modules/agent/engine/proxy.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/codex-engine.cjs",
+        "backend/agent/engine.cjs",
+        "backend/agent/event-stream.cjs",
+        "backend/agent/proxy.cjs"
+      ],
+      "dependsOn": [
+        "integrations/mcp",
+        "agent/bridge",
+        "core/providers"
+      ]
+    },
+    {
+      "id": "agent/bridge",
+      "category": "agent",
+      "name": "bridge",
+      "description": "DeepSeek 等 Chat Completions 到 Responses API 的转换桥",
+      "files": [
+        "modules/agent/bridge/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/deepseek-bridge.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "agent/scheduler",
+      "category": "agent",
+      "name": "scheduler",
+      "description": "任务队列、并发与持久化调度",
+      "files": [
+        "modules/agent/scheduler/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/task-scheduler.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "agent/session",
+      "category": "agent",
+      "name": "session",
+      "description": "Agent 会话生命周期、权限审批与业务服务",
+      "files": [
+        "modules/agent/session/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/service.cjs"
+      ],
+      "dependsOn": [
+        "agent/engine",
+        "agent/scheduler",
+        "agent/metrics",
+        "agent/workspace",
+        "integrations/backends",
+        "core/providers"
+      ]
+    },
+    {
+      "id": "agent/workspace",
+      "category": "agent",
+      "name": "workspace",
+      "description": "工作区文件和命令执行边界",
+      "files": [
+        "modules/agent/workspace/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/workspace-actions.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "agent/metrics",
+      "category": "agent",
+      "name": "metrics",
+      "description": "模型使用与运行指标",
+      "files": [
+        "modules/agent/metrics/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/agent/model-metrics.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "core/providers",
+      "category": "core",
+      "name": "providers",
+      "description": "共享模型协议、网络安全校验及错误抽象",
+      "files": [
+        "modules/core/providers/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/providers.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "connectors/api",
+      "category": "connectors",
+      "name": "api",
+      "description": "直连 AI 模型 API 与账号连接",
+      "files": [
+        "modules/connectors/api/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/api-connection.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "connectors/cc-switch",
+      "category": "connectors",
+      "name": "cc-switch",
+      "description": "CC Switch 端点与模型选择",
+      "files": [
+        "modules/connectors/cc-switch/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/ccswitch.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "connectors/codex-account",
+      "category": "connectors",
+      "name": "codex-account",
+      "description": "Codex 账号管理",
+      "files": [
+        "modules/connectors/codex-account/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/codex-account.cjs"
+      ],
+      "dependsOn": [
+        "agent/engine"
+      ]
+    },
+    {
+      "id": "connectors/opencode-account",
+      "category": "connectors",
+      "name": "opencode-account",
+      "description": "OpenCode 账号管理",
+      "files": [
+        "modules/connectors/opencode-account/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/opencode-account.cjs"
+      ],
+      "dependsOn": [
+        "agent/engine"
+      ]
+    },
+    {
+      "id": "connectors/local-model",
+      "category": "connectors",
+      "name": "local-model",
+      "description": "隐式本地模型设置与探测",
+      "files": [
+        "modules/connectors/local-model/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/implicit-local-model.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "companions/astrbot",
+      "category": "companions",
+      "name": "astrbot",
+      "description": "AstrBot/NapCat 状态及本地联动",
+      "files": [
+        "modules/companions/astrbot/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/astrbot-plugin.cjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "companions/nono",
+      "category": "companions",
+      "name": "nono",
+      "description": "3D 桌宠进程及本地聊天接入",
+      "files": [
+        "modules/companions/nono/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/nono-plugin.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "integrations/mcp",
+      "category": "integrations",
+      "name": "mcp",
+      "description": "MCP 服务端点的配置、启用和持久化",
+      "files": [
+        "modules/integrations/mcp/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/integrations.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "integrations/backends",
+      "category": "integrations",
+      "name": "backends",
+      "description": "本地后端项目登记和授权",
+      "files": [
+        "modules/integrations/backends/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/backend-projects.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "integrations/github",
+      "category": "integrations",
+      "name": "github",
+      "description": "GitHub 工具仓库导入与审查",
+      "files": [
+        "modules/integrations/github/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/github-tools.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    },
+    {
+      "id": "integrations/skills",
+      "category": "integrations",
+      "name": "skills",
+      "description": "Skills 导入、存储和授权",
+      "files": [
+        "modules/integrations/skills/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/skills.cjs"
+      ],
+      "dependsOn": [
+        "core/providers",
+        "integrations/github"
+      ]
+    },
+    {
+      "id": "integrations/bundled-plugins",
+      "category": "integrations",
+      "name": "bundled-plugins",
+      "description": "内置插件列表、开关和受控调用",
+      "files": [
+        "modules/integrations/bundled-plugins/index.cjs"
+      ],
+      "compatibilityPaths": [
+        "backend/bundled-plugins.cjs"
+      ],
+      "dependsOn": [
+        "core/providers"
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "module": "agent/engine",
+      "from": "backend/agent/codex-engine.cjs",
+      "to": "modules/agent/engine/codex-engine.cjs"
+    },
+    {
+      "module": "agent/engine",
+      "from": "backend/agent/engine.cjs",
+      "to": "modules/agent/engine/legacy-engine.cjs"
+    },
+    {
+      "module": "agent/engine",
+      "from": "backend/agent/event-stream.cjs",
+      "to": "modules/agent/engine/event-stream.cjs"
+    },
+    {
+      "module": "agent/engine",
+      "from": "backend/agent/proxy.cjs",
+      "to": "modules/agent/engine/proxy.cjs"
+    },
+    {
+      "module": "agent/bridge",
+      "from": "backend/agent/deepseek-bridge.cjs",
+      "to": "modules/agent/bridge/index.cjs"
+    },
+    {
+      "module": "agent/scheduler",
+      "from": "backend/agent/task-scheduler.cjs",
+      "to": "modules/agent/scheduler/index.cjs"
+    },
+    {
+      "module": "agent/session",
+      "from": "backend/agent/service.cjs",
+      "to": "modules/agent/session/index.cjs"
+    },
+    {
+      "module": "agent/workspace",
+      "from": "backend/agent/workspace-actions.cjs",
+      "to": "modules/agent/workspace/index.cjs"
+    },
+    {
+      "module": "agent/metrics",
+      "from": "backend/agent/model-metrics.cjs",
+      "to": "modules/agent/metrics/index.cjs"
+    },
+    {
+      "module": "core/providers",
+      "from": "backend/providers.cjs",
+      "to": "modules/core/providers/index.cjs"
+    },
+    {
+      "module": "connectors/api",
+      "from": "backend/api-connection.cjs",
+      "to": "modules/connectors/api/index.cjs"
+    },
+    {
+      "module": "connectors/cc-switch",
+      "from": "backend/ccswitch.cjs",
+      "to": "modules/connectors/cc-switch/index.cjs"
+    },
+    {
+      "module": "connectors/codex-account",
+      "from": "backend/codex-account.cjs",
+      "to": "modules/connectors/codex-account/index.cjs"
+    },
+    {
+      "module": "connectors/opencode-account",
+      "from": "backend/opencode-account.cjs",
+      "to": "modules/connectors/opencode-account/index.cjs"
+    },
+    {
+      "module": "connectors/local-model",
+      "from": "backend/implicit-local-model.cjs",
+      "to": "modules/connectors/local-model/index.cjs"
+    },
+    {
+      "module": "companions/astrbot",
+      "from": "backend/astrbot-plugin.cjs",
+      "to": "modules/companions/astrbot/index.cjs"
+    },
+    {
+      "module": "companions/nono",
+      "from": "backend/nono-plugin.cjs",
+      "to": "modules/companions/nono/index.cjs"
+    },
+    {
+      "module": "integrations/mcp",
+      "from": "backend/integrations.cjs",
+      "to": "modules/integrations/mcp/index.cjs"
+    },
+    {
+      "module": "integrations/backends",
+      "from": "backend/backend-projects.cjs",
+      "to": "modules/integrations/backends/index.cjs"
+    },
+    {
+      "module": "integrations/github",
+      "from": "backend/github-tools.cjs",
+      "to": "modules/integrations/github/index.cjs"
+    },
+    {
+      "module": "integrations/skills",
+      "from": "backend/skills.cjs",
+      "to": "modules/integrations/skills/index.cjs"
+    },
+    {
+      "module": "integrations/bundled-plugins",
+      "from": "backend/bundled-plugins.cjs",
+      "to": "modules/integrations/bundled-plugins/index.cjs"
+    }
+  ],
+  "otherProjects": [
+    {
+      "id": "web-ui",
+      "category": "application",
+      "path": "codex-ui",
+      "description": "React/Vite UI, themes, composer and plugin panels"
+    },
+    {
+      "id": "desktop-shell",
+      "category": "application",
+      "path": "desktop-app",
+      "description": "Electron shell, runtime and packaging"
+    },
+    {
+      "id": "core-gateway",
+      "category": "application",
+      "path": "backend/gateway.cjs",
+      "description": "HTTP gateway & route composition"
+    },
+    {
+      "id": "7zip-plugin",
+      "category": "plugins",
+      "path": "plugins/archive-7zip",
+      "source": "解压缩/7-Zip"
+    },
+    {
+      "id": "office-pdf-plugin",
+      "category": "plugins",
+      "path": "plugins/office-pdf",
+      "source": "PDF转换/LibreOffice"
+    },
+    {
+      "id": "astrbot-plugin",
+      "category": "plugins",
+      "path": "plugins/astrbot-desktop"
+    },
+    {
+      "id": "nono-plugin",
+      "category": "plugins",
+      "path": "plugins/nono-desktop"
+    },
+    {
+      "id": "pet-source",
+      "category": "external-sources",
+      "path": "桌宠/DeepSeek-Harness-Pet"
+    },
+    {
+      "id": "archive-source",
+      "category": "external-sources",
+      "path": "解压缩/7-Zip"
+    },
+    {
+      "id": "office-source",
+      "category": "external-sources",
+      "path": "PDF转换/LibreOffice"
+    }
+  ]
+}

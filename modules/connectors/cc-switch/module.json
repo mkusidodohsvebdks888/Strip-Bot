@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "connectors/cc-switch",
+  "description": "CC Switch 端点与模型选择",
+  "entrypoints": [
+    "modules/connectors/cc-switch/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/ccswitch.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/workspace",
+  "description": "工作区文件和命令执行边界",
+  "entrypoints": [
+    "modules/agent/workspace/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/workspace-actions.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

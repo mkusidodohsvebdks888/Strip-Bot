@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "companions/nono",
+  "description": "3D 桌宠进程及本地聊天接入",
+  "entrypoints": [
+    "modules/companions/nono/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/nono-plugin.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

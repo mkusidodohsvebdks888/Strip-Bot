@@ -11,6 +11,8 @@ async function build() {
   await fs.copyFile(path.join(__dirname, 'main.cjs'), path.join(staging, 'main.cjs'));
   await fs.copyFile(path.join(__dirname, 'preload.cjs'), path.join(staging, 'preload.cjs'));
   await fs.cp(path.join(root, 'backend'), path.join(staging, 'backend'), {recursive:true});
+  // Business modules are outside backend; preserve them in the packaged app.
+  await fs.cp(path.join(root, 'modules'), path.join(staging, 'modules'), {recursive:true});
    await fs.mkdir(path.join(staging,'plugins'),{recursive:true});
    await fs.copyFile(path.join(root,'plugins','_shared.cjs'),path.join(staging,'plugins','_shared.cjs'));
    for (const plugin of ['archive-7zip','office-pdf']) await fs.cp(path.join(root,'plugins',plugin),path.join(staging,'plugins',plugin),{recursive:true});

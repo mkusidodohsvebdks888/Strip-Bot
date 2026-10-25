@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "integrations/skills",
+  "description": "Skills 导入、存储和授权",
+  "entrypoints": [
+    "modules/integrations/skills/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/skills.cjs"
+  ],
+  "dependsOn": [
+    "core/providers",
+    "integrations/github"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

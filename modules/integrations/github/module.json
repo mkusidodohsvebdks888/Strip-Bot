@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "integrations/github",
+  "description": "GitHub 工具仓库导入与审查",
+  "entrypoints": [
+    "modules/integrations/github/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/github-tools.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

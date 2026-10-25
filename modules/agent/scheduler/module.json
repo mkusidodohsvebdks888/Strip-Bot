@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/scheduler",
+  "description": "任务队列、并发与持久化调度",
+  "entrypoints": [
+    "modules/agent/scheduler/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/task-scheduler.cjs"
+  ],
+  "dependsOn": [],
+  "tests": "npm test",
+  "status": "active"
+}

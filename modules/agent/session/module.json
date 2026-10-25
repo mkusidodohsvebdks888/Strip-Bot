@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/session",
+  "description": "Agent 会话生命周期、权限审批与业务服务",
+  "entrypoints": [
+    "modules/agent/session/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/service.cjs"
+  ],
+  "dependsOn": [
+    "agent/engine",
+    "agent/scheduler",
+    "agent/metrics",
+    "agent/workspace",
+    "integrations/backends",
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

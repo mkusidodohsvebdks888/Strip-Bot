@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/metrics",
+  "description": "模型使用与运行指标",
+  "entrypoints": [
+    "modules/agent/metrics/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/model-metrics.cjs"
+  ],
+  "dependsOn": [],
+  "tests": "npm test",
+  "status": "active"
+}

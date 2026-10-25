@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "companions/astrbot",
+  "description": "AstrBot/NapCat 状态及本地联动",
+  "entrypoints": [
+    "modules/companions/astrbot/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/astrbot-plugin.cjs"
+  ],
+  "dependsOn": [],
+  "tests": "npm test",
+  "status": "active"
+}

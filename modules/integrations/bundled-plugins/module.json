@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "integrations/bundled-plugins",
+  "description": "内置插件列表、开关和受控调用",
+  "entrypoints": [
+    "modules/integrations/bundled-plugins/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/bundled-plugins.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

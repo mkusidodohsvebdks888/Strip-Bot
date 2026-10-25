@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "connectors/opencode-account",
+  "description": "OpenCode 账号管理",
+  "entrypoints": [
+    "modules/connectors/opencode-account/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/opencode-account.cjs"
+  ],
+  "dependsOn": [
+    "agent/engine"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

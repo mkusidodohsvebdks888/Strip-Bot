@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "integrations/mcp",
+  "description": "MCP 服务端点的配置、启用和持久化",
+  "entrypoints": [
+    "modules/integrations/mcp/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/integrations.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

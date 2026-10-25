@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "integrations/backends",
+  "description": "本地后端项目登记和授权",
+  "entrypoints": [
+    "modules/integrations/backends/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/backend-projects.cjs"
+  ],
+  "dependsOn": [
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

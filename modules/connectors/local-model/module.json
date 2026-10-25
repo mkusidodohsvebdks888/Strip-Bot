@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "connectors/local-model",
+  "description": "隐式本地模型设置与探测",
+  "entrypoints": [
+    "modules/connectors/local-model/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/implicit-local-model.cjs"
+  ],
+  "dependsOn": [],
+  "tests": "npm test",
+  "status": "active"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/bridge",
+  "description": "DeepSeek 等 Chat Completions 到 Responses API 的转换桥",
+  "entrypoints": [
+    "modules/agent/bridge/index.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/deepseek-bridge.cjs"
+  ],
+  "dependsOn": [],
+  "tests": "npm test",
+  "status": "active"
+}

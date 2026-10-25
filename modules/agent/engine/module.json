@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "agent/engine",
+  "description": "Codex/OpenCode 引擎、进程与事件流管理",
+  "entrypoints": [
+    "modules/agent/engine/codex-engine.cjs",
+    "modules/agent/engine/legacy-engine.cjs",
+    "modules/agent/engine/event-stream.cjs",
+    "modules/agent/engine/proxy.cjs"
+  ],
+  "legacyEntrypoints": [
+    "backend/agent/codex-engine.cjs",
+    "backend/agent/engine.cjs",
+    "backend/agent/event-stream.cjs",
+    "backend/agent/proxy.cjs"
+  ],
+  "dependsOn": [
+    "integrations/mcp",
+    "agent/bridge",
+    "core/providers"
+  ],
+  "tests": "npm test",
+  "status": "active"
+}

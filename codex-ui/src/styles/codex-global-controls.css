@@ -46,3 +46,18 @@ html[data-strip-palette] .strip-icon-control {
 }
 html[data-strip-palette] .strip-icon-control:disabled {cursor: not-allowed;opacity: .5;}
 html[data-strip-palette] .strip-icon-control:focus-visible {outline: 2px solid var(--border-focus);outline-offset: 2px;}
+
+/* Reusable text/action buttons: theme-token based, no speed-slider selectors. */
+html[data-strip-palette] .strip-action-control {
+  display: inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:0 13px;min-height:34px;border:1px solid var(--border-10);
+  border-radius:9px;background:var(--card-bg);color:var(--fg);
+  font-weight:500;line-height:1.3;cursor:pointer;
+}
+html[data-strip-palette] .strip-action-control--sm {min-height:28px;padding:0 10px;font-size:12px;}
+html[data-strip-palette] .strip-action-control--lg {min-height:40px;padding:0 16px;}
+html[data-strip-palette] .strip-action-control--primary {background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);}
+html[data-strip-palette] .strip-action-control--ghost {background:transparent;border-color:transparent;}
+html[data-strip-palette] .strip-action-control--danger {color:var(--diff-del-fg);background:var(--diff-del-bg);border-color:transparent;}
+html[data-strip-palette] .strip-action-control:not(:disabled):hover {box-shadow:0 1px 5px var(--border-09);}
+html[data-strip-palette] .strip-action-control:disabled {opacity:.5;cursor:not-allowed;}

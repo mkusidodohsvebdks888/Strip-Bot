@@ -130,3 +130,7 @@
 
 .strip-tool-theme{display:flex;justify-content:flex-end;padding:10px 22px}.strip-app .strip-tool-rail{overflow-y:auto;overflow-x:hidden}.strip-app .strip-tool-rail__group{flex-shrink:0}.strip-app .strip-tool-btn:focus-visible,.strip-tool-action:focus-visible,.strip-tool-panel__close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.strip-app[data-theme="light"] .strip-tool-success{color:#28774a}.strip-app[data-theme="light"] .strip-tool-file summary>small{color:#28774a}
 .strip-app .strip-tool-rail .strip-theme-switch{width:38px;height:38px;min-height:38px;padding:0;justify-content:center;flex-shrink:0}.strip-tool-rail .strip-theme-switch>span{display:none}.strip-tool-panel .strip-task button{min-width:0}
+
+/* Plugin center gets a little more space without changing other workspaces. */
+@media(min-width:901px){.strip-app .strip-tool-panel.strip-tool-panel--plugins{flex:0 0 352px;width:352px}}
+@media(max-width:900px){.strip-app > .strip-tool-panel.strip-tool-panel--plugins{width:min(352px,calc(100vw - 64px))}}

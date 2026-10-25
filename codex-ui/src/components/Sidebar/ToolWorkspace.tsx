@@ -42,7 +42,7 @@ export function ToolRail({active,opened,settings,busy,onTool,onNew,onSearch,onAt
 }
 
 export function ToolPanel({active,opened,onClose,children}:{active:ToolView;opened:boolean;onClose:()=>void;children:ReactNode}){
-  return <aside id="strip-tool-panel" className={'strip-tool-panel'+(opened?' strip-sidebar-open':'')} aria-label={toolTitle(active)} aria-hidden={!opened} hidden={!opened}>
+  return <aside id="strip-tool-panel" className={'strip-tool-panel'+(active==='plugins'?' strip-tool-panel--plugins':'')+(opened?' strip-sidebar-open':'')} aria-label={toolTitle(active)} aria-hidden={!opened} hidden={!opened}>
     <header className="strip-tool-panel__header strip-drag">
       <div className="strip-tool-panel__brand"><span className="strip-tool-panel__eyebrow">STRIP BOT / 工作区</span><strong>{toolTitle(active)}</strong></div>
       <button type="button" className="strip-tool-panel__close" title="收起面板 (Ctrl+B)" aria-label="收起工具面板" onClick={onClose}><Icon name="panel-left"/></button>

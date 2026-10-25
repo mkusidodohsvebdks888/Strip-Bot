@@ -8,7 +8,7 @@ import {modelVendor,modelVendors} from './model-vendors';
 import {discoverModels} from './api-models';
 import {NonoPluginSettings} from './NonoPluginSettings';
 import type {DiscoveredModel} from './api-models';
-const settingsPages=[{id:'model',label:'模型设置'},{id:'api',label:'API 连接'},{id:'models',label:'可用模型'},{id:'performance',label:'显示与性能'},{id:'project',label:'项目设置'},{id:'appearance',label:'外观主题'},{id:'nono',label:'桌面宠物'}] as const;
+const settingsPages=[{id:'model',label:'模型设置'},{id:'api',label:'API 连接'},{id:'models',label:'可用模型'},{id:'performance',label:'显示与性能'},{id:'project',label:'项目设置'},{id:'appearance',label:'AI 生成式 UI'},{id:'nono',label:'桌面宠物'}] as const;
 type SettingsPage=typeof settingsPages[number]['id'];
 const pageKey='strip_settings_page_v1';
 function storedPage():SettingsPage {try{const value=localStorage.getItem(pageKey);return settingsPages.find(item=>item.id===value)?.id || 'model';}catch{return 'model';}}

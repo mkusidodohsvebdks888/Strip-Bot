@@ -2,3 +2,8 @@
 	path = PDF转换/LibreOffice
 	url = https://github.com/mkusidodohsvebdks888/core.git
 	branch = master
+
+[submodule "external/OpenUI"]
+	path = external/OpenUI
+	url = https://github.com/wandb/openui.git
+	branch = main

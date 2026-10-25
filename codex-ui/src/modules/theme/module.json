@@ -25,5 +25,13 @@
   ],
   "preservePreviousPreferences": true,
   "scope": "appearance only",
-  "compatibleWithLegacyImports": true
+  "compatibleWithLegacyImports": true,
+  "generativeUI": {
+    "provider": "wandb/openui",
+    "source": "external/OpenUI",
+    "endpoint": "http://127.0.0.1:7878",
+    "component": "components/OpenUIStudio.tsx",
+    "importMode": "whitelisted-hex-css-vars",
+    "settingsPage": "AI 生成式 UI"
+  }
 }

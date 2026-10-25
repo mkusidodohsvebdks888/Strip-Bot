@@ -1,0 +1,22 @@
+.strip-openui-studio{display:flex;flex-direction:column;gap:14px;min-width:0}
+.strip-openui-studio__header{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.strip-openui-studio__header h2{margin:0 0 7px}
+.strip-openui-studio__header p,.strip-openui-import p,.strip-openui-help p{margin:0;font-size:13px;line-height:1.65;color:var(--muted)}
+.strip-openui-status{flex:none;font-size:12px;padding:5px 9px;border:1px solid var(--border-10);background:var(--surface-2);border-radius:999px;color:var(--muted)}
+.strip-openui-status.is-ready{color:#3c9668;background:rgba(42,147,90,.1)}
+.strip-openui-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.strip-openui-actions a{text-decoration:none}
+.strip-openui-actions button:disabled{opacity:.5;cursor:not-allowed}
+.strip-openui-help{border:1px solid var(--border-10);padding:15px;border-radius:12px;background:var(--surface-2);display:grid;gap:9px}
+.strip-openui-help code,.strip-openui-import code{font-size:12px;overflow-wrap:anywhere;white-space:normal}
+.strip-openui-frame{height:min(74vh,710px);min-height:350px;border:1px solid var(--border-10);border-radius:16px;overflow:hidden;background:#f6f7fa}
+.strip-openui-frame iframe{border:0;width:100%;height:100%;display:block}
+.strip-openui-import{border-top:1px solid var(--border-10);padding-top:14px;display:flex;flex-direction:column;gap:11px}
+.strip-openui-import h3{margin:0;font-size:15px}
+.strip-openui-import label{font-size:13px;font-weight:550}
+.strip-openui-import textarea{background:var(--surface-search);color:var(--fg);border:1px solid var(--border-10);border-radius:10px;min-width:0;width:100%;box-sizing:border-box;padding:12px;font:13px/1.6 var(--font-code,monospace);resize:vertical}
+.strip-openui-feedback{font-size:13px;margin:0;color:var(--fg)}
+.strip-theme-legacy{margin-top:15px;border:1px solid var(--border-10);border-radius:13px;overflow:hidden}
+.strip-theme-legacy>summary{cursor:pointer;background:var(--surface-2);color:var(--fg);padding:12px 15px;font-weight:550}
+.strip-theme-legacy>.strip-wallpaper-settings{border:0;border-radius:0}
+@media(max-width:650px){.strip-openui-studio__header{flex-direction:column}.strip-openui-frame{min-height:320px}

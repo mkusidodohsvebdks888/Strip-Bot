@@ -66,3 +66,7 @@ CSS 由 App.tsx 按原顺序从 `./modules/theme/styles/` 引入，避免级联�
 - 小屏（≤640px）恢复满宽、无外边距和无圆角，避免压缩可操作空间。壁纸、主题选择、工具侧栏和聊天功能不更改。
 - 圆角修饰的是网页内容外框。**Windows 的系统级原生窗口外边角仍由 Windows/Electron 管理**；无需改用无边框窗口以牺牲系统按钮。
 - 测试：`node --test test/window-frame.test.js`，并重新构建前端与 Windows 安装程序后检查窗口最大化、拖动、右上角按钮、窄窗和主题切换。
+
+## 生成式 UI 集成
+
+设置页优先显示 OpenUI 独立 AI 设计工作区，原主题与本地壁纸保留在折叠面板中；仅导入安全颜色变量。启动与说明见 `scripts/openui/README.md`。

@@ -48,7 +48,8 @@ function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..'
             detail:{dependency:'StripBot Electron / Windows',command:'desktop.cjs',description:'启用后使用现有糯糯桌宠服务启动和停止；不需要重复安装。'}};
         }
         const detail=await executable(id).status();
-        return {...meta,enabled:states[id]===true,available:true,detail};
+        const runtime=id==='deepseek-harness-pet'?{running:detail.running===true,state:detail.running?'running':'stopped',error:''}:undefined;
+        return {...meta,enabled:states[id]===true,available:true,detail,...(runtime?{runtime}:{})};
       }catch(error){
         return {id,enabled:false,available:false,error:'插件不可用：'+error.message};
       }
@@ -64,6 +65,7 @@ function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..'
         const state=await nono.setEnabled(enabled);
         return {ok:true,id,enabled:state.enabled===true,running:state.running===true};
       }
+      if(id==='deepseek-harness-pet'&&!enabled)await executable(id).stop();
       const data=await read();
       data[id]=enabled;
       await save(data);
@@ -79,7 +81,7 @@ function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..'
     if((await queue.then(read))[id]!==true)throw httpError(403,'请先启用插件。');
     if(typeof action!=='string')throw httpError(400,'插件操作格式错误。');
     if(id==='deepseek-harness-pet'){
-      if(action!=='launch')throw httpError(400,'桌宠仅支持启动操作。');
+      if(action!=='launch'&&action!=='stop')throw httpError(400,'Q版桌宠仅支持启动或停止。');
       return executable(id).execute({action});
     }
     if(typeof input!=='string'||typeof output!=='string')throw httpError(400,'文件插件必须提供源路径和输出路径。');

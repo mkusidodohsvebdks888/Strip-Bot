@@ -17,10 +17,10 @@
 | OpenUI 生成式 UI | `external/OpenUI/`、`scripts/openui/` | 本地 AI 生成界面并安全导入配色，原主题设置保留 |
 | 背景素材 | `背景素材/` | 独立保存的毛玻璃、液态玻璃、纹理与背景 CSS/SVG 素材，不自动覆盖 UI |
 | 桌面程序 | `desktop-app/` | Electron、预加载及打包 |
-| 独立插件 | `plugins/` | 糯糯桌宠、DeepSeek Harness 桌宠、7-Zip、Office→PDF、AstrBot |
+| 独立插件 | `plugins/` | 糯糯桌宠、DeepSeek Q版桌宠、7-Zip、Office→PDF、AstrBot |
 | 7-Zip 源码 | `解压缩/7-Zip/` | 独立源码备份，非已安装程序 |
 | LibreOffice 源码 | `PDF转换/LibreOffice/` | Git 子模块，体积较大 |
-| 桌宠源码 | `桌宠/DeepSeek-Harness-Pet/` | 独立上游源码 |
+| 桌宠源码 | `桌宠/DeepSeek-Q版-dsh-pet/` | Q版桌宠固定版本子模块；原 `DeepSeek-Harness-Pet/` 备份保留 |
 | 回归测试 | `test/` | API、执行、UI、插件及模块兼容 |
 | 构建脚本 | `scripts/` | UI 编译与发布工具 |
 

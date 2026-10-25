@@ -1,21 +1,29 @@
 {
   "id": "deepseek-harness-pet",
-  "name": "DeepSeek Harness 桌宠",
-  "version": "1.0.0",
+  "name": "DeepSeek Q版桌宠（dsh-pet）",
+  "version": "2.0.0",
   "host": "stripbot",
   "entry": "index.cjs",
   "category": "desktop-pet",
-  "platform": "win32",
-  "runtime": "installed-exe",
+  "platform": "win32 / linux / macOS",
+  "runtime": "pinned-source-standalone",
   "permissions": [
     "local-process"
   ],
   "actions": [
     {
       "id": "launch",
-      "label": "启动桌宠"
+      "label": "启动 Q 版桌宠"
+    },
+    {
+      "id": "stop",
+      "label": "停止桌宠"
     }
   ],
-  "description": "显示 DeepSeek Harness 任务状态的独立 Windows 桌宠；须先安装可信 EXE，不会自动下载。",
-  "source": "../../桌宠/DeepSeek-Harness-Pet"
+  "description": "Q 版蓝发鲸鱼娘：待机、拖拽、漫游与透明动画。使用 dsh-pet 独立运行模式；首次需要构建源码。",
+  "source": "../../桌宠/DeepSeek-Q版-dsh-pet",
+  "upstream": {
+    "repository": "PC2005-cloud/dsh-pet",
+    "commit": "dfc03961bdb4d26898838cb72c9c2ac09699b1e2"
+  }
 }

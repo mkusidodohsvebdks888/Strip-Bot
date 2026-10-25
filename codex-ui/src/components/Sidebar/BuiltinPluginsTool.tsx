@@ -20,7 +20,7 @@ const CATEGORIES=[
 ] as const;
 const PLUGIN_META:Record<string,{icon:string;summary:string}>={
   'nono-desktop':{icon:'bot',summary:'桌面陪伴与交互'},
-  'deepseek-harness-pet':{icon:'sparkles',summary:'桌面任务状态助手'},
+  'deepseek-harness-pet':{icon:'sparkles',summary:'Q版蓝发鲸鱼娘 · 动画、漫游和互动'},
   'archive-7zip':{icon:'package',summary:'压缩和解压本地文件'},
   'office-pdf':{icon:'file',summary:'Office 文档转 PDF'}
 };
@@ -112,7 +112,7 @@ export function BuiltinPluginsTool(){
       return;
     }
     const prompt=isPet
-      ? '确认启动本机已安装的 DeepSeek Harness 桌宠？'
+      ? plugin.runtime?.running?'确认停止由 StripBot 启动的 DeepSeek Q版桌宠？':'确认启动 DeepSeek Q版桌宠？（首次使用需要先构建本地源码）'
       : '确认执行「'+(plugin.name||plugin.id)+'」？\n动作：'+form.action+
         '\n读取：'+form.input+'\n写入：'+form.output+
         '\n\n请只处理可信文件，插件不会覆盖已存在的目标。';
@@ -120,11 +120,12 @@ export function BuiltinPluginsTool(){
     setBusyId(plugin.id);setError('');setMessage('');
     try{
       const result=await call<{message:string;output?:string}>('/api/plugins/bundled/execute',{
-        id:plugin.id,action:isPet?'launch':form.action,
+        id:plugin.id,action:isPet?(plugin.runtime?.running?'stop':'launch'):form.action,
         ...(isPet?{}:{input:form.input.trim(),output:form.output.trim()}),
         confirmed:true
       });
       setMessage((result.message||'操作完成。')+(result.output?' 输出：'+result.output:''));
+      if(isPet){const updated=await call<{items:Plugin[]}>('/api/plugins/bundled');setItems(updated.items);}
     }catch(cause){setError(shortError(cause));}
     finally{setBusyId(null);}
   }
@@ -173,7 +174,7 @@ export function BuiltinPluginsTool(){
               const isBusy=busyId!==null;
               const form=forms[plugin.id]||initialForm(plugin);
               const canToggle=plugin.available&&plugin.detail?.supported!==false;
-              const canLaunch=plugin.detail?.installed!==false;
+              const canLaunch=plugin.runtime?.running===true||plugin.detail?.installed!==false;
               return <article key={plugin.id} className={'spm-plugin'+(open?' is-open':'')} data-plugin-id={plugin.id}>
                 <div className="spm-plugin__row">
                   <span className="spm-plugin__icon" aria-hidden="true"><Icon name={meta.icon}/></span>
@@ -198,7 +199,7 @@ export function BuiltinPluginsTool(){
                     {plugin.detail.command&&<div><span>本地入口</span><code title={plugin.detail.command}>{plugin.detail.command}</code></div>}
                   </div>}
                   {plugin.enabled&&plugin.available&&plugin.id==='deepseek-harness-pet'&&
-                    <button className="spm-primary" type="button" disabled={isBusy||!canLaunch} onClick={()=>void execute(plugin)}><Icon name="play"/>启动桌宠</button>}
+                    <button className="spm-primary" type="button" disabled={isBusy||!canLaunch} onClick={()=>void execute(plugin)}><Icon name={plugin.runtime?.running?'stop':'play'}/>{plugin.runtime?.running?'停止桌宠':'启动 Q版桌宠'}</button>}
                   {plugin.enabled&&plugin.available&&FILE_PLUGINS.has(plugin.id)&&
                     <div className="spm-form">
                       <label htmlFor={'spm-action-'+plugin.id}>执行操作</label>

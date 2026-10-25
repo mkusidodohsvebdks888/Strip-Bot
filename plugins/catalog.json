@@ -14,10 +14,12 @@
       "id": "deepseek-harness-pet",
       "category": "desktop-pet",
       "folder": "plugins/deepseek-harness-pet",
-      "source": "桌宠/DeepSeek-Harness-Pet",
-      "mode": "installed-windows-exe",
-      "needs": "DeepSeekHarnessPet.exe",
-      "defaultEnabled": false
+      "source": "桌宠/DeepSeek-Q版-dsh-pet",
+      "mode": "pinned-standalone-node-script",
+      "needs": "Node.js >= 22.12, pnpm build",
+      "defaultEnabled": false,
+      "title": "DeepSeek Q版桌宠",
+      "pinnedCommit": "dfc03961bdb4d26898838cb72c9c2ac09699b1e2"
     },
     {
       "id": "archive-7zip",

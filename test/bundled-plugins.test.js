@@ -46,11 +46,23 @@ test('Nono enable is delegated to the existing desktop service, not duplicated',
   await registry.enable({id:'nono-desktop',enabled:false,confirmed:true});
   assert.deepEqual(calls,[true,false]);
 }));
-test('DeepSeek Harness pet only resolves local Windows EXE and does not download',async()=>{
-  assert.equal(harness.executable({platform:'linux'}),null);
-  assert.equal(harness.executable({platform:'win32',env:{DEEPSEEK_HARNESS_PET_BIN:'relative.exe'}}),null);
-  assert.ok(harness.executable({platform:'win32',env:{LOCALAPPDATA:'C:/Users/Example/AppData/Local'}})?.endsWith('DeepSeekHarnessPet.exe'));
-  const state=await harness.status({platform:'linux'});
-  assert.equal(state.supported,false);
-  await assert.rejects(harness.execute({action:'delete'}),/仅支持启动/);
+test('Q版桌宠用固定源码独立运行，禁用后停止由StripBot启动的进程',async()=>sandbox(async root=>{
+  const pets=createBundledPlugins({root});
+  const all=await pets.list();
+  const pet=all.find(x=>x.id==='deepseek-harness-pet');
+  assert.match(pet.name,/Q版/);
+  assert.equal(pet.enabled,false);
+  assert.equal(pet.runtime.running,false);
+  await assert.rejects(pets.execute({id:'deepseek-harness-pet',action:'launch',confirmed:true}),/请先启用/);
+  await pets.enable({id:'deepseek-harness-pet',enabled:true,confirmed:true});
+  await assert.rejects(pets.execute({id:'deepseek-harness-pet',action:'destroy',confirmed:true}),/仅支持启动或停止/);
+  await pets.enable({id:'deepseek-harness-pet',enabled:false,confirmed:true});
+  assert.equal((await pets.list()).find(x=>x.id==='deepseek-harness-pet').enabled,false);
+}));
+test('Q版桌宠独立入口必须是绝对路径的 standalone.js',async()=>{
+  assert.equal(harness.resolveScript({env:{DSH_PET_STANDALONE_PATH:'relative.js'}}),null);
+  assert.equal(harness.resolveScript({env:{DSH_PET_STANDALONE_PATH:'/tmp/unsafe.js'}}),null);
+  const filename=harness.resolveScript({env:{},baseDir:path.resolve(__dirname,'../plugins/deepseek-harness-pet')});
+  assert.ok(filename.endsWith(path.join('dsh-pet','lib','standalone.js')));
+  await assert.rejects(harness.execute({action:'destroy'}),/仅支持启动或停止/);
 });

@@ -7,3 +7,8 @@
 	path = external/OpenUI
 	url = https://github.com/wandb/openui.git
 	branch = main
+
+[submodule "桌宠/DeepSeek-Q版-dsh-pet"]
+	path = 桌宠/DeepSeek-Q版-dsh-pet
+	url = https://github.com/PC2005-cloud/dsh-pet.git
+	branch = main

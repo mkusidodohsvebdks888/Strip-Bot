@@ -1,0 +1,4 @@
+[submodule "PDF转换/LibreOffice"]
+	path = PDF转换/LibreOffice
+	url = https://github.com/mkusidodohsvebdks888/core.git
+	branch = master

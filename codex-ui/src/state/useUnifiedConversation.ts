@@ -113,7 +113,7 @@ export function useUnifiedConversation() {
         if (typeof result.reply !== 'string' || !result.reply.trim()) throw new Error('本地模型未返回有效回复。');
         setLocalChats(all=>({...all,[localId]:{
           model:typeof result.model === 'string' ? result.model:'本地模型',
-          messages:[...(all[localId]?.messages || []),{id:'local-assistant-'+Date.now(),type:'assistant',text:result.reply}].slice(-48),
+          messages:[...(all[localId]?.messages || []),{id:'local-assistant-'+Date.now(),type:'assistant' as const,text:result.reply}].slice(-48),
         }}));
         setSessions(all=>all.map(item=>item.id===localId ? {...item,updatedAt:Date.now()}:item));
         setDrafts(all=>({...all,[originalActive]:'',[localId]:''}));

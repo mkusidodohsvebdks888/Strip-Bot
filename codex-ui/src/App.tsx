@@ -72,6 +72,8 @@ import './styles/aborted-note.css';
 import './styles/task-flow.css';
 import './styles/activity-stream.css';
 import './styles/question-card.css';
+// Keep the shared palette context last so every UI module switches together.
+import './modules/theme/styles/unified-modules.css';
 
 // OpenCode may return the same reply both on the message and in text parts.
 // Prefer parts when available to avoid displaying an entire reply twice.

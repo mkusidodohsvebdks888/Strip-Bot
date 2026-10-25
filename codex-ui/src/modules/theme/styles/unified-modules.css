@@ -1,0 +1,419 @@
+/* StripBot unified theme context.
+ * The html element is the single palette source for portals, popovers and module UIs.
+ * Values mirror the canonical existing Quiet Studio and palette styles to preserve design.
+ * When adding a theme, update useAppearance, theme-palettes, this root map and Electron.
+ * Loaded LAST so modules cannot accidentally fall back to fixed light/dark defaults.
+ */
+html[data-strip-palette="warm"] {
+  --bg: #faf9f6;
+  --sidebar-bg: #f4f1eb;
+  --card-bg: #fffefa;
+  --head-bg: #faf8f3;
+  --surface-search: #eeebe4;
+  --surface-2: #eeeae2;
+  --surface-3: #f7f4ee;
+  --surface-chip: #f6f3ed;
+  --grad-dark: #fdfcf9;
+  --grad-logo-a: #f9f0e5;
+  --grad-logo-lg-a: #f7efe4;
+  --avatar-a: #f3e6d7;
+  --avatar-b: #e8dccb;
+  --send-disabled-bg: #d5d1c9;
+  --fg: #292722;
+  --fg-strong: #333029;
+  --text-message: #38342f;
+  --text-chip: #49443d;
+  --text-secondary: #676159;
+  --muted: #6d675f;
+  --muted-2: #756e65;
+  --muted-3: #797166;
+  --muted-4: #8c857a;
+  --muted-5: #9d9488;
+  --muted-6: #b5afa5;
+  --faint: #c7c1b8;
+  --code-fg: #4b634a;
+  --code-comment: #84786c;
+  --border-06: rgba(75,63,47,.055);
+  --border-07: rgba(75,63,47,.07);
+  --border-08: rgba(75,63,47,.085);
+  --border-09: rgba(75,63,47,.095);
+  --border-10: rgba(75,63,47,.12);
+  --border-focus: rgba(183,109,79,.42);
+  --scrollbar: rgba(79,68,57,.17);
+  --scrollbar-hover: rgba(79,68,57,.29);
+  --shadow-pop: 0 18px 55px rgba(77,58,43,.13),0 3px 12px rgba(77,58,43,.07);
+  --accent: #b45d41;
+  --accent-hover: #9f4d35;
+  --accent-contrast: #fffdf9;
+  --dot-warning: #bb8d38;
+  --title-warning: #99702e;
+  --diff-add-sign: #39865d;
+  --diff-add-fg: #306f4f;
+  --diff-add-bg: rgba(55,132,86,.1);
+  --diff-del-sign: #b25154;
+  --diff-del-fg: #a0474a;
+  --diff-del-bg: rgba(178,81,84,.09);
+  --quiet-line: #e9e4db;
+  --quiet-white: #fffefa;
+  --quiet-warm: #f6f3ed;
+  --quiet-soft: rgba(255,253,249,.82);
+  --quiet-shadow: 0 5px 24px rgba(92,70,46,.055),0 1px 4px rgba(92,70,46,.045);
+  color-scheme: light;
+}
+
+html[data-strip-palette="white"] {
+  --bg: #fff;
+  --sidebar-bg: #f7f7f6;
+  --card-bg: #fff;
+  --head-bg: #fcfcfb;
+  --surface-search: #f1f1f0;
+  --surface-2: #ededeb;
+  --surface-3: #f8f8f7;
+  --surface-chip: #f6f6f5;
+  --grad-dark: #fff;
+  --grad-logo-a: #f9f0e5;
+  --grad-logo-lg-a: #f7efe4;
+  --avatar-a: #f3e6d7;
+  --avatar-b: #e8dccb;
+  --send-disabled-bg: #d5d1c9;
+  --fg: #292722;
+  --fg-strong: #333029;
+  --text-message: #38342f;
+  --text-chip: #49443d;
+  --text-secondary: #676159;
+  --muted: #6d675f;
+  --muted-2: #756e65;
+  --muted-3: #797166;
+  --muted-4: #8c857a;
+  --muted-5: #9d9488;
+  --muted-6: #b5afa5;
+  --faint: #c7c1b8;
+  --code-fg: #4b634a;
+  --code-comment: #84786c;
+  --border-06: rgba(75,63,47,.055);
+  --border-07: rgba(75,63,47,.07);
+  --border-08: rgba(75,63,47,.085);
+  --border-09: rgba(75,63,47,.095);
+  --border-10: rgba(75,63,47,.12);
+  --border-focus: rgba(183,109,79,.42);
+  --scrollbar: rgba(79,68,57,.17);
+  --scrollbar-hover: rgba(79,68,57,.29);
+  --shadow-pop: 0 18px 55px rgba(77,58,43,.13),0 3px 12px rgba(77,58,43,.07);
+  --accent: #b45d41;
+  --accent-hover: #9f4d35;
+  --accent-contrast: #fffdf9;
+  --dot-warning: #bb8d38;
+  --title-warning: #99702e;
+  --diff-add-sign: #39865d;
+  --diff-add-fg: #306f4f;
+  --diff-add-bg: rgba(55,132,86,.1);
+  --diff-del-sign: #b25154;
+  --diff-del-fg: #a0474a;
+  --diff-del-bg: rgba(178,81,84,.09);
+  --quiet-line: #e9e8e5;
+  --quiet-white: #fff;
+  --quiet-warm: #f7f7f6;
+  --quiet-soft: rgba(255,255,255,.9);
+  --quiet-shadow: 0 5px 24px rgba(92,70,46,.055),0 1px 4px rgba(92,70,46,.045);
+  color-scheme: light;
+}
+
+html[data-strip-palette="mist"] {
+  --bg: #f2f6fa;
+  --sidebar-bg: #e5ecf4;
+  --card-bg: #fcfdff;
+  --head-bg: #eef3f8;
+  --surface-search: #e9eff6;
+  --surface-2: #dfe8f1;
+  --surface-3: #f5f8fc;
+  --surface-chip: #e8eff7;
+  --grad-dark: #fff;
+  --grad-logo-a: #f9f0e5;
+  --grad-logo-lg-a: #f7efe4;
+  --avatar-a: #f3e6d7;
+  --avatar-b: #e8dccb;
+  --send-disabled-bg: #c7d2df;
+  --fg: #2b3744;
+  --fg-strong: #243343;
+  --text-message: #344353;
+  --text-chip: #344353;
+  --text-secondary: #586879;
+  --muted: #586b7e;
+  --muted-2: #617487;
+  --muted-3: #6b7c8e;
+  --muted-4: #728295;
+  --muted-5: #9d9488;
+  --muted-6: #b5afa5;
+  --faint: #c7c1b8;
+  --code-fg: #4b634a;
+  --code-comment: #84786c;
+  --border-06: #2a466411;
+  --border-07: #2a466414;
+  --border-08: #2a46641a;
+  --border-09: #2a46641e;
+  --border-10: #2a466427;
+  --border-focus: #4c6e9180;
+  --scrollbar: rgba(79,68,57,.17);
+  --scrollbar-hover: rgba(79,68,57,.29);
+  --shadow-pop: 0 18px 48px #243d5a24;
+  --accent: #4c6e91;
+  --accent-hover: #3d5d7d;
+  --accent-contrast: #fff;
+  --dot-warning: #bb8d38;
+  --title-warning: #99702e;
+  --diff-add-sign: #39865d;
+  --diff-add-fg: #306f4f;
+  --diff-add-bg: rgba(55,132,86,.1);
+  --diff-del-sign: #b25154;
+  --diff-del-fg: #a0474a;
+  --diff-del-bg: rgba(178,81,84,.09);
+  --quiet-line: #dce5ef;
+  --quiet-white: #fcfdff;
+  --quiet-warm: #eaf0f7;
+  --quiet-soft: #fcfdfff0;
+  --quiet-shadow: 0 5px 24px rgba(92,70,46,.055),0 1px 4px rgba(92,70,46,.045);
+  color-scheme: light;
+}
+
+html[data-strip-palette="dark"] {
+  --bg: #211f1d;
+  --sidebar-bg: #25221f;
+  --card-bg: #2b2824;
+  --head-bg: #292622;
+  --surface-search: #302c27;
+  --surface-2: #38332e;
+  --surface-3: #2e2a26;
+  --surface-chip: #34302b;
+  --grad-dark: #231f1c;
+  --grad-logo-a: #41372f;
+  --grad-logo-lg-a: #3f342e;
+  --avatar-a: #4c4038;
+  --avatar-b: #342d27;
+  --send-disabled-bg: #524943;
+  --fg: #f1ede6;
+  --fg-strong: #eee8df;
+  --text-message: #e6dfd6;
+  --text-chip: #ece5db;
+  --text-secondary: #c9c0b5;
+  --muted: #bbb0a4;
+  --muted-2: #b2a79a;
+  --muted-3: #a6988b;
+  --muted-4: #a99a8d;
+  --muted-5: #93867a;
+  --muted-6: #7e746a;
+  --faint: #655c53;
+  --code-fg: #c9dac2;
+  --code-comment: #ab9e90;
+  --border-06: rgba(250,241,227,.055);
+  --border-07: rgba(250,241,227,.075);
+  --border-08: rgba(250,241,227,.09);
+  --border-09: rgba(250,241,227,.11);
+  --border-10: rgba(250,241,227,.15);
+  --border-focus: rgba(216,143,109,.54);
+  --scrollbar: rgba(240,225,205,.16);
+  --scrollbar-hover: rgba(240,225,205,.26);
+  --shadow-pop: 0 18px 52px rgba(0,0,0,.34);
+  --accent: #e2a084;
+  --accent-hover: #e8ac92;
+  --accent-contrast: #211b17;
+  --dot-warning: #dbac6b;
+  --title-warning: #e1bf82;
+  --diff-add-sign: #8abf9a;
+  --diff-add-fg: #9dd1ae;
+  --diff-add-bg: rgba(86,150,107,.15);
+  --diff-del-sign: #e3a5a5;
+  --diff-del-fg: #e6b3b0;
+  --diff-del-bg: rgba(193,99,99,.14);
+  --quiet-line: #413a33;
+  --quiet-white: #2a2723;
+  --quiet-warm: #302b26;
+  --quiet-soft: rgba(45,41,35,.94);
+  --quiet-shadow: 0 7px 30px rgba(0,0,0,.2);
+  color-scheme: dark;
+}
+
+html[data-strip-palette="graphite"] {
+  --bg: #22262b;
+  --sidebar-bg: #292e35;
+  --card-bg: #2d333a;
+  --head-bg: #2a3036;
+  --surface-search: #363d45;
+  --surface-2: #3b424b;
+  --surface-3: #313841;
+  --surface-chip: #323941;
+  --grad-dark: #231f1c;
+  --grad-logo-a: #41372f;
+  --grad-logo-lg-a: #3f342e;
+  --avatar-a: #4c4038;
+  --avatar-b: #342d27;
+  --send-disabled-bg: #515b67;
+  --fg: #f0f0f1;
+  --fg-strong: #f3f5f7;
+  --text-message: #dce0e5;
+  --text-chip: #e3e8ee;
+  --text-secondary: #bdc5cd;
+  --muted: #b2bdc9;
+  --muted-2: #a6b2c0;
+  --muted-3: #9aa6b4;
+  --muted-4: #939eac;
+  --muted-5: #93867a;
+  --muted-6: #7e746a;
+  --faint: #655c53;
+  --code-fg: #c9dac2;
+  --code-comment: #ab9e90;
+  --border-06: #ffffff10;
+  --border-07: #ffffff14;
+  --border-08: #ffffff1a;
+  --border-09: #ffffff1e;
+  --border-10: #ffffff27;
+  --border-focus: #a8bfd680;
+  --scrollbar: rgba(240,225,205,.16);
+  --scrollbar-hover: rgba(240,225,205,.26);
+  --shadow-pop: 0 18px 48px #0006;
+  --accent: #a8bfd6;
+  --accent-hover: #c0d1e2;
+  --accent-contrast: #22262b;
+  --dot-warning: #dbac6b;
+  --title-warning: #e1bf82;
+  --diff-add-sign: #8abf9a;
+  --diff-add-fg: #9dd1ae;
+  --diff-add-bg: rgba(86,150,107,.15);
+  --diff-del-sign: #e3a5a5;
+  --diff-del-fg: #e6b3b0;
+  --diff-del-bg: rgba(193,99,99,.14);
+  --quiet-line: #424a55;
+  --quiet-white: #2d333a;
+  --quiet-warm: #313841;
+  --quiet-soft: #2d333af0;
+  --quiet-shadow: 0 7px 30px rgba(0,0,0,.2);
+  color-scheme: dark;
+}
+
+
+/* One-click palette consistency for every StripBot-owned UI module.
+   All surfaces consume the same semantic tokens, never a second hard-coded theme.
+   Do not recolor syntax highlighting, status alerts, code diff signs or images. */
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) {
+  --strip-line: var(--border-10);
+  --strip-line-soft: var(--border-09);
+  --strip-module-surface: var(--card-bg);
+  --strip-module-surface-muted: var(--surface-search);
+  --strip-module-text: var(--fg);
+  --strip-module-subtext: var(--muted);
+  --strip-module-border: var(--border-10);
+  --strip-module-selected: var(--surface-2);
+  --strip-module-shadow: var(--quiet-shadow,var(--shadow-pop));
+  accent-color: var(--accent);
+  color: var(--fg);
+}
+
+/* Sidebars, history, tools, MCP, Skills, GitHub, backends, plugins, and chat panels. */
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-tool-rail,.strip-tool-panel,.strip-chat-history) {
+  color: var(--fg);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-tool-rail,.strip-tool-panel) {
+  background-color: var(--sidebar-bg);
+  border-color: var(--border-10);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-tool-content,.strip-extension,.strip-connection-settings,.strip-theme-grid,.strip-markdown,.strip-thread) {
+  color: var(--fg);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-card,.strip-tool-file,.strip-ext-results,.strip-ext-banner,.strip-connection-card) {
+  border-color: var(--border-10);
+  color: var(--fg);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-card,.strip-tool-file,.strip-connection-card) {
+  background-color: var(--card-bg);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-banner,.strip-ext-results,.strip-connection-choices,.strip-ext-tabs) {
+  background-color: var(--surface-2);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-tool-description,.strip-tool-note,.strip-ext-sub,.strip-ext-mini,.strip-ext-state,.strip-connection-card label) {
+  color: var(--muted);
+}
+
+/* All nested module forms (including selects) follow the active palette.
+   Explicit danger/success button classes are intentionally excluded. */
+html[data-strip-palette] .strip-app[data-appearance] :is(
+  .strip-ext-form input,.strip-ext-form textarea,.strip-ext-form select,
+  .strip-tool-input,.strip-connection-card input,.strip-connection-card select,
+  .strip-connection-card textarea
+) {
+  background-color: var(--surface-search);
+  border-color: var(--border-10);
+  color: var(--fg);
+  accent-color: var(--accent);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-form input,.strip-connection-card input,.strip-tool-input)::placeholder {
+  color: var(--muted-3);
+}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-form input,.strip-ext-form select,.strip-connection-card input,.strip-connection-card select,.strip-tool-input):focus-visible {
+  border-color: var(--accent);
+  outline-color: var(--border-focus);
+}
+html[data-strip-palette] .strip-app[data-appearance] .strip-ext-actions button:not(.is-danger):not(.is-primary) {
+  color: var(--fg);
+  border-color: var(--border-10);
+  background-color: var(--surface-2);
+}
+html[data-strip-palette] .strip-app[data-appearance] .strip-ext-actions button:not(:disabled):hover {
+  background-color: var(--surface-3);
+}
+html[data-strip-palette] .strip-app[data-appearance] .strip-ext-tabs button[aria-pressed="true"] {
+  background-color: var(--card-bg);
+  color: var(--fg);
+}
+
+/* Dropdowns rendered via React portals may be OUTSIDE .strip-app.
+   Reset their previously hard-coded warm palette and use root theme variables. */
+html[data-strip-palette][data-strip-appearance] .strip-account-menu {
+  --bg: inherit;
+  --sidebar-bg: inherit;
+  --card-bg: inherit;
+  --head-bg: inherit;
+  --surface-search: inherit;
+  --surface-2: inherit;
+  --surface-3: inherit;
+  --fg: inherit;
+  --fg-strong: inherit;
+  --muted: inherit;
+  --muted-2: inherit;
+  --muted-3: inherit;
+  --muted-4: inherit;
+  --border-08: inherit;
+  --border-09: inherit;
+  --border-10: inherit;
+  --accent: inherit;
+  --accent-hover: inherit;
+  --accent-contrast: inherit;
+  --shadow-pop: inherit;
+  color: var(--fg);
+  background-color: var(--card-bg);
+  border-color: var(--border-10);
+  color-scheme: inherit;
+}
+html[data-strip-palette] .strip-account-menu :is(input,select,textarea) {
+  background-color: var(--surface-search);
+  color: var(--fg);
+  border-color: var(--border-10);
+}
+html[data-strip-palette] .strip-tool-more__menu {
+  background-color: var(--sidebar-bg);
+  border-color: var(--border-10);
+  color: var(--fg);
+}
+
+/* Onboarding uses the same exact palette as workspace settings. */
+html[data-strip-palette] .strip-api-entry[data-appearance] :is(input,select,textarea) {
+  background-color: var(--surface-search);
+  color: var(--fg);
+  border-color: var(--border-10);
+}
+html[data-strip-palette] .strip-api-entry[data-appearance] :is(input,textarea)::placeholder {
+  color: var(--muted-3);
+}
+@media (forced-colors:active) {
+  html[data-strip-palette] .strip-app[data-appearance] :is(.strip-ext-card,.strip-tool-file,.strip-connection-card) {
+    border: 1px solid CanvasText;
+  }
+}

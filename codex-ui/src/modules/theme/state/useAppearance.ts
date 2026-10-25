@@ -38,5 +38,15 @@ export function useAppearance(){
     document.documentElement.style.colorScheme=base==='dark'?'dark':'light';
     if(window.stripWindowAppearance){document.documentElement.dataset.stripDesktop='true';window.stripWindowAppearance.sync(appearance);}
   },[appearance]);
+  // Keep separate StripBot browser windows in step; a storage event only fires in other windows.
+  useLayoutEffect(()=>{
+    const sync=(event:StorageEvent)=>{
+      if(event.key!==storageKey)return;
+      const requested=event.newValue;
+      if(THEME_CHOICES.some(item=>item.id===requested))setAppearance(requested as StripAppearance);
+    };
+    window.addEventListener?.('storage',sync);
+    return ()=>window.removeEventListener?.('storage',sync);
+  },[]);
   return {appearance,setAppearance};
 }

@@ -46,3 +46,14 @@ CSS 由 App.tsx 按原顺序从 `./modules/theme/styles/` 引入，避免级联�
 - 在 `codex-ui/` 运行 `npm run build` 并按照原脚本发布新前端资源后，新模块才会实际出现在已安装软件中。
 
 这是单仓库的独立功能模块，不是新建 GitHub 仓库、npm 包或插件。暂未改变任何用户正在使用的主题设置。
+
+## 全模块统一切换（2026-10）
+
+- **主题选择是唯一入口**：`useAppearance` 更新 `html[data-strip-palette]`、根色板、本地保存值，并通过现有桥接同步 Electron 标题栏。
+- **根主题色板**：`styles/unified-modules.css` 为暖白、纯白、雾蓝灰、深色、石墨灰分别定义共享语义变量；包括独立于主工作区的弹出菜单。
+- **同步范围**：API 登录/连接、聊天区、左侧导航与历史、任务/执行信息、Skills、MCP、GitHub、插件管理、设置页、文件操作控件及模型选择所继承的色板。
+- **跨窗口**：在其他同源 StripBot 浏览器窗口改变主题时，`storage` 事件同步可用的主题 ID；当前窗口立即应用。不会覆盖用户已上传的壁纸。
+- **外部插件窗口例外**：独立的第三方桌宠或其他外部程序不受此 CSS 控制，若要同步它们必须有各自的主题接口。
+- **安全与可读性**：状态警告、差异增删颜色、代码高亮和用户背景图片不被强制变色；按当前语义变量保证文本与背景可读。
+- **样式顺序**：`App.tsx` 在其他 CSS 之后最后导入 `unified-modules.css`。新增 UI 模块应优先使用 `var(--card-bg)`、`var(--surface-2)`、`var(--fg)`、`var(--border-10)`，不要硬编码白色/黑色。
+- **验证**：`node --test test/theme-unification.test.js test/appearance.test.js test/wallpaper.test.js test/window-appearance.test.js`；仍需要在 Windows 运行前端构建和手工测试各个模块。

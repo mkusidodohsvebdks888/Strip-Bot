@@ -29,6 +29,8 @@ export function IntegrationsTool(){
   const [query,setQuery]=useState('');
   const [expanded,setExpanded]=useState<string[]>([]);
   const [copied,setCopied]=useState<string|null>(null);
+  const [importText,setImportText]=useState('');
+  const [showImport,setShowImport]=useState(false);
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -47,6 +49,33 @@ export function IntegrationsTool(){
     const config=item.type==='local'?{command:item.command,cwd:item.cwd}:{url:item.url};
     try{await navigator.clipboard.writeText(JSON.stringify({id:item.id,label:item.label,type:item.type,...config},null,2));setCopied(item.id);setInfo('连接配置已复制，请勿公开其中的私有地址或参数。');setError('');}
     catch{setError('无法访问剪贴板，请检查系统权限。');}
+  };
+  const importConfig=()=>{
+    try{
+      const parsed:unknown=JSON.parse(importText);
+      if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error('配置必须是 JSON 对象');
+      const data=parsed as Record<string,unknown>;
+      const servers=data.mcpServers;
+      const source=servers&&typeof servers==='object'&&!Array.isArray(servers)?Object.entries(servers)[0]:null;
+      const raw=source?source[1]:data;
+      if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('没有找到 MCP 服务器配置');
+      const config=raw as Record<string,unknown>;
+      const nextId=String(source?.[0]||data.id||'').trim();
+      if(!/^[a-z][a-z0-9_-]{1,39}$/.test(nextId))throw new Error('服务器标识需要 2–40 个小写字母、数字、下划线或连字符');
+      const nextName=String(config.label||data.label||nextId).trim();
+      if(!nextName||nextName.length>64)throw new Error('服务器名称长度不符合要求');
+      if(typeof config.url==='string'){
+        const target=new URL(config.url);
+        if(!['http:','https:'].includes(target.protocol))throw new Error('仅支持 HTTP 或 HTTPS');
+        setType('remote');setUrl(config.url);
+      }else{
+        const cmd=typeof config.command==='string'?[config.command,...(Array.isArray(config.args)?config.args:[])]:config.command;
+        if(!Array.isArray(cmd)||!cmd.length||!cmd.every(part=>typeof part==='string'&&part.trim()))throw new Error('启动命令格式无效');
+        setType('local');setCommand(JSON.stringify(cmd,null,2));setCwd(typeof config.cwd==='string'?config.cwd:'');
+      }
+      setId(nextId);setName(nextName);setShowForm(true);setShowImport(false);setError('');
+      setInfo('已填入表单，请检查后再保存；导入不会执行命令或启用服务器。');
+    }catch(e){setError(e instanceof Error?e.message:'无法识别 JSON 配置');}
   };
   const add=async(event:React.FormEvent)=>{
     event.preventDefault();
@@ -96,6 +125,8 @@ export function IntegrationsTool(){
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}
     </div>)}
     <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>
+    <div className="strip-integrations__import-toggle"><StripButton size="sm" variant="ghost" aria-expanded={showImport} aria-controls="strip-mcp-import" onClick={()=>setShowImport(value=>!value)}>{showImport?'收起导入':'从 JSON 导入配置'}</StripButton></div>
+    {showImport && <div id="strip-mcp-import" className="strip-integrations__create"><label className="strip-tool-label" htmlFor="strip-mcp-import-json">粘贴单个服务器配置或 mcpServers JSON</label><textarea id="strip-mcp-import-json" className="strip-integrations__import-input" rows={6} spellCheck={false} value={importText} onChange={event=>setImportText(event.target.value)}/><StripButton size="sm" variant="primary" onClick={importConfig} disabled={!importText.trim()}>解析并填入表单</StripButton><p className="strip-tool-note">仅在本地解析 JSON，不执行命令或连接服务器。</p></div>}
     {showForm && <div id="strip-mcp-create" className="strip-integrations__create"><h3 className="strip-tool-section-heading">新增 MCP 服务器</h3>
     <form className="strip-integrations__form" onSubmit={event=>void add(event)}>
       <label className="strip-tool-label" htmlFor="strip-integ-name">项目名称</label>

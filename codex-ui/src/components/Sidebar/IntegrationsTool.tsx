@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useState} from 'react';
 import './integrations-tool.css';
+import {StripButton} from '../ui/StripButton';
 
 type Integration = {id:string;label:string;type:'local'|'remote';enabled:boolean;command?:string[];cwd?:string;url?:string};
 type RequestResult = {ok?:boolean;error?:string;message?:string};
@@ -23,6 +24,8 @@ export function IntegrationsTool(){
   const [command,setCommand]=useState('["node", "D:\\\\projects\\\\my-app\\\\mcp-server.js"]');
   const [cwd,setCwd]=useState('');
   const [url,setUrl]=useState('http://127.0.0.1:3001/mcp');
+  const [showForm,setShowForm]=useState(false);
+  const [filter,setFilter]=useState<'all'|'enabled'|'disabled'>('all');
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
     setItems(data.items);
@@ -60,19 +63,20 @@ export function IntegrationsTool(){
     catch(e){setError(e instanceof Error?e.message:'应用失败');}
     finally{setBusy(false);}
   };
+  const visibleItems=items.filter(item=>filter==='all'||(filter==='enabled'?item.enabled:!item.enabled));
   return <section className="strip-tool-content strip-integrations" aria-label="项目工具连接">
-    <p className="strip-tool-description">通过 MCP 将其他项目接入 Strip Bot。启用后，AI 可在 Agent 对话中使用这些项目暴露的工具。</p>
-    <div className="strip-integrations__summary"><strong>已连接项目</strong><span>{items.filter(x=>x.enabled).length} / {items.length} 启用</span></div>
+    <div className="strip-integrations__intro"><div><span className="strip-integrations__eyebrow">MODEL CONTEXT PROTOCOL</span><h3>MCP 服务器</h3><p className="strip-tool-description">连接本地或远程工具服务，授权 Agent 使用。</p></div><StripButton size="sm" variant="primary" aria-expanded={showForm} aria-controls="strip-mcp-create" onClick={()=>setShowForm(value=>!value)}>{showForm?'收起表单':'+ 添加服务器'}</StripButton></div>
+    <div className="strip-integrations__summary"><div className="strip-integrations__metric"><strong>{items.length}</strong><span>服务器总数</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>x.enabled).length}</strong><span>已启用</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>!x.enabled).length}</strong><span>未启用</span></div></div>
+    <div className="strip-integrations__filters" role="group" aria-label="筛选 MCP 服务器">{([["all","全部"],["enabled","已启用"],["disabled","未启用"]] as const).map(([value,label])=><button key={value} type="button" aria-pressed={filter===value} onClick={()=>setFilter(value)}>{label}</button>)}</div>
     {loading && <p className="strip-tool-note">读取连接列表中…</p>}
     {!loading && !items.length && <p className="strip-tool-note">还没有连接项目。请在下方新增一个 MCP 服务器。</p>}
-    {items.map(item=><div key={item.id} className="strip-integrations__item">
+    {visibleItems.map(item=><div key={item.id} className="strip-integrations__item">
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
-      <div className="strip-integrations__detail" title={item.type==='local'?item.command?.join(' '):item.url}>{item.type==='local'?'本地 · ':'HTTP · '}{item.type==='local'?item.command?.join(' '):item.url}</div>
-      <div className="strip-integrations__item-buttons"><button type="button" disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</button><button type="button" disabled={busy} onClick={()=>remove(item)}>移除</button></div>
+      <div className="strip-integrations__detail" title={item.type==='local'?item.command?.join(' '):item.url}><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{item.type==='local'?item.command?.join(' '):item.url}</code></div>
+      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
     </div>)}
-    <button type="button" className="strip-tool-action strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</button>
-    <div className="strip-tool-separator"/>
-    <h3 className="strip-tool-section-heading">新增项目连接</h3>
+    <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>
+    {showForm && <div id="strip-mcp-create" className="strip-integrations__create"><h3 className="strip-tool-section-heading">新增 MCP 服务器</h3>
     <form className="strip-integrations__form" onSubmit={event=>void add(event)}>
       <label className="strip-tool-label" htmlFor="strip-integ-name">项目名称</label>
       <input id="strip-integ-name" className="strip-tool-input" value={name} maxLength={64} onChange={event=>setName(event.target.value)} placeholder="例如：我的桌面玩偶" required/>
@@ -89,8 +93,8 @@ export function IntegrationsTool(){
         <label className="strip-tool-label" htmlFor="strip-integ-url">MCP Streamable HTTP 地址</label>
         <input id="strip-integ-url" className="strip-tool-input" value={url} onChange={event=>setUrl(event.target.value)} required/>
       </>}
-      <button type="submit" className="strip-tool-action" disabled={busy}>保存连接</button>
-    </form>
+      <StripButton type="submit" variant="primary" disabled={busy}>保存连接</StripButton>
+    </form></div>}
     {info && <p className="strip-integrations__feedback" role="status">{info}</p>}
     {error && <p className="strip-integrations__feedback is-error" role="alert">{error}</p>}
     <p className="strip-tool-note">连接默认关闭；启用后需点击“应用到 Agent”。已有任务运行时不能重新加载。普通 REST API 需要先封装为 MCP 服务，不能直接填在这里。工具执行仍由 Agent 权限策略控制。</p>

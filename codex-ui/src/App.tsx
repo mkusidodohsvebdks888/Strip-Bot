@@ -73,6 +73,8 @@ import './styles/question-card.css';
 import './modules/theme/styles/unified-modules.css';
 // Keep outer window chrome last: the frame and native-titlebar region share one radius.
 import './modules/theme/styles/window-frame.css';
+// Global Codex-inspired control polish; rate sliders remain untouched.
+import './styles/codex-global-controls.css';
 
 // OpenCode may return the same reply both on the message and in text parts.
 // Prefer parts when available to avoid displaying an entire reply twice.

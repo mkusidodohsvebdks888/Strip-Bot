@@ -1,0 +1,35 @@
+/* StripBot shared Codex-inspired control skin. Visual only: preserve existing handlers. */
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) {
+  --control-radius: 9px;
+  --control-border: var(--border-10);
+  --control-hover: color-mix(in srgb,var(--fg) 6%,transparent);
+  --control-active: color-mix(in srgb,var(--fg) 10%,transparent);
+}
+/* Do not change the response-speed slider or any range input. */
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"]):not([role="slider"]):not(.strip-window-topbar *) {
+  font: inherit;
+  transition: background-color 140ms ease,border-color 140ms ease,color 140ms ease,box-shadow 140ms ease,transform 140ms ease;
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) button:not([class*="slider"]):not([class*="Slider"]):not([class*="rate"]):not([class*="Rate"]):not([class*="speed"]):not([class*="Speed"]):not(.strip-window-topbar *) {
+  border-radius: var(--control-radius);
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"]):not(:disabled):not([aria-disabled="true"]):not([role="slider"]):hover {
+  filter: brightness(.985);
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"],input:not([type="range"]),textarea,select,[role="switch"],[role="checkbox"]):focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(input:not([type="range"]),textarea,select) {
+  border-radius: var(--control-radius);
+  transition: border-color 140ms ease,box-shadow 140ms ease;
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is([role="menu"],[role="listbox"],[role="dialog"],[data-radix-popper-content-wrapper]) {
+  border-radius: 12px;
+}
+html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"]):disabled {
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion:reduce) {
+  html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"],input,textarea,select) {transition:none;}
+}

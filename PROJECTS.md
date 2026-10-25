@@ -14,7 +14,7 @@
 | 通用协议 | `modules/core/` | 模型协议、校验和共享依赖 |
 | 网页界面 | `codex-ui/` | React/Vite、聊天框、主题及侧栏 |
 | 桌面程序 | `desktop-app/` | Electron、预加载及打包 |
-| 独立插件 | `plugins/` | 7-Zip、Office→PDF、糯糯桌宠、AstrBot |
+| 独立插件 | `plugins/` | 糯糯桌宠、DeepSeek Harness 桌宠、7-Zip、Office→PDF、AstrBot |
 | 7-Zip 源码 | `解压缩/7-Zip/` | 独立源码备份，非已安装程序 |
 | LibreOffice 源码 | `PDF转换/LibreOffice/` | Git 子模块，体积较大 |
 | 桌宠源码 | `桌宠/DeepSeek-Harness-Pet/` | 独立上游源码 |

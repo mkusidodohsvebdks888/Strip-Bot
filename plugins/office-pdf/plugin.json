@@ -16,5 +16,7 @@
     }
   ],
   "description": "免费的 Word、PPT、Excel 转 PDF 插件；需另行安装 LibreOffice",
-  "source": "../../PDF转换/LibreOffice"
+  "source": "../../PDF转换/LibreOffice",
+  "category": "document",
+  "platform": "all"
 }

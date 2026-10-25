@@ -51,7 +51,7 @@ function createGateway({defaults = {}, apiKey = '', ccOnly = false, nativeAgent 
   const account=accountService || createAccount({root:agentRoot,executable:agentExecutable});
   const nono=createNonoPlugin({root:agentRoot,chat:(messages,signal)=>direct.companionChat(messages,signal)});
   const astrbot=astrbotPlugin || createAstrBotPlugin();
-  const bundledPlugins=createBundledPlugins({root:agentRoot});
+  const bundledPlugins=createBundledPlugins({root:agentRoot,nono});
   const PUBLIC_DIR = publicDir;
   const HOST = '127.0.0.1';
   const PORT = 3060; // URL parsing base only; Origin validation uses the actual bound port.

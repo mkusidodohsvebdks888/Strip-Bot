@@ -1,0 +1,21 @@
+{
+  "id": "deepseek-harness-pet",
+  "name": "DeepSeek Harness 桌宠",
+  "version": "1.0.0",
+  "host": "stripbot",
+  "entry": "index.cjs",
+  "category": "desktop-pet",
+  "platform": "win32",
+  "runtime": "installed-exe",
+  "permissions": [
+    "local-process"
+  ],
+  "actions": [
+    {
+      "id": "launch",
+      "label": "启动桌宠"
+    }
+  ],
+  "description": "显示 DeepSeek Harness 任务状态的独立 Windows 桌宠；须先安装可信 EXE，不会自动下载。",
+  "source": "../../桌宠/DeepSeek-Harness-Pet"
+}

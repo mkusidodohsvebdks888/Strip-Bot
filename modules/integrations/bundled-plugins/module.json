@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "integrations/bundled-plugins",
-  "description": "内置插件列表、开关和受控调用",
+  "description": "统一管理桌宠（糯糯、DeepSeek Harness）、7-Zip 压缩解压及 LibreOffice PDF 转换，独立启停与授权。",
   "entrypoints": [
     "modules/integrations/bundled-plugins/index.cjs"
   ],

@@ -15,7 +15,10 @@ async function build() {
   await fs.cp(path.join(root, 'modules'), path.join(staging, 'modules'), {recursive:true});
    await fs.mkdir(path.join(staging,'plugins'),{recursive:true});
    await fs.copyFile(path.join(root,'plugins','_shared.cjs'),path.join(staging,'plugins','_shared.cjs'));
-   for (const plugin of ['archive-7zip','office-pdf']) await fs.cp(path.join(root,'plugins',plugin),path.join(staging,'plugins',plugin),{recursive:true});
+   for (const plugin of ['archive-7zip','office-pdf','deepseek-harness-pet']) await fs.cp(path.join(root,'plugins',plugin),path.join(staging,'plugins',plugin),{recursive:true});
+   // Nono's large desktop assets remain in extraResource; only its plugin manifest is copied here.
+   await fs.mkdir(path.join(staging,'plugins','nono-desktop'),{recursive:true});
+   await fs.copyFile(path.join(root,'plugins','nono-desktop','plugin.json'),path.join(staging,'plugins','nono-desktop','plugin.json'));
   await fs.cp(path.join(__dirname, 'runtime'), path.join(staging, 'runtime'), {recursive:true});
   // Package only the active UI, not retired bundles, history, or project sources.
   const publicDir = path.join(root,'public');

@@ -283,7 +283,7 @@
       "id": "integrations/bundled-plugins",
       "category": "integrations",
       "name": "bundled-plugins",
-      "description": "内置插件列表、开关和受控调用",
+      "description": "统一管理桌宠（糯糯、DeepSeek Harness）、7-Zip 压缩解压及 LibreOffice PDF 转换，独立启停与授权。",
       "files": [
         "modules/integrations/bundled-plugins/index.cjs"
       ],
@@ -451,7 +451,8 @@
     {
       "id": "pet-source",
       "category": "external-sources",
-      "path": "桌宠/DeepSeek-Harness-Pet"
+      "path": "桌宠/DeepSeek-Harness-Pet",
+      "description": "DeepSeek Harness 桌宠原始源码备份，与 plugins/deepseek-harness-pet 通过清单关联。"
     },
     {
       "id": "archive-source",
@@ -462,6 +463,13 @@
       "id": "office-source",
       "category": "external-sources",
       "path": "PDF转换/LibreOffice"
+    },
+    {
+      "id": "deepseek-harness-plugin",
+      "category": "plugins",
+      "path": "plugins/deepseek-harness-pet",
+      "source": "桌宠/DeepSeek-Harness-Pet",
+      "description": "独立 Windows 桌宠启动插件"
     }
   ]
 }

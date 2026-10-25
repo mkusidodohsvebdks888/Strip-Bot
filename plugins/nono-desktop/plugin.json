@@ -9,5 +9,13 @@
   "permissions": [
     "loopback-chat"
   ],
-  "description": "独立桌面窗口，复用 Strip Bot 已保存的 API 连接进行问答。"
+  "description": "独立桌面窗口，复用 Strip Bot 已保存的 API 连接进行问答。",
+  "category": "desktop-pet",
+  "actions": [
+    {
+      "id": "toggle",
+      "label": "启用或关闭桌宠"
+    }
+  ],
+  "source": "./"
 }

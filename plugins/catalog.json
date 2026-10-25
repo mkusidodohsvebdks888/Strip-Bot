@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "nono-desktop",
+      "category": "desktop-pet",
+      "folder": "plugins/nono-desktop",
+      "source": "plugins/nono-desktop",
+      "mode": "existing-desktop-service",
+      "needs": "Windows Electron/WebGL 2",
+      "defaultEnabled": false
+    },
+    {
+      "id": "deepseek-harness-pet",
+      "category": "desktop-pet",
+      "folder": "plugins/deepseek-harness-pet",
+      "source": "桌宠/DeepSeek-Harness-Pet",
+      "mode": "installed-windows-exe",
+      "needs": "DeepSeekHarnessPet.exe",
+      "defaultEnabled": false
+    },
+    {
+      "id": "archive-7zip",
+      "category": "archive",
+      "folder": "plugins/archive-7zip",
+      "source": "解压缩/7-Zip",
+      "mode": "installed-7z-cli",
+      "needs": "7-Zip CLI",
+      "defaultEnabled": false
+    },
+    {
+      "id": "office-pdf",
+      "category": "document",
+      "folder": "plugins/office-pdf",
+      "source": "PDF转换/LibreOffice",
+      "mode": "installed-soffice-cli",
+      "needs": "LibreOffice CLI",
+      "defaultEnabled": false
+    }
+  ],
+  "managementEndpoint": "/api/plugins/bundled"
+}

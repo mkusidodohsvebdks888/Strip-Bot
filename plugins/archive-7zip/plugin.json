@@ -20,5 +20,7 @@
     }
   ],
   "description": "免费的本地压缩和解压插件；需另行安装 7-Zip",
-  "source": "../../解压缩/7-Zip"
+  "source": "../../解压缩/7-Zip",
+  "category": "archive",
+  "platform": "all"
 }

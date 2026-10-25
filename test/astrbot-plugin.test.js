@@ -47,7 +47,7 @@ test('gateway exposes protected AstrBot status endpoint', async t=>{
 test('toolbar and packaged plugin metadata are present', async()=>{
   const root=path.join(__dirname,'..');
   const manifest=JSON.parse(await fs.readFile(path.join(root,'plugins','astrbot-desktop','plugin.json'),'utf8'));
-  const tools=await fs.readFile(path.join(root,'codex-ui','src','components','Sidebar','ToolWorkspace.tsx'),'utf8');
+  const tools=await fs.readFile(path.join(root,'codex-ui','src','components','Sidebar','ToolsHub.tsx'),'utf8');
   const app=await fs.readFile(path.join(root,'codex-ui','src','App.tsx'),'utf8');
-  assert.equal(manifest.id,'astrbot-desktop');assert.match(tools,/id:'astrbot'/);assert.match(app,/AstrBotTool/);
+  assert.equal(manifest.id,'astrbot-desktop');assert.match(tools,/id:'astrbot'/);assert.match(tools,/AstrBotTool/);assert.match(app,/ToolsHub/);
 });

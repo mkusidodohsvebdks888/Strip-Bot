@@ -27,7 +27,8 @@ test('left navigation omits the standalone model and speed panel while retaining
  const {ToolRail}=load(path.join(ui,'src/components/Sidebar/ToolWorkspace.tsx'));
  const html=render(ToolRail,{active:'history',opened:true,settings:false,busy:false,pending:0,onTool(){},onNew(){},onSearch(){},onAttach(){},onToggle(){},onSettings(){}});
  assert.ok(!html.includes('模型与速度'));
- for(const name of ['聊天记录','执行记录与输出','本地后端','Skills 技能','GitHub 工具','MCP 项目连接'])assert.ok(html.includes(name));
+ for(const name of ['聊天记录','执行记录与输出','本地后端','Skills 技能','工具与插件'])assert.ok(html.includes(name));
+ for(const name of ['GitHub 工具','MCP 项目连接','AstrBot QQ'])assert.ok(!html.includes('aria-label="'+name+'"'));
  for(const name of ['项目目录','会话文件','权限与审批','更多工具'])assert.ok(!html.includes(name));
 });
 test('approval confirmation buttons cannot submit an enclosing composer form',()=>{

@@ -9,10 +9,7 @@ const toolDefinitions:{id:ToolView;name:string;icon:string}[] = [
   {id:'activity',name:'执行记录与输出',icon:'terminal-soft'},
   {id:'backend',name:'本地后端',icon:'server'},
   {id:'skills',name:'Skills 技能',icon:'blocks'},
-  {id:'github-tools',name:'GitHub 工具',icon:'package'},
-  {id:'plugins',name:'插件',icon:'plug'},
-  {id:'integrations',name:'MCP 项目连接',icon:'plug'},
-  {id:'astrbot',name:'AstrBot QQ',icon:'bot'},
+  {id:'plugins',name:'工具与插件',icon:'package'},
 ];
 export const toolTitle = (view:ToolView) => toolDefinitions.find(item=>item.id===view)?.name || '工具';
 

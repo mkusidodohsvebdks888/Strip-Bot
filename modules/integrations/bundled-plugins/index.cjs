@@ -5,7 +5,7 @@ const {httpError}=require('../../core/providers/index.cjs');
 const IDS=Object.freeze(['nono-desktop','deepseek-harness-pet','archive-7zip','office-pdf']);
 const LOCAL_IDS=new Set(['deepseek-harness-pet','archive-7zip','office-pdf']);
 
-function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..','plugins'),nono=null}={}){
+function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..','plugins'),nono=null,pet=null}={}){
   if(!root)throw new TypeError('Bundled plugin registry requires a runtime root');
   const config=path.join(root,'.runtime','bundled-plugins.json');
   let queue=Promise.resolve();
@@ -33,6 +33,7 @@ function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..'
   }
   function executable(id){
     if(!LOCAL_IDS.has(validate(id)))throw httpError(400,'此插件不能通过文件操作方式调用。');
+    if(id==='deepseek-harness-pet'&&pet)return pet;
     return require(path.join(pluginDir,id,'index.cjs'));
   }
   async function list(){
@@ -65,7 +66,10 @@ function createBundledPlugins({root,pluginDir=path.join(__dirname,'..','..','..'
         const state=await nono.setEnabled(enabled);
         return {ok:true,id,enabled:state.enabled===true,running:state.running===true};
       }
-      if(id==='deepseek-harness-pet'&&!enabled)await executable(id).stop();
+      if(id==='deepseek-harness-pet'){
+        if(enabled)await executable(id).launch();
+        else await executable(id).stop();
+      }
       const data=await read();
       data[id]=enabled;
       await save(data);

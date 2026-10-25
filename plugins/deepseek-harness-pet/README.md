@@ -17,7 +17,7 @@
 powershell -ExecutionPolicy Bypass -File scripts/pets/Build-DeepSeek-Q-Pet.ps1
 ~~~
 
-脚本会初始化固定提交的子模块，并在其 `dsh-pet/` 下安装依赖、运行上游构建。完成后在 StripBot **插件中心 → DeepSeek Q版桌宠 → 启用 → 启动桌宠**。
+脚本会初始化固定提交的子模块，并在其 `dsh-pet/` 下安装依赖、运行上游构建。完成后在 StripBot **工具与插件 → 本地工具 → DeepSeek Q版桌宠**打开开关即可显示人物；关闭开关即隐藏，不再二次确认。
 
 如果是已安装的 Windows EXE（无法从工作目录看到 `桌宠/` 子模块），请在启动 StripBot 之前设置环境变量：
 
@@ -27,7 +27,7 @@ $env:DSH_PET_STANDALONE_PATH="D:\Strip-Bot\桌宠\DeepSeek-Q版-dsh-pet\dsh-pet\
 
 可选 `DSH_PET_NODE_BIN` 指向本机 Node.js 可执行程序。
 
-**启用/关闭插件**分别保存或清除允许使用该插件的配置；停用时会请求停止由 StripBot 启动的进程。**启动、停止本身仍要求在插件中心再次确认**。
+打包桌面版会向上查找项目旁已构建的桌宠入口，也可使用上述环境变量指定其他位置。关闭时通过本机带令牌的停机接口释放人物窗口，避免 Windows 强制结束 Node 后留下孤立窗口。密钥和本机令牌不进入 Git 仓库。
 
 ## 授权和素材
 
@@ -40,4 +40,4 @@ $env:DSH_PET_STANDALONE_PATH="D:\Strip-Bot\桌宠\DeepSeek-Q版-dsh-pet\dsh-pet\
 
 `node --test test/bundled-plugins.test.js test/deepseek-q-pet.test.js`
 
-当前只完成 GitHub 侧代码更换，未在 Windows 上运行安装构建、透明动画或 Electron 实际窗口测试。
+已在 Windows 实际构建并验证透明人物窗口显示、开关启动和关闭。独立桌宠仍不自动读取 StripBot AI 会话状态。

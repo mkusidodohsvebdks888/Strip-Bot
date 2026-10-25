@@ -1,11 +1,11 @@
 'use strict';
 const os=require('node:os'),{pathToFileURL}=require('node:url');
-const {fs,path,fail,absolute,binary,run}=require('../_shared.cjs');
+const {fs,path,fail,absolute,binary,run,registryPath,installed}=require('../_shared.cjs');
 function command(){
   const p=process.platform;
-  return binary('LIBREOFFICE_BIN',p==='win32'?[path.join(process.env.ProgramFiles||'C:/Program Files','LibreOffice/program/soffice.com')]:p==='darwin'?['/Applications/LibreOffice.app/Contents/MacOS/soffice']:['/usr/bin/libreoffice','/usr/bin/soffice'],'soffice');
+  return binary('LIBREOFFICE_BIN',p==='win32'?[registryPath('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\soffice.exe','Path','soffice.com'),path.join(process.env.ProgramFiles||'C:/Program Files','LibreOffice/program/soffice.com')].filter(Boolean):p==='darwin'?['/Applications/LibreOffice.app/Contents/MacOS/soffice']:['/usr/bin/libreoffice','/usr/bin/soffice'],'soffice');
 }
-function status(){return {dependency:'LibreOffice',command:command(),description:'需要安装免费 LibreOffice，仓库中的源码不是可执行程序。'};}
+function status(){const cmd=command(),ready=installed(cmd);return {dependency:'LibreOffice',command:cmd,installed:ready,description:ready?'LibreOffice 已就绪，可将本地文档转换为 PDF。':'未找到 LibreOffice，请安装或配置 LIBREOFFICE_BIN。'};}
 async function execute({action,input,output}){
   if(action!=='convert')throw fail('无效的文档转换操作。');
   const src=absolute(input,'输入文档'),dir=absolute(output,'输出目录');

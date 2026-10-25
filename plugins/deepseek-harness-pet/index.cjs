@@ -2,10 +2,24 @@
 // StripBot Q-style dsh-pet adapter. No DSH host is required for standalone mode.
 // Keep plugin ID for backward-compatible saved enable/disable preferences.
 const fs=require('node:fs/promises');
+const {existsSync}=require('node:fs');
 const path=require('node:path');
+const os=require('node:os');
 const {spawn}=require('node:child_process');
 const {fail}=require('../_shared.cjs');
 let active=null;
+
+function findExternal(baseDir,relative){
+  let current=path.resolve(baseDir);
+  for(let depth=0;depth<12;depth++){
+    const candidate=path.join(current,relative);
+    if(existsSync(candidate))return candidate;
+    const parent=path.dirname(current);
+    if(parent===current)break;
+    current=parent;
+  }
+  return null;
+}
 
 function resolveScript({env=process.env,baseDir=__dirname}={}){
   // Explicit local built script for installed Electron apps; never take a path from HTTP.
@@ -15,7 +29,8 @@ function resolveScript({env=process.env,baseDir=__dirname}={}){
     return path.resolve(env.DSH_PET_STANDALONE_PATH);
   }
   // Root project source clone / pinned dsh-pet submodule.
-  return path.resolve(baseDir,'..','..','桌宠','DeepSeek-Q版-dsh-pet','dsh-pet','lib','standalone.js');
+  const relative=path.join('桌宠','DeepSeek-Q版-dsh-pet','dsh-pet','lib','standalone.js');
+  return findExternal(baseDir,relative)||path.resolve(baseDir,'..','..',relative);
 }
 function running(){
   return !!active&&!active.killed&&active.exitCode===null&&active.signalCode===null;
@@ -39,11 +54,18 @@ async function launch({env=process.env,baseDir=__dirname,spawnImpl=spawn}={}){
   if(!local.installed)throw fail('尚未构建 Q 版桌宠。请参照 plugins/deepseek-harness-pet/README.md 的安装步骤。',503);
   const runtime=env.DSH_PET_NODE_BIN||'node';
   if(runtime.includes('\n')||runtime.includes('\r'))throw fail('Node.js 启动程序路径无效。');
+  const childEnv={...env};
+  // Reuse the locally installed Electron runtime instead of downloading one on launch.
+  if(!childEnv.DSH_PET_ELECTRON_PATH){
+    const electron=findExternal(path.dirname(local.command),path.join('desktop-app','node_modules','electron','dist',process.platform==='win32'?'electron.exe':'electron'));
+    if(electron)childEnv.DSH_PET_ELECTRON_PATH=electron;
+  }
+  delete childEnv.ELECTRON_RUN_AS_NODE;
   return new Promise((resolve,reject)=>{
     let settled=false;
     const child=spawnImpl(runtime,[local.command,'--port','3100'],{
       cwd:path.dirname(local.command),shell:false,windowsHide:true,
-      detached:false,stdio:'ignore',env:{...env}
+      detached:false,stdio:'ignore',env:childEnv
     });
     const success=()=>{
       if(settled)return;
@@ -62,7 +84,20 @@ async function launch({env=process.env,baseDir=__dirname,spawnImpl=spawn}={}){
 async function stop(){
   if(!running())return {ok:true,message:'Q 版桌宠没有由 StripBot 启动的运行进程。'};
   const child=active;
-  child.kill('SIGTERM');
+  const runtimeFile=path.join(process.env.DSH_HOME||path.join(os.homedir(),'.dsh'),'dsh-pet','standalone-runtime.json');
+  const state=await fs.readFile(runtimeFile,'utf8').then(JSON.parse).catch(()=>null);
+  if(state&&state.pid===child.pid&&state.port===3100){
+    // Windows SIGTERM kills Node immediately, leaving the transparent helper window orphaned.
+    // Let the standalone service dispose its helper before exiting instead.
+    const exited=new Promise(resolve=>child.once('exit',resolve));
+    const response=await fetch('http://127.0.0.1:3100/shutdown',{
+      method:'POST',headers:{'x-dsh-pet-token':state.token},signal:AbortSignal.timeout(5000)
+    });
+    if(!response.ok)throw fail('桌宠关闭失败，请重试。',503);
+    let timer;
+    try{await Promise.race([exited,new Promise((_,reject)=>{timer=setTimeout(()=>reject(fail('等待桌宠关闭超时，请重试。',503)),5000);})]);}
+    finally{clearTimeout(timer);}
+  }else child.kill('SIGTERM');
   return {ok:true,message:'已请求关闭由 StripBot 启动的 Q 版桌宠。'};
 }
 async function execute({action}={}){

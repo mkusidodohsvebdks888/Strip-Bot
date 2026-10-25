@@ -7,6 +7,17 @@ const path=require('node:path');
 const {EventEmitter}=require('node:events');
 const pet=require('../plugins/deepseek-harness-pet/index.cjs');
 
+test('packaged adapter discovers external built pet beside desktop-app',async()=>{
+  const root=await fs.mkdtemp(path.join(os.tmpdir(),'strip-pet-packaged-'));
+  try{
+    const source=path.join(root,'桌宠','DeepSeek-Q版-dsh-pet','dsh-pet','lib','standalone.js');
+    await fs.mkdir(path.dirname(source),{recursive:true});
+    await fs.writeFile(source,'// compiled fixture');
+    const baseDir=path.join(root,'desktop-app','releases','version','Strip Bot-win32-x64','resources','app.asar','plugins','deepseek-harness-pet');
+    assert.equal(pet.resolveScript({env:{},baseDir}),source);
+  }finally{await fs.rm(root,{recursive:true,force:true});}
+});
+
 test('Q version adapter uses configured absolute compiled standalone entry',async()=>{
   const root=await fs.mkdtemp(path.join(os.tmpdir(),'strip-pet-adapter-'));
   try{

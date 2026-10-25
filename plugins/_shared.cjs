@@ -1,12 +1,33 @@
 'use strict';
 const fs=require('node:fs/promises'),path=require('node:path');
-const {existsSync}=require('node:fs'),{spawn}=require('node:child_process');
+const {existsSync}=require('node:fs'),{spawn,execFileSync}=require('node:child_process');
 function fail(message,status=400){return Object.assign(new Error(message),{status});}
 function absolute(value,label){
   if(typeof value!=='string'||!path.isAbsolute(value)||value.length>2048)throw fail(label+'必须是绝对路径。');
   return path.resolve(value);
 }
-function binary(env,known,defaultName){return process.env[env]||known.find(existsSync)||defaultName;}
+function binary(env,known,defaultName){
+  if(process.env[env])return process.env[env];
+  const names=process.platform==='win32'?[defaultName+'.exe',defaultName+'.com',defaultName]:[defaultName];
+  const candidates=[...known,...(process.env.PATH||'').split(path.delimiter).filter(Boolean).flatMap(dir=>names.map(name=>path.join(dir.replace(/^"|"$/g,''),name)))];
+  return candidates.find(existsSync)||defaultName;
+}
+const registryCache=new Map();
+function registryPath(key,value,suffix){
+  if(process.platform!=='win32')return null;
+  const cacheKey=key+'|'+value+'|'+suffix;
+  if(registryCache.has(cacheKey))return registryCache.get(cacheKey);
+  let result=null;
+  try{
+    const output=execFileSync('reg.exe',['query',key,'/v',value],{encoding:'utf8',windowsHide:true,timeout:3000,stdio:['ignore','pipe','ignore']});
+    const match=output.match(/REG_(?:EXPAND_)?SZ\s+(.+)/);
+    if(match)result=path.join(match[1].trim(),suffix);
+  }catch{}
+  // A missing installation may become available later without restarting Strip Bot.
+  if(result&&existsSync(result))registryCache.set(cacheKey,result);
+  return result;
+}
+function installed(command){return path.isAbsolute(command)&&existsSync(command);}
 function run(command,args){
   return new Promise((resolve,reject)=>{
     let closed=false,log='';
@@ -19,4 +40,4 @@ function run(command,args){
     child.on('close',code=>finish(code===0?null:fail('程序执行失败 ('+code+')：'+log,502)));
   });
 }
-module.exports={fs,path,fail,absolute,binary,run};
+module.exports={fs,path,fail,absolute,binary,run,registryPath,installed};

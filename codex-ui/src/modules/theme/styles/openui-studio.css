@@ -19,4 +19,4 @@
 .strip-theme-legacy{margin-top:15px;border:1px solid var(--border-10);border-radius:13px;overflow:hidden}
 .strip-theme-legacy>summary{cursor:pointer;background:var(--surface-2);color:var(--fg);padding:12px 15px;font-weight:550}
 .strip-theme-legacy>.strip-wallpaper-settings{border:0;border-radius:0}
-@media(max-width:650px){.strip-openui-studio__header{flex-direction:column}.strip-openui-frame{min-height:320px}
+@media(max-width:650px){.strip-openui-studio__header{flex-direction:column}.strip-openui-frame{min-height:320px}}

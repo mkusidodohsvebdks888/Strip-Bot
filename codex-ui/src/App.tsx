@@ -1,9 +1,6 @@
-import {IntegrationsTool} from './components/Sidebar/IntegrationsTool';
+import {ToolsHub} from './components/Sidebar/ToolsHub';
 import {BackendProjectsTool} from './components/Sidebar/BackendProjectsTool';
 import {SkillsTool} from './components/Sidebar/SkillsTool';
-import {GithubToolsTool} from './components/Sidebar/GithubToolsTool';
-import {BuiltinPluginsTool} from './components/Sidebar/BuiltinPluginsTool';
-import {AstrBotTool} from './components/Sidebar/AstrBotTool';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
 import {useManualCommands} from './state/useManualCommands';
 import {ApiAccountMenu} from './components/Sidebar/ApiAccountMenu';
@@ -261,15 +258,12 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
       onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
     <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)}>
-      {activeTool==='integrations' && <IntegrationsTool/>}
       {activeTool==='backend' && <BackendProjectsTool modelName={model} disabled={busy || !!snapshot?.manualRunning || conversation.loading || conversation.sending} onSelect={folder=>{
         if(busy || snapshot?.manualRunning || conversation.loading || conversation.sending){showNotice('请完成当前任务后再切换本地后端。');return;}
         conversation.setWorkspace(folder);newChat();showNotice('已切换到授权后端；新对话将使用该项目源码。');
       }}/>}
-      {activeTool==='astrbot' && <AstrBotTool/>}
       {activeTool==='skills' && <SkillsTool/>}
-      {activeTool==='github-tools' && <GithubToolsTool onOpenSkills={()=>setActiveTool('skills')}/>}
-      {activeTool==='plugins' && <BuiltinPluginsTool/>}
+      {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool) && <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'} onOpenSkills={()=>setActiveTool('skills')}/>}
       {activeTool==='history' && <>
         <ChatHistory entries={entries} search="" active={active} busy={conversation.sending || !!conversation.removing || conversation.loading} workspace={workspace} onOpenProject={openProject} onProjectSettings={openProjectSettings} onSelect={selectConversation} onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>
         <p className="strip-attribution">Strip Bot · <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide Icons</a></p>

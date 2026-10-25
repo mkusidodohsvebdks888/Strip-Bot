@@ -1,9 +1,9 @@
 'use strict';
-const {fs,path,fail,absolute,binary,run}=require('../_shared.cjs');
+const {fs,path,fail,absolute,binary,run,registryPath,installed}=require('../_shared.cjs');
 function command(){
-  return binary('SEVENZIP_BIN',process.platform==='win32'?[path.join(process.env.ProgramFiles||'C:/Program Files','7-Zip/7z.exe')]:['/usr/bin/7z','/usr/local/bin/7z'],'7z');
+  return binary('SEVENZIP_BIN',process.platform==='win32'?[registryPath('HKLM\\Software\\7-Zip','Path64','7z.exe'),registryPath('HKCU\\Software\\7-Zip','Path','7z.exe'),path.join(process.env.ProgramFiles||'C:/Program Files','7-Zip/7z.exe')].filter(Boolean):['/usr/bin/7z','/usr/local/bin/7z'],'7z');
 }
-function status(){return {dependency:'7-Zip',command:command(),description:'需要安装免费 7-Zip 命令行程序，仓库中仅有源码。'};}
+function status(){const cmd=command(),ready=installed(cmd);return {dependency:'7-Zip',command:cmd,installed:ready,description:ready?'7-Zip 已就绪，可压缩或解压本地文件。':'未找到 7-Zip，请安装或配置 SEVENZIP_BIN。'};}
 async function execute({action,input,output}){
   const src=absolute(input,'源文件'),dst=absolute(output,'目标路径');
   const stat=await fs.stat(src).catch(()=>null);

@@ -34,8 +34,8 @@ const FILTERS:{id:Filter;name:string}[]=[
 function statusOf(plugin:Plugin){
   if(!plugin.available || plugin.detail?.supported===false)return '不可用';
   if(plugin.runtime?.running)return '运行中';
-  if(plugin.enabled)return '已启用';
   if(plugin.detail?.installed===false)return '待安装';
+  if(plugin.enabled)return plugin.id==='deepseek-harness-pet'?'已启用 · 未启动':'已启用';
   return '未启用';
 }
 function initialForm(plugin:Plugin):Form{
@@ -90,16 +90,11 @@ export function BuiltinPluginsTool(){
 
   async function toggle(plugin:Plugin){
     const enabled=!plugin.enabled;
-    const name=plugin.name||plugin.id;
-    const action=enabled?'启用':'停用';
-    const runtimeHint=plugin.id==='nono-desktop'?'这会同步启动或关闭桌宠窗口。':'';
-    if(!window.confirm(action+'「'+name+'」？'+runtimeHint))return;
     setBusyId(plugin.id);setError('');setMessage('');
     try{
       await call('/api/plugins/bundled/enable',{id:plugin.id,enabled,confirmed:true});
       const updated=await call<{items:Plugin[]}>('/api/plugins/bundled');
       setItems(updated.items);
-      setMessage('「'+name+'」'+(enabled?'已启用':'已停用')+'。');
     }catch(cause){setError(shortError(cause));}
     finally{setBusyId(null);}
   }
@@ -130,10 +125,10 @@ export function BuiltinPluginsTool(){
     finally{setBusyId(null);}
   }
 
-  return <section className="strip-tool-content strip-plugin-manager" aria-label="插件中心" aria-busy={loading||busyId!==null}>
+  return <section className="strip-tool-content strip-plugin-manager" aria-label="本地工具与插件" aria-busy={loading||busyId!==null}>
     <div className="spm-overview">
       <div className="spm-overview__heading">
-        <div><strong>本地插件</strong><span>按需开启功能，保持工作区简洁</span></div>
+        <div><strong>本地工具与插件</strong><span>桌宠、文件压缩与文档转换，统一管理</span></div>
         <button className="spm-icon-button" type="button" title="刷新插件" aria-label="刷新插件状态" onClick={()=>void refresh()} disabled={loading||busyId!==null}><Icon name="refresh"/></button>
       </div>
       <div className="spm-overview__stats"><span><strong>{countEnabled}</strong> 已启用</span><i aria-hidden="true"/><span><strong>{items.length}</strong> 个插件</span></div>
@@ -174,7 +169,6 @@ export function BuiltinPluginsTool(){
               const isBusy=busyId!==null;
               const form=forms[plugin.id]||initialForm(plugin);
               const canToggle=plugin.available&&plugin.detail?.supported!==false;
-              const canLaunch=plugin.runtime?.running===true||plugin.detail?.installed!==false;
               return <article key={plugin.id} className={'spm-plugin'+(open?' is-open':'')} data-plugin-id={plugin.id}>
                 <div className="spm-plugin__row">
                   <span className="spm-plugin__icon" aria-hidden="true"><Icon name={meta.icon}/></span>
@@ -198,8 +192,7 @@ export function BuiltinPluginsTool(){
                     {plugin.detail.dependency&&<div><span>运行依赖</span><strong>{plugin.detail.dependency}</strong></div>}
                     {plugin.detail.command&&<div><span>本地入口</span><code title={plugin.detail.command}>{plugin.detail.command}</code></div>}
                   </div>}
-                  {plugin.enabled&&plugin.available&&plugin.id==='deepseek-harness-pet'&&
-                    <button className="spm-primary" type="button" disabled={isBusy||!canLaunch} onClick={()=>void execute(plugin)}><Icon name={plugin.runtime?.running?'stop':'play'}/>{plugin.runtime?.running?'停止桌宠':'启动 Q版桌宠'}</button>}
+                  {plugin.category==='desktop-pet'&&<p className="spm-detail__hint">开启即显示桌宠，关闭即隐藏，无需再次确认。</p>}
                   {plugin.enabled&&plugin.available&&FILE_PLUGINS.has(plugin.id)&&
                     <div className="spm-form">
                       <label htmlFor={'spm-action-'+plugin.id}>执行操作</label>

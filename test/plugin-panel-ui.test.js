@@ -17,7 +17,9 @@ test('plugin UI exposes search, category groups and filters without changing gat
  assert.match(ui,/visible\.filter\(item=>item\.category===category\.id\)/);
  assert.match(ui,/\.toLocaleLowerCase\(\)\.includes\(search\)/);
 });
-test('plugin UI keeps explicit confirmation for toggles and running external tools',()=>{
+test('plugin switches act directly while file execution retains confirmation',()=>{
+ const toggle=ui.slice(ui.indexOf('async function toggle('),ui.indexOf('async function execute('));
+ assert.doesNotMatch(toggle,/window\.confirm|setMessage\('[^']*已/);
  assert.match(ui,/window\.confirm\(/);
  assert.match(ui,/\/api\/plugins\/bundled\/enable/);
  assert.match(ui,/\/api\/plugins\/bundled\/execute/);

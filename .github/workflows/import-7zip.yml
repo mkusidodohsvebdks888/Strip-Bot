@@ -1,0 +1,51 @@
+name: Import 7-Zip Source (one time)
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-7zip.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out destination
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Archive pinned 7-Zip source into the unzip folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_URL="https://github.com/ip7z/7zip.git"
+          SOURCE_COMMIT="b88c6bc09339de32f7d18bbab900686b244f42ba"
+          SOURCE_DIR="${RUNNER_TEMP}/7zip-source"
+          DEST="解压缩/7-Zip"
+
+          git clone --quiet "$SOURCE_URL" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" checkout --quiet --detach "$SOURCE_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test -s "$SOURCE_DIR/DOC/License.txt"
+          test -s "$SOURCE_DIR/C/7z.h"
+          test -d "$SOURCE_DIR/CPP/7zip"
+          SOURCE_FILES="$(find "$SOURCE_DIR" -type f -not -path '*/.git/*' | wc -l)"
+          test "$SOURCE_FILES" -ge 1000
+
+          mkdir -p "$DEST"
+          rsync -a --exclude='.git' "$SOURCE_DIR/" "$DEST/"
+          test -s "$DEST/DOC/License.txt"
+          test -s "$DEST/C/7z.h"
+          test -d "$DEST/CPP/7zip"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$DEST"
+          git rm -- ".github/workflows/import-7zip.yml"
+          git commit -m "feat: archive 7-Zip source under 解压缩/7-Zip"
+          git push origin "HEAD:main"

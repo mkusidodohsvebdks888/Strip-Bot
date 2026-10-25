@@ -28,6 +28,7 @@ export function IntegrationsTool(){
   const [filter,setFilter]=useState<'all'|'enabled'|'disabled'>('all');
   const [query,setQuery]=useState('');
   const [expanded,setExpanded]=useState<string[]>([]);
+  const [copied,setCopied]=useState<string|null>(null);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
     setItems(data.items);
@@ -40,13 +41,21 @@ export function IntegrationsTool(){
     catch(e){setError(e instanceof Error ? e.message:'操作失败');}
     finally{setBusy(false);}
   }
+  const copyConfig=async(item:Integration)=>{
+    const config=item.type==='local'?{command:item.command,cwd:item.cwd}:{url:item.url};
+    try{await navigator.clipboard.writeText(JSON.stringify({id:item.id,label:item.label,type:item.type,...config},null,2));setCopied(item.id);setInfo('连接配置已复制，请勿公开其中的私有地址或参数。');setError('');}
+    catch{setError('无法访问剪贴板，请检查系统权限。');}
+  };
   const add=async(event:React.FormEvent)=>{
     event.preventDefault();
     let payload:Record<string,unknown>={id:id.trim(),label:name.trim(),type};
     if(type==='local'){
-      try{payload.command=JSON.parse(command);}catch{setError('命令必须是 JSON 数组，例如 ["node", "D:\\\\projects\\\\my-app\\\\mcp.js"]。');return;}
+      try{const parsed:unknown=JSON.parse(command);if(!Array.isArray(parsed)||parsed.length===0||!parsed.every(part=>typeof part==='string'&&part.trim()))throw new Error('invalid');payload.command=parsed;}catch{setError('启动命令必须是非空 JSON 字符串数组，例如 ["node", "server.js"]。');return;}
       if(cwd.trim()) payload.cwd=cwd.trim();
-    }else payload.url=url.trim();
+    }else {
+      try{const target=new URL(url.trim());if(!['http:','https:'].includes(target.protocol)||!target.hostname)throw new Error('invalid');}catch{setError('请输入有效的 HTTP 或 HTTPS MCP 服务地址。');return;}
+      payload.url=url.trim();
+    }
     await operate(()=>request('/api/integrations',payload),'项目连接已保存（默认关闭）');
   };
   const toggle=(item:Integration)=>{
@@ -79,7 +88,7 @@ export function IntegrationsTool(){
     {visibleItems.map(item=><div key={item.id} className="strip-integrations__item">
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail" title={item.type==='local'?item.command?.join(' '):item.url}><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{item.type==='local'?item.command?.join(' '):item.url}</code></div>
-      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}
     </div>)}
     <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>
@@ -104,6 +113,6 @@ export function IntegrationsTool(){
     </form></div>}
     {info && <p className="strip-integrations__feedback" role="status">{info}</p>}
     {error && <p className="strip-integrations__feedback is-error" role="alert">{error}</p>}
-    <p className="strip-tool-note">连接默认关闭；启用后需点击“应用到 Agent”。已有任务运行时不能重新加载。普通 REST API 需要先封装为 MCP 服务，不能直接填在这里。工具执行仍由 Agent 权限策略控制。</p>
+    <p className="strip-tool-note">连接状态表示配置是否启用，并非实时在线检测。复制配置可能包含私有路径或连接参数，请妥善保管。连接默认关闭；启用后需点击“应用到 Agent”。已有任务运行时不能重新加载。普通 REST API 需要先封装为 MCP 服务，不能直接填在这里。工具执行仍由 Agent 权限策略控制。</p>
   </section>;
 }

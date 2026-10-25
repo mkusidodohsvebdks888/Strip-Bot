@@ -1,0 +1,25 @@
+name: Verify implicit local model integration
+
+on:
+  push:
+    paths:
+      - ".github/workflows/verify-implicit-local-model.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test implicit local model and gateway
+        run: node --test test/implicit-local-model.test.js
+      - name: Install UI dependencies
+        run: npm ci --prefix codex-ui
+      - name: Type-check React UI
+        run: npm exec --prefix codex-ui -- tsc --noEmit -p codex-ui/tsconfig.json

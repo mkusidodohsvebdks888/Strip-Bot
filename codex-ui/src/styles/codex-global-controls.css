@@ -33,3 +33,16 @@ html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="butt
 @media (prefers-reduced-motion:reduce) {
   html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(button,[role="button"],input,textarea,select) {transition:none;}
 }
+
+/* Shared icon button, scoped to avoid altering existing specialized controls. */
+html[data-strip-palette] .strip-icon-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: inherit;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+html[data-strip-palette] .strip-icon-control:disabled {cursor: not-allowed;opacity: .5;}
+html[data-strip-palette] .strip-icon-control:focus-visible {outline: 2px solid var(--border-focus);outline-offset: 2px;}

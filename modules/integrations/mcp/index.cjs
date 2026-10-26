@@ -125,6 +125,17 @@ function createIntegrationRegistry({root}) {
       if(current.reason!=='approval_required')return {ok:false,allowed:false,reason:'policy_changed'};
       return {ok:true,allowed:allow,id:pendingRequest.id,tool:pendingRequest.tool,reason:allow?'user_approved':'user_denied',note:'批准决定仅适用于当前请求，不会自动开放整个 MCP 服务器。'};
     },
+    async callService({id,tool,arguments:args,confirmed}){
+      if(confirmed!==true)throw httpError(400,'调用业务工具需要明确确认');
+      if(typeof tool!=='string'||!tool.trim()||tool.length>128)throw httpError(400,'工具名称无效');
+      if(serviceControl.isCodeTool(tool))throw httpError(403,'服务控制不允许代码或系统操作');
+      const items=await pending.then(read);
+      const item=items.find(entry=>entry.id===id);
+      if(!item||!item.enabled||item.type!=='local')throw httpError(403,'仅支持已启用的本地 MCP 服务');
+      const permission=await this.evaluatePermission({id,tool});
+      if(!permission.allowed)throw httpError(403,'请先为该业务工具设置允许权限');
+      return {ok:true,id,tool,result:await serviceControl.invoke(item,tool,args||{})};
+    },
     async probe({id,confirmed}){
       if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');
       const items=await pending.then(read);

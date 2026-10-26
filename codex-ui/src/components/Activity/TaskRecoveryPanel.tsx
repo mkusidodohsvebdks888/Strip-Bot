@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import type {QueueTask} from '../AgentPanel';
+import {SnapshotManager} from './SnapshotManager';
 import './task-recovery.css';
 
 type Change={path:string;status:string;beforeHash:string|null;afterHash:string|null};
@@ -42,5 +43,6 @@ export function TaskRecoveryPanel({sessionID,tasks,onError}:Props){
       {!diff.changes.length&&<p>快照文件没有变化，或其他新增文件不在快照范围内。</p>}
       {diff.changes.map(change=><div className="strip-task-recovery__file" key={change.path}><code title={change.path}>{change.path}</code><span>{change.status}</span><button type="button" disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onClick={()=>void restore(change)}>恢复文件</button></div>)}
     </div>}
+    <SnapshotManager sessionID={sessionID} tasks={tasks} onError={onError}/>
   </section>;
 }

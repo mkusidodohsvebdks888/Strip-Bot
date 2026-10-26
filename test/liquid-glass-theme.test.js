@@ -21,7 +21,7 @@ test('liquid-glass-react is bundled with original MIT license and refraction sou
 test('real refraction layer is strictly opt-in behind the existing input editor',()=>{
   const bridge=read('codex-ui/src/modules/theme/components/GlassComposerSurface.tsx');
   const app=read('codex-ui/src/App.tsx');
-  assert.match(bridge,/import LiquidGlass from ['"]\.\.\/\.\.\/\.\.\/vendor\/liquid-glass-react['"]/);
+  assert.match(bridge,/lazy\(\(\)=>import\(['"]\.\.\/\.\.\/\.\.\/vendor\/liquid-glass-react['"]\)\)/);
   assert.match(bridge,/if\(!enabled\)return/);
   assert.match(bridge,/<LiquidGlass/);
   assert.match(bridge,/aria-hidden="true"/);

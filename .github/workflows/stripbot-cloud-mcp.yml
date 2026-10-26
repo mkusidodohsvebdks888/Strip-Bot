@@ -11,6 +11,12 @@ on:
       - 'codex-ui/src/components/Sidebar/BuiltinPluginsTool.tsx'
       - 'codex-ui/src/components/Sidebar/MarketplaceTool.tsx'
       - 'codex-ui/src/components/Sidebar/ToolsHub.tsx'
+      - 'codex-ui/src/App.tsx'
+      - 'codex-ui/src/components/ui/StripButton.tsx'
+      - 'codex-ui/src/components/Activity/UnifiedConversationStream.tsx'
+      - 'codex-ui/src/components/Activity/SessionApproval.tsx'
+      - 'codex-ui/src/components/Sidebar/tools-hub.css'
+      - 'codex-ui/src/vendor/codex-ui-kit/**'
       - 'codex-ui/src/components/Sidebar/marketplace-tool.css'
       - '.github/workflows/stripbot-cloud-mcp.yml'
   pull_request:
@@ -24,6 +30,12 @@ on:
       - 'codex-ui/src/components/Sidebar/BuiltinPluginsTool.tsx'
       - 'codex-ui/src/components/Sidebar/MarketplaceTool.tsx'
       - 'codex-ui/src/components/Sidebar/ToolsHub.tsx'
+      - 'codex-ui/src/App.tsx'
+      - 'codex-ui/src/components/ui/StripButton.tsx'
+      - 'codex-ui/src/components/Activity/UnifiedConversationStream.tsx'
+      - 'codex-ui/src/components/Activity/SessionApproval.tsx'
+      - 'codex-ui/src/components/Sidebar/tools-hub.css'
+      - 'codex-ui/src/vendor/codex-ui-kit/**'
       - 'codex-ui/src/components/Sidebar/marketplace-tool.css'
   workflow_dispatch:
 jobs:

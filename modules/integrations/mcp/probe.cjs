@@ -20,6 +20,7 @@ async function readLimited(response){
 async function probeRemote(item,{timeoutMs=6000}={}){
   if(!item||item.type!=='remote')throw httpError(400,'当前仅支持 HTTP MCP 连接测试');
   const target=new URL(item.url);
+  if(!['localhost','127.0.0.1','[::1]'].includes(target.hostname.toLowerCase()))throw httpError(400,'当前仅允许测试本机 MCP 地址，避免访问内网或不可信远程服务');
   if(!['http:','https:'].includes(target.protocol)||target.username||target.password)throw httpError(400,'无效的 MCP 地址');
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);

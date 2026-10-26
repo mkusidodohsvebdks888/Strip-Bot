@@ -170,11 +170,18 @@ function createIntegrationRegistry({root,cloudClient=createCloudClient()}) {
       if(serviceControl.isCodeTool(tool))throw httpError(403,'服务控制不允许代码或系统操作');
       const items=await pending.then(read);
       const item=items.find(entry=>entry.id===id);
-      if(!item||!item.enabled||item.type!=='local')throw httpError(403,'仅支持已启用的本地 MCP 服务');
+      if(!item||!item.enabled)throw httpError(403,'MCP 服务不存在或未启用');
       const stored=await readPermissions();
       if(stored[id]?.[tool]!=='allow')throw httpError(403,'服务控制要求明确逐项授权；通配符权限不适用');
       const permission=await this.evaluatePermission({id,tool});
       if(!permission.allowed)throw httpError(403,'请先为该业务工具设置允许权限');
+      if(item.type==='remote'){
+        if(!isCloud(item)||tool!==READ_TOOL)throw httpError(403,'远程 MCP 仅允许预设的只读状态工具');
+        const token=cloudCredentials.get(CLOUD_ID);
+        if(!token)throw httpError(401,'请在插件页面重新填写 Render Token');
+        return cloudOperation('service_status',async()=>({ok:true,id,tool,result:await cloudClient.call(token,tool,args||{})}));
+      }
+      if(item.type!=='local')throw httpError(403,'此 MCP 服务类型不能执行工具');
       return {ok:true,id,tool,result:await serviceControl.invoke(item,tool,args||{})};
     },
     async probe({id,confirmed}){
@@ -182,6 +189,12 @@ function createIntegrationRegistry({root,cloudClient=createCloudClient()}) {
       const items=await pending.then(read);
       const item=items.find(entry=>entry.id===id);
       if(!item)throw httpError(404,'MCP 服务器不存在');
+      if(isCloud(item)){
+        if(!item.enabled)throw httpError(403,'请先启用 StripBot Cloud');
+        const token=cloudCredentials.get(CLOUD_ID);
+        if(!token)throw httpError(401,'请在插件页面填写 Render Token；密钥不会保存到磁盘');
+        return cloudOperation('probe',()=>cloudClient.probe(token));
+      }
       return item.type==='local'?probeStdio(item):probeRemote(item);
     },
     async inspect({id}) {
@@ -205,6 +218,7 @@ function createIntegrationRegistry({root,cloudClient=createCloudClient()}) {
       return {id:item.id,type:item.type,configured:true,connected:null,checks};
     },
     upsert: raw => transaction(items => {
+      if(raw?.id===CLOUD_ID)throw httpError(409,'云端 MCP 请使用专用的安全连接入口');
       const existing = items.findIndex(item=>item.id===raw?.id);
       if (existing<0 && items.length >= MAX_INTEGRATIONS) throw httpError(400, '最多连接 30 个项目。');
       const item = normalize(raw, {previous:existing>=0?items[existing]:null});
@@ -218,19 +232,23 @@ function createIntegrationRegistry({root,cloudClient=createCloudClient()}) {
       item.enabled = enabled;
       return {ok:true, item, needsReload:true};
     }),
-    remove: ({id,confirmed}) => transaction(items => {
-      if (confirmed !== true) throw httpError(400, '删除项目连接需要确认。');
-      const index = items.findIndex(item=>item.id===id);
-      if (index<0) throw httpError(404, '项目连接不存在。');
-      items.splice(index,1);
-      return {ok:true, needsReload:true};
-    }),
+    async remove({id,confirmed}){
+      const result=await transaction(items=>{
+        if (confirmed !== true) throw httpError(400, '删除项目连接需要确认。');
+        const index = items.findIndex(item=>item.id===id);
+        if (index<0) throw httpError(404, '项目连接不存在。');
+        items.splice(index,1);
+        return {ok:true, needsReload:true};
+      });
+      if(id===CLOUD_ID)cloudCredentials.delete(CLOUD_ID);
+      return result;
+    },
     async asMcpServers() {
       const items = await pending.then(read);
       const policies=await readPermissions();
       // Codex currently has no per-MCP-tool interception in this adapter.
       // Never expose an entire server unless its explicit wildcard policy permits every tool.
-      return Object.fromEntries(items.filter(item=>item.enabled && policies[item.id]?.['*']==='allow' && Object.entries(policies[item.id]).every(([tool,mode])=>tool==='*'||mode==='allow')).map(item=>[item.id, item.type==='local'
+      return Object.fromEntries(items.filter(item=>item.id!==CLOUD_ID && item.enabled && policies[item.id]?.['*']==='allow' && Object.entries(policies[item.id]).every(([tool,mode])=>tool==='*'||mode==='allow')).map(item=>[item.id, item.type==='local'
         ? {type:'local',command:item.command,...(item.cwd?{cwd:item.cwd}:{})}
         : {type:'remote',url:item.url}]));
     },

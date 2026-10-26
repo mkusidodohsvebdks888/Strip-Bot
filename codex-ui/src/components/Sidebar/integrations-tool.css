@@ -64,3 +64,6 @@
 .strip-integrations__import-input:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
 .strip-integrations__sensitive-toggle{display:flex;align-items:center;gap:7px;margin:9px 0;color:var(--muted);font-size:11px;line-height:1.5}
 .strip-integrations__sensitive-toggle input{accent-color:var(--accent)}
+
+.strip-integrations__import-select{display:block;width:100%;min-height:36px;margin:7px 0 12px;padding:7px 10px;border:1px solid var(--border-10);border-radius:9px;background:var(--card-bg);color:var(--fg);font:inherit;font-size:12px}
+.strip-integrations__import-select:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}

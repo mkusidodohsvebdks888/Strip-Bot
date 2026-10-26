@@ -1,5 +1,5 @@
 // From JaminZhou/codex-ui-kit (MIT, 2026); see LICENSE. Adapted imports/types for StripBot.
-import type {ButtonHTMLAttributes,ReactNode} from 'react';
+import {forwardRef,type ButtonHTMLAttributes,type ReactNode} from 'react';
 export type ControlTone =
   | "danger"
   | "ghost"
@@ -80,7 +80,7 @@ export interface IconButtonProps
   tone?: ControlTone;
 }
 
-export function IconButton({
+export const IconButton = forwardRef<HTMLButtonElement,IconButtonProps>(function IconButton({
   className,
   disabled = false,
   icon,
@@ -91,12 +91,13 @@ export function IconButton({
   tone = "ghost",
   type = "button",
   ...props
-}: IconButtonProps) {
+}: IconButtonProps,ref) {
   const classes = ["codex-ui-icon-button", className]
     .filter(Boolean)
     .join(" ");
   return (
     <button
+      ref={ref}
       aria-busy={loading || undefined}
       aria-label={label}
       aria-pressed={pressed}
@@ -118,5 +119,5 @@ export function IconButton({
       )}
     </button>
   );
-}
+});
 

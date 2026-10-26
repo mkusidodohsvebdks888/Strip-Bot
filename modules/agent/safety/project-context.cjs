@@ -2,6 +2,7 @@
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const RULES=['AGENTS.md','README.md','package.json'];
+const SECRET_LINE=/^\s*(?:[\"']?)(?:api[_-]?key|secret|token|password|authorization|private[_-]?key)(?:[\"']?)\s*[:=]/i;
 async function projectContext(workspace){
   const cwd=await fs.realpath(workspace);
   const files=[];
@@ -11,7 +12,8 @@ async function projectContext(workspace){
       const info=await fs.lstat(target);
       if(!info.isFile()||info.isSymbolicLink()||info.size>65536)continue;
       const content=await fs.readFile(target,'utf8');
-      files.push({name,content:content.slice(0,name==='AGENTS.md'?12000:4000)});
+      const filtered=content.split(/\r?\n/).map(line=>SECRET_LINE.test(line)?'[REDACTED]':line).join('\n');
+      files.push({name,content:filtered.slice(0,name==='AGENTS.md'?12000:4000)});
     }catch(error){if(error.code!=='ENOENT')throw error;}
   }
   return {workspace:cwd,files,loadedAt:Date.now()};

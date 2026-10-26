@@ -177,7 +177,7 @@ function createIntegrationRegistry({root}) {
       const policies=await readPermissions();
       // Codex currently has no per-MCP-tool interception in this adapter.
       // Never expose an entire server unless its explicit wildcard policy permits every tool.
-      return Object.fromEntries(items.filter(item=>item.enabled && policies[item.id]?.['*']==='allow').map(item=>[item.id, item.type==='local'
+      return Object.fromEntries(items.filter(item=>item.enabled && policies[item.id]?.['*']==='allow' && Object.entries(policies[item.id]).every(([tool,mode])=>tool==='*'||mode==='allow')).map(item=>[item.id, item.type==='local'
         ? {type:'local',command:item.command,...(item.cwd?{cwd:item.cwd}:{})}
         : {type:'remote',url:item.url}]));
     },

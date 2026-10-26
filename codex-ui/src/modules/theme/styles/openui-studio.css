@@ -49,3 +49,8 @@
 .strip-openui-implementation{display:grid;gap:10px}
 .strip-openui-implementation textarea{font-family:var(--font-code,monospace);resize:vertical;font-size:12px}
 @media(max-width:650px){.strip-openui-layout-grid{grid-template-columns:1fr}}
+
+.strip-openui-generated{display:grid;gap:10px;min-width:0;padding:14px;border:1px solid var(--border-10);border-radius:12px;background:var(--surface-2)}
+.strip-openui-generated details{min-width:0}
+.strip-openui-generated summary{cursor:pointer;font-weight:600}
+.strip-openui-generated pre{max-height:350px;overflow:auto;white-space:pre;font:12px/1.6 var(--font-code,monospace);background:var(--surface-search);padding:12px;border-radius:10px}

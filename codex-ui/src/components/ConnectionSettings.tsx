@@ -17,6 +17,7 @@ type ApiConfig={baseUrl:string;model:string;protocol:string;hasKey:boolean;confi
 export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,metrics,mode,onMode,onBack,onSaved,busy,account,nativeModel,onNativeModel,workspace,workspaceLocked,onWorkspace}:{pageRequest?:{page:'project'};appearanceSettings?:ReactNode;displayRate:{rate:number|null;commit:(value:number|null)=>void;error:string};metrics?:ModelMetrics|null;workspace:string;workspaceLocked:boolean;onWorkspace:(value:string)=>void;account:{connected:boolean;models:{id:string;name:string}[];attempt?:{status:string}};nativeModel:string;onNativeModel:(value:string)=>void;mode:ConnectionMode;onMode:(value:ConnectionMode)=>void;onBack:()=>void;onSaved:()=>void;busy:boolean}){
   const [page,setPage]=useState<SettingsPage>(storedPage);
   const pageId=useId();
+  const [confirmClear,setConfirmClear]=useState(false);
   useEffect(()=>{if(pageRequest)changePage(pageRequest.page);},[pageRequest]);
   function changePage(value:SettingsPage){setPage(value);try{localStorage.setItem(pageKey,value);}catch{/* Tabs still work when storage is blocked. */}}
   const panelProps=(value:SettingsPage)=>({role:'tabpanel' as const,id:pageId+'-'+value,'aria-labelledby':pageId+'-tab-'+value,hidden:page!==value,tabIndex:0});
@@ -54,8 +55,10 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
     setWorking(true);setFeedback('');try{const response=await fetch('/api/connection/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({baseUrl:config.baseUrl,model:config.model,protocol:config.protocol,reasoningEnabled:config.reasoningEnabled,...key?{apiKey:key}:{},clearKey})});const value=await response.json();if(!response.ok)throw new Error(value.error);rememberModel(value.model);setConfig(value);setKey('');setClearKey(false);setDirty(false);setFeedback('连接已保存。可在输入框下方切换模型和推理强度，新对话会使用新配置。');onSaved();}catch(e){setFeedback(e instanceof Error?e.message:'保存失败');}finally{setWorking(false);}}
   async function check(){setWorking(true);setFeedback('正在发送真实模型请求…');try{const response=await fetch('/api/connection/check',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(35000)});const value=await response.json();if(!response.ok)throw new Error(value.error);setFeedback(value.message || '检测完成');}catch(e){setFeedback(e instanceof Error?e.message:'检测失败');}finally{setWorking(false);}}
   const locked=busy || working || loading || fetching;
+  function safeBack(){if(dirty&&!window.confirm('API 设置存在未保存的修改，确定离开设置吗？'))return;onBack();}
+  useEffect(()=>{if(!dirty)return;const handler=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',handler);return()=>window.removeEventListener('beforeunload',handler);},[dirty]);
   return <div className="strip-connection-settings">
-    <button className="strip-btn strip-btn--ghost strip-btn--sm" onClick={onBack}><ControlIcon name="left"/> 返回对话</button>
+    <button className="strip-btn strip-btn--ghost strip-btn--sm" onClick={safeBack}><ControlIcon name="left"/> 返回对话</button>
     <h1>设置</h1>
     <nav className="strip-settings-tabs" role="tablist" aria-label="设置分类">
       {settingsPages.map((item,index)=><button key={item.id} type="button" role="tab" id={pageId+'-tab-'+item.id} aria-controls={pageId+'-'+item.id} aria-selected={page===item.id} tabIndex={page===item.id?0:-1} onClick={()=>changePage(item.id)} onKeyDown={event=>{
@@ -80,8 +83,8 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
       <h2>API 连接</h2>
       <label>API 地址<input required type="url" disabled={locked} value={config.baseUrl} placeholder="https://api.openai.com/v1" onChange={e=>{setDiscovered([]);setModelsAt('');setConfig({...config,baseUrl:e.target.value});setDirty(true);}}/><small>填写带版本路径的 Base URL，公网地址须使用 HTTPS。</small></label>
       <label>协议类型<select disabled={locked} value={config.protocol} onChange={e=>{setConfig({...config,protocol:e.target.value,reasoningEnabled:false,reasoningEffort:''});setDirty(true);}}><option value="responses">Responses</option><option value="openai">Chat Completions</option></select></label>
-      <label>API Key<input type="password" autoComplete="off" spellCheck={false} disabled={locked} value={key} placeholder={config.hasKey?'已保存密钥，留空保持不变':'填写此 API 服务的密钥'} onChange={e=>{setDiscovered([]);setKey(e.target.value);setDirty(true);}} onBlur={()=>{if(key.trim() && !fetching)void refreshModels();}}/><small>密钥使用 Windows 用户加密保存，不会回显。更换 API 地址需重新填写密钥。</small></label>
-      {config.hasKey && <label className="strip-key-clear"><input type="checkbox" disabled={locked} checked={clearKey} onChange={e=>{setClearKey(e.target.checked);setDirty(true);}}/>清除已保存密钥（用于无需认证的本机接口）</label>}
+      <label>API Key<input type="password" autoComplete="off" spellCheck={false} disabled={locked} value={key} placeholder={config.hasKey?'已保存密钥，留空保持不变':'填写此 API 服务的密钥'} onChange={e=>{setDiscovered([]);setKey(e.target.value);setDirty(true);}} onBlur={()=>{ /* Credentials are only sent after an explicit discovery or save action. */ }}/><small>密钥使用 Windows 用户加密保存，不会回显。更换 API 地址需重新填写密钥。</small></label>
+      {config.hasKey && <label className="strip-key-clear"><input type="checkbox" disabled={locked} checked={clearKey} onChange={e=>{if(e.target.checked&&!window.confirm('确定要在下次保存时清除已保存的 API Key 吗？'))return;setClearKey(e.target.checked);setDirty(true);}}/>清除已保存密钥（用于无需认证的本机接口）</label>}
       <button type="submit" className="strip-btn strip-btn--secondary">下一步：选择模型</button>
       </form>}
     </div>

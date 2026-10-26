@@ -77,3 +77,9 @@
 .strip-integrations__permission{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
 .strip-integrations__permission select{min-height:30px;padding:4px 8px;border-radius:8px;border:1px solid var(--border-10);background:var(--card-bg);color:var(--fg);font:inherit}
 .strip-integrations__permission select:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+
+.strip-integrations__approval-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.38)}
+.strip-integrations__approval-dialog{box-sizing:border-box;width:min(420px,100%);padding:22px;border:1px solid var(--border-10);border-radius:16px;background:var(--card-bg);color:var(--fg);box-shadow:0 16px 56px rgba(0,0,0,.18)}
+.strip-integrations__approval-dialog h3{margin:0 0 16px;font-size:16px}
+.strip-integrations__approval-dialog p{margin:9px 0;font-size:13px;overflow-wrap:anywhere}
+.strip-integrations__approval-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}

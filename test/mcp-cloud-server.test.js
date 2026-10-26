@@ -13,6 +13,9 @@ test('cloud MCP server authenticates and only exposes read-only tool',async()=>{
   const base='http://127.0.0.1:'+p;
   let ready=false;for(let i=0;i<40;i++){try{const r=await fetch(base+'/health');if(r.ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}
   assert(ready,'server did not start');
+  const healthWithQuery=await fetch(base+'/health?utm_source=chatgpt.com');
+  assert.equal(healthWithQuery.status,200);
+  assert.deepEqual(await healthWithQuery.json(),{ok:true});
   const unauth=await fetch(base+'/mcp',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list'})});
   assert.equal(unauth.status,401);
   const headers={'content-type':'application/json',authorization:'Bearer '+token};

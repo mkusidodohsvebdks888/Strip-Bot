@@ -132,6 +132,8 @@ function createIntegrationRegistry({root}) {
       const items=await pending.then(read);
       const item=items.find(entry=>entry.id===id);
       if(!item||!item.enabled||item.type!=='local')throw httpError(403,'仅支持已启用的本地 MCP 服务');
+      const stored=await readPermissions();
+      if(stored[id]?.[tool]!=='allow')throw httpError(403,'服务控制要求明确逐项授权；通配符权限不适用');
       const permission=await this.evaluatePermission({id,tool});
       if(!permission.allowed)throw httpError(403,'请先为该业务工具设置允许权限');
       return {ok:true,id,tool,result:await serviceControl.invoke(item,tool,args||{})};

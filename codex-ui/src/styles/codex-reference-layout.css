@@ -1,0 +1,265 @@
+/*
+ * StripBot screenshot-based desktop shell: compact native-titlebar menus,
+ * narrow icon rail, organized session list with a full-width divider, and
+ * a separated conversation workspace. Theme tokens remain authoritative.
+ */
+html[data-strip-desktop="true"] .strip-app .strip-window-topbar{
+  padding:0 154px 0 14px;
+  border-bottom:1px solid var(--border-07);
+  background:var(--sidebar-bg);
+  color:var(--fg);
+}
+/* The rail follows the OS caption rather than replacing its hit targets. */
+.strip-app .strip-tool-rail{
+  flex:0 0 54px;
+  width:54px;
+  padding:12px 0 14px;
+  gap:9px;
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--border-07);
+}
+.strip-app .strip-tool-rail__group{gap:6px}
+.strip-app .strip-tool-btn{
+  width:38px;height:38px;
+  border-radius:10px;
+  color:var(--muted);
+}
+.strip-app .strip-tool-btn.is-active{
+  border-color:transparent;
+  background:var(--surface-2);
+  color:var(--fg);
+}
+.strip-app .strip-tool-btn .strip-icon svg{width:18px;height:18px}
+.strip-app .strip-tool-btn--brand{
+  margin-bottom:4px;
+  background:var(--surface-3);
+  border-radius:12px;
+}
+.strip-app .strip-tool-btn--brand .strip-tool-brand{width:22px;height:22px}
+.strip-app .strip-tool-rail__divider{width:26px;background:var(--border-09);margin:7px 0}
+.strip-app .strip-tool-rail__spacer{min-height:14px}
+.strip-app .strip-tool-panel{
+  flex:0 0 336px;
+  width:336px;
+  min-width:0;
+  border-right:1px solid var(--border-10);
+  background:var(--sidebar-bg);
+}
+.strip-app .strip-tool-panel__header{
+  position:relative;
+  min-height:50px;
+  height:50px;
+  padding:5px 12px 5px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  border-bottom:1px solid var(--border-07);
+  background:var(--sidebar-bg);
+}
+.strip-app .strip-tool-panel__workspace-menu{
+  position:relative;min-width:0;flex:1;
+  -webkit-app-region:no-drag;
+}
+.strip-app .strip-tool-panel__workspace-trigger{
+  display:flex;align-items:center;gap:5px;
+  width:auto;max-width:100%;height:34px;padding:0 8px 0 2px;
+  border:0;border-radius:8px;
+  color:var(--fg);background:transparent;cursor:pointer;
+  font:inherit;-webkit-app-region:no-drag;
+}
+.strip-app .strip-tool-panel__workspace-trigger strong{font-size:16px;font-weight:660;letter-spacing:-.35px}
+.strip-app .strip-tool-panel__workspace-trigger .strip-icon svg{width:13px;height:13px;color:var(--muted)}
+.strip-app .strip-tool-panel__workspace-trigger:hover,
+.strip-app .strip-tool-panel__workspace-trigger[aria-expanded="true"]{background:var(--surface-2)}
+.strip-app .strip-tool-panel__workspace-popup{
+  position:absolute;z-index:120;left:0;top:calc(100% + 4px);
+  min-width:210px;padding:6px;
+  border:1px solid var(--border-10);border-radius:11px;
+  background:var(--card-bg);color:var(--fg);
+  box-shadow:var(--shadow-pop);-webkit-app-region:no-drag;
+}
+.strip-app .strip-tool-panel__workspace-popup button{
+  display:flex;align-items:center;gap:11px;
+  width:100%;height:36px;padding:0 11px;
+  border:0;border-radius:7px;background:transparent;
+  color:var(--fg);font:500 13px/1.4 var(--font-ui);
+  text-align:left;cursor:pointer;
+}
+.strip-app .strip-tool-panel__workspace-popup button:hover{background:var(--surface-2)}
+.strip-app .strip-tool-panel__workspace-popup .strip-icon svg{width:16px;height:16px}
+.strip-app .strip-tool-panel__header-actions{
+  display:flex;align-items:center;justify-content:flex-end;gap:3px;flex:none;
+  -webkit-app-region:no-drag;
+}
+.strip-app .strip-tool-panel__header-actions .strip-tool-btn,
+.strip-app .strip-tool-panel__header-actions .strip-tool-panel__close,
+.strip-app .strip-tool-panel__header-actions .codex-ui-icon-button{
+  width:31px;height:31px;min-height:31px;
+  padding:0;border:0;border-radius:8px;color:var(--muted);
+  background:transparent;
+}
+.strip-app .strip-tool-panel__header-actions .strip-tool-btn:hover,
+.strip-app .strip-tool-panel__header-actions .strip-tool-panel__close:hover{background:var(--surface-2);color:var(--fg)}
+.strip-app .strip-tool-panel__header-actions .strip-icon svg{width:16px;height:16px}
+.strip-app .strip-tool-panel__body.is-history{
+  padding:0;
+  overflow:hidden;
+  flex:1;
+}
+.strip-app .strip-tool-panel .strip-cx-history{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  flex:1;
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:0!important;
+  overflow:hidden;
+}
+.strip-app .strip-cx-upper{
+  display:flex;
+  flex-direction:column;
+  flex:0 1 330px;
+  max-height:46%;
+  min-height:180px;
+  padding:8px 12px 4px;
+  min-width:0;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.strip-app .strip-cx-new-chat{
+  display:flex;align-items:center;gap:10px;
+  flex:none;width:100%;min-height:39px;
+  padding:7px 9px;border:0;border-radius:9px;
+  color:var(--fg);background:transparent;
+  text-align:left;cursor:pointer;font:500 13.5px/1.45 var(--font-ui);
+}
+.strip-app .strip-cx-new-chat:hover:not(:disabled){background:var(--surface-2)}
+.strip-app .strip-cx-new-chat:disabled{opacity:.5;cursor:not-allowed}
+.strip-app .strip-cx-new-chat .strip-icon svg{width:16px;height:16px}
+.strip-app .strip-cx-new-chat>span:not(.strip-icon){flex:1}
+.strip-app .strip-cx-new-chat kbd{font:400 10px/1.2 var(--font-ui);color:var(--muted-3);opacity:0}
+.strip-app .strip-cx-new-chat:hover kbd,.strip-app .strip-cx-new-chat:focus-visible kbd{opacity:1}
+.strip-app .strip-cx-upper .strip-cx-section--pinned{flex:0 1 auto;max-height:48%;overflow:auto;scrollbar-width:thin;margin-top:3px}
+.strip-app .strip-cx-upper .strip-cx-section--quick{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin}
+.strip-app .strip-cx-upper .strip-cx-section--quick .strip-cx-section__list{margin:0}
+.strip-app .strip-cx-split{
+  box-sizing:border-box;
+  flex:none;
+  height:1px;
+  width:100%;
+  border-top:1px solid var(--border-10);
+  margin:5px 0 7px;
+}
+.strip-app .strip-cx-lower{
+  box-sizing:border-box;display:flex;flex-direction:column;gap:10px;
+  flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;padding:4px 12px 14px;
+}
+.strip-app .strip-cx-section--projects{
+  padding:0;
+  border-bottom:0;
+}
+.strip-app .strip-cx-section--projects .strip-cx-project-list{margin:1px 0 0}
+.strip-app .strip-cx-section--conversations .strip-cx-section__list{margin:1px 0 0}
+.strip-app .strip-cx-section__heading{
+  min-height:32px;padding:5px 9px;
+  color:var(--muted);font-size:12px;font-weight:530;
+}
+.strip-app .strip-cx-section__heading .strip-cx-chevron{opacity:.55}
+.strip-app .strip-cx-project-heading .strip-cx-add-project{
+  margin:0 3px 0 0;
+  height:28px;width:28px;
+  opacity:.75;
+}
+.strip-app .strip-cx-thread{
+  min-height:35px;margin:1px 1px;
+  border-radius:9px;
+}
+.strip-app .strip-cx-thread__main{
+  padding:7px 10px;
+  font-size:13px;
+  min-height:35px;
+  font-weight:440;
+}
+.strip-app .strip-cx-thread.is-active{
+  background:var(--surface-2);
+  border-left:0;
+}
+.strip-app .strip-cx-thread.is-active .strip-cx-thread__main{
+  font-weight:560;
+}
+.strip-app .strip-cx-thread.is-pinned{border-left:0}
+.strip-app .strip-cx-thread.is-pinned .strip-cx-thread__main{padding-left:10px}
+.strip-app .strip-cx-thread:focus-within{outline:1px solid var(--border-09);outline-offset:0}
+.strip-app .strip-cx-project__row{padding:0 1px}
+.strip-app .strip-cx-project__open{min-height:35px;padding:7px 9px;font-size:13px}
+.strip-app .strip-cx-hint{font-size:12px;margin:3px 10px 8px}
+.strip-app .strip-cx-more{width:28px;height:28px}
+.strip-app .strip-tool-panel .strip-cx-menu{z-index:160}
+/* Main conversation area: a white/neutral working surface with quiet header. */
+.strip-app[data-appearance] main.strip-wallpaper-main{
+  position:relative;
+  min-width:0;
+  border-left:1px solid var(--border-07);
+  background:var(--bg);
+}
+.strip-app .strip-workspace-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  min-height:51px;flex:0 0 51px;
+  padding:0 clamp(15px,2.6vw,30px);
+  border-bottom:1px solid var(--border-07);
+  color:var(--fg);background:var(--bg);
+  -webkit-app-region:drag;
+}
+.strip-app .strip-workspace-heading__name{
+  display:flex;align-items:center;gap:10px;min-width:0;
+  font:590 13.5px/1.35 var(--font-ui);
+}
+.strip-app .strip-workspace-heading__name .strip-icon svg{height:16px;width:16px;color:var(--muted)}
+.strip-app .strip-workspace-heading__name>span:not(.strip-icon){
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(420px,55vw)
+}
+.strip-app .strip-workspace-heading__actions{
+  display:flex;align-items:center;gap:5px;-webkit-app-region:no-drag;
+}
+.strip-app .strip-workspace-heading__actions button{
+  display:grid;place-items:center;
+  height:30px;width:30px;min-width:30px;padding:0;
+  border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;
+}
+.strip-app .strip-workspace-heading__actions button:hover:not(:disabled){background:var(--surface-2);color:var(--fg)}
+.strip-app .strip-workspace-heading__actions button:disabled{opacity:.4;cursor:not-allowed}
+.strip-app .strip-workspace-heading__actions .strip-icon svg{height:16px;width:16px}
+/* Glass preset preserves the hierarchy without flattening the material. */
+.strip-app[data-fluid-glass="true"] .strip-workspace-heading{
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+}
+@media(min-width:901px){
+  .strip-app .strip-tool-panel.strip-tool-panel--plugins{flex-basis:352px;width:352px}
+}
+@media(max-width:900px){
+  .strip-app .strip-tool-rail{flex:0 0 54px;width:54px}
+  .strip-app>.strip-tool-panel{
+    left:54px;
+    width:min(336px,calc(100vw - 64px));
+    max-width:calc(100vw - 64px);
+  }
+  .strip-app>.strip-tool-panel.strip-tool-panel--plugins{width:min(352px,calc(100vw - 64px))}
+  .strip-app .strip-cx-upper{max-height:42%;min-height:140px}
+}
+@media(max-width:550px){
+  .strip-app .strip-tool-rail{flex-basis:48px;width:48px}
+  .strip-app>.strip-tool-panel{left:48px;width:calc(100vw - 58px);max-width:calc(100vw - 58px)}
+  .strip-app .strip-workspace-heading{padding:0 12px}
+  .strip-app .strip-workspace-heading__name>span:not(.strip-icon){max-width:43vw}
+}
+@media(max-height:650px){
+  .strip-app .strip-cx-upper{max-height:39%;min-height:115px}
+  .strip-app .strip-cx-lower{padding-bottom:7px}
+}
+@media(prefers-reduced-motion:reduce){
+  .strip-app .strip-cx-history button{transition:none}
+}

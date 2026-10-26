@@ -7,6 +7,7 @@ import {Icon} from '../../Icons';
 import {ApprovalPanel,type Decide} from './ApprovalPanel';
 import {activityStatus,linearActivity,type ActivityEvent} from './activity-events';
 import {TaskQueuePanel} from './TaskQueuePanel';
+import {TaskRecoveryPanel} from './TaskRecoveryPanel';
 import './unified-conversation-stream.css';
 
 type Message=Snapshot['messages'][number];
@@ -152,6 +153,7 @@ export function UnifiedConversationStream({snapshot,busy,deciding,loading,onDeci
   }
   return <div ref={rootRef} className="strip-stream-root">
     <TaskQueuePanel snapshot={snapshot} onPause={onPause} onResume={onResume} onCancel={onCancelTask} onParallel={onParallel}/>
+    {snapshot?.tasks?.length ? <TaskRecoveryPanel sessionID={snapshot.tasks[0].sessionID} tasks={snapshot.tasks} onError={onError}/> : null}
     {hasActions && <div className="strip-stream-toolbar" aria-label="执行记录控制栏">
       <div className="strip-stream-toolbar-heading"><Icon name="checklist-minimalistic"/><strong>执行记录</strong><span className="strip-stream-state" data-status={status}>{status==='paused'?'已暂停':status==='idle'?'本轮已结束':status==='pending'?'等待审批':status==='error'?'执行异常':'执行中'}</span><span className="strip-stream-count">{activeEvents.length} 步</span></div>
       <div className="strip-stream-toolbar-actions"><button type="button" onClick={()=>setAll(true)} disabled={!activeEvents.length}>展开全部</button><button type="button" onClick={()=>setAll(false)} disabled={!activeEvents.length}>收起全部</button></div>

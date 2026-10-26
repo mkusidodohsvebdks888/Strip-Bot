@@ -86,10 +86,19 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     close:() => engine.close(),
     async handle(method,route,body = {}) {
       if (route === '/tasks' && method === 'GET') return scheduler.overview();
-      if(route==='/project-index' && method==='GET')return projectIndex.scan(root);
-      if(route==='/project-search' && method==='POST')return projectIndex.search(root,body?.query);
-      if(route==='/project-content-search' && method==='POST')return projectIndex.searchContent(root,body?.query);
-      if(route==='/project-index/refresh' && method==='POST')return projectIndex.scan(root,{refresh:true});
+      const projectRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project\/(index|search|content-search|refresh)$/.exec(route);
+      if(projectRoute){
+        const id=await session(projectRoute[1]);
+        const workspace=owned[id].workspace;
+        if(projectRoute[2]==='index'&&method==='GET')return projectIndex.scan(workspace);
+        if(projectRoute[2]==='search'&&method==='POST')return projectIndex.search(workspace,body?.query);
+        if(projectRoute[2]==='content-search'&&method==='POST')return projectIndex.searchContent(workspace,body?.query);
+        if(projectRoute[2]==='refresh'&&method==='POST')return projectIndex.scan(workspace,{refresh:true});
+      }
+      if(route==='/project-index'&&method==='GET')return projectIndex.scan(root);
+      if(route==='/project-search'&&method==='POST')return projectIndex.search(root,body?.query);
+      if(route==='/project-content-search'&&method==='POST')return projectIndex.searchContent(root,body?.query);
+      if(route==='/project-index/refresh'&&method==='POST')return projectIndex.scan(root,{refresh:true});
       if (route === '/status' && method === 'GET') {
         const result = engine.checkInstallation ? await engine.checkInstallation() : {installed:await fs.access(engine.executable).then(()=>true,()=>false),version:'unknown'};
         return {...result,taskScheduler:await scheduler.overview(),engine:'Codex CLI (app-server)',bridge:engine.bridgeInfo?.() || {mode:'none',enabled:false},workspace:root,workspaceBase,limits:{promptChars:MAX_PROMPT_CHARS,attachmentBytes:MAX_FILE_BYTES,manualCommandSeconds:30}};

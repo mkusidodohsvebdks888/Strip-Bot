@@ -11,6 +11,7 @@ try {
     Copy-Item -LiteralPath 'dist\brand-logo.png' -Destination $taskPublic -Force
     Copy-Item -LiteralPath 'dist\login-brand.jpg' -Destination $taskPublic -Force
     Copy-Item -LiteralPath 'dist\strip-bot.ico' -Destination $taskPublic -Force
+    if (Test-Path -LiteralPath 'dist\avatars') { Copy-Item -LiteralPath 'dist\avatars' -Destination $taskPublic -Recurse -Force }
     if (Test-Path -LiteralPath 'dist\strip-buttons') {
         Copy-Item -LiteralPath 'dist\strip-buttons' -Destination $taskPublic -Recurse -Force
     }

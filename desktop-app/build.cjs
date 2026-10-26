@@ -39,6 +39,7 @@ async function build() {
     await fs.mkdir(path.dirname(target),{recursive:true});
     await fs.copyFile(path.join(publicDir,name),target);
   }
+  await fs.cp(path.join(publicDir,'avatars'),path.join(staging,'public','avatars'),{recursive:true});
   const stripButtons = path.join(publicDir,'strip-buttons');
   try {
     await fs.access(stripButtons);

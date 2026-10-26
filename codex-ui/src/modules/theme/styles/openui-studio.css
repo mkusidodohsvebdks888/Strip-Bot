@@ -63,3 +63,15 @@
 .strip-openui-workflow span{display:block;padding:11px 9px;border:1px solid var(--border-10);border-radius:10px;background:var(--card-bg);color:var(--muted);font-size:12px;text-align:center}
 .strip-openui-workflow span[data-active=true]{color:var(--fg);border-color:var(--accent);font-weight:700}
 @media(max-width:650px){.strip-openui-workflow>div{grid-template-columns:1fr}}
+
+.strip-openui-component-demo{display:grid;gap:10px;padding:12px;border:1px solid var(--border-10);border-radius:12px}
+.strip-openui-demo-frame{display:grid;grid-template-columns:120px minmax(0,1fr);min-height:230px;border:1px solid var(--border-10);border-radius:12px;overflow:hidden}
+.strip-openui-demo-frame nav{display:flex;flex-direction:column;gap:8px;padding:14px;border-right:1px solid var(--border-10)}
+.strip-openui-demo-frame section{display:flex;flex-direction:column;gap:8px;padding:15px;min-width:0}
+.strip-openui-demo-frame h4{margin:0}
+.strip-openui-demo-frame section>div{flex:1;max-height:130px;overflow:auto}
+.strip-openui-demo-frame form{display:flex;gap:8px}
+.strip-openui-demo-frame input{min-width:0;flex:1;padding:8px;border-radius:8px;border:1px solid #999}
+.strip-openui-demo-frame button{cursor:pointer;border:1px solid #aaa;border-radius:8px;padding:8px;background:#fff;color:#222}
+.strip-openui-validation{font-size:12px;color:var(--fg)}
+@media(max-width:650px){.strip-openui-demo-frame{grid-template-columns:90px minmax(0,1fr)}}

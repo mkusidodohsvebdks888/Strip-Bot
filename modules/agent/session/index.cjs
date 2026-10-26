@@ -12,6 +12,7 @@ const {listSnapshots,removeSnapshot} = require('../safety/snapshot-inventory.cjs
 const {appendRestoreAudit,readRestoreAudit} = require('../safety/restore-audit.cjs');
 const {projectContext,contextPrompt} = require('../safety/project-context.cjs');
 const {projectManifest} = require('../safety/project-manifest.cjs');
+const projectIndex=require('../safety/project-index.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -27,7 +28,7 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     const captured=await snapshot({workspace:task.workspace,root,taskID:task.id});
     preflight.snapshot=captured;
     const manifest=await projectManifest(task.workspace);
-    task.contextPrompt=contextPrompt(await projectContext(task.workspace))+(manifest.available?'\n\n项目依赖与脚本索引：\n'+JSON.stringify(manifest):'');
+    task.contextPrompt=contextPrompt(await projectContext(task.workspace))+(manifest.available?'\n\n项目依赖与脚本索引：\n'+JSON.stringify(manifest):'')+projectIndex.prompt(await projectIndex.scan(task.workspace));
     // Fail closed when a Git project cannot be snapshotted. Non-Git workspaces remain supported.
     if(preflight.git && !captured.available){
       const error=new Error('执行前快照不可用：'+(captured.reason||'unknown')+'。为保护现有修改，已阻止任务启动。');
@@ -85,6 +86,8 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     close:() => engine.close(),
     async handle(method,route,body = {}) {
       if (route === '/tasks' && method === 'GET') return scheduler.overview();
+      if(route==='/project-index' && method==='GET')return projectIndex.scan(root);
+      if(route==='/project-search' && method==='POST')return projectIndex.search(body?.workspace||root,body?.query);
       if (route === '/status' && method === 'GET') {
         const result = engine.checkInstallation ? await engine.checkInstallation() : {installed:await fs.access(engine.executable).then(()=>true,()=>false),version:'unknown'};
         return {...result,taskScheduler:await scheduler.overview(),engine:'Codex CLI (app-server)',bridge:engine.bridgeInfo?.() || {mode:'none',enabled:false},workspace:root,workspaceBase,limits:{promptChars:MAX_PROMPT_CHARS,attachmentBytes:MAX_FILE_BYTES,manualCommandSeconds:30}};

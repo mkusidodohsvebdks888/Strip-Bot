@@ -97,7 +97,7 @@ export function IntegrationsTool(){
     finally{setInspecting(null);}
   };
   const changePermission=async(item:Integration,tool:string,mode:string)=>{
-    try{await request('/api/integrations/permission',{id:item.id,tool,mode});setToolPermissions(current=>({...current,[item.id]:{...(current[item.id]||{}),[tool]:mode}}));setInfo('工具权限已保存；执行器接入前不会自动调用工具。');setError('');}
+    try{await request('/api/integrations/permission',{id:item.id,tool,mode});setToolPermissions(current=>({...current,[item.id]:{...(current[item.id]||{}),[tool]:mode}}));setInfo('工具权限已保存；本地业务工具可在「功能与数据」页面手动调用。');setError('');}
     catch(e){setError(e instanceof Error?e.message:'权限保存失败');}
   };
   const previewApproval=async(item:Integration,tool:string)=>{

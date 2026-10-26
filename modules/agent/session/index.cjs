@@ -143,6 +143,11 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         if(body?.confirmed!==true)throw httpError(400,'需要确认删除快照');
         return removeSnapshot({root,taskID:task.id});
       }
+      const retryTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/retry$/.exec(route);
+      if(retryTask && method==='POST'){
+        const id=await session(retryTask[1]);
+        return scheduler.retryFailed(id,retryTask[2],{confirmed:body?.confirmed});
+      }
       const reviewTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/review$/.exec(route);
       if(reviewTask && method==='POST'){
         const id=await session(reviewTask[1]);

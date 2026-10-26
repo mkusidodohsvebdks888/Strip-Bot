@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import {useEffect,useState,type ReactNode} from 'react';
 import LiquidGlass from '../../../vendor/liquid-glass-react';
 import '../styles/liquid-glass-surface.css';
 
@@ -6,11 +6,26 @@ import '../styles/liquid-glass-surface.css';
  * Active only for the preset glass theme. The actual editor stays outside
  * the third-party canvas/SVG layer to protect typing, focus and popup hitboxes.
  */
+const ACCESSIBILITY_MEDIA=['(prefers-reduced-motion: reduce)','(forced-colors: active)','(prefers-reduced-transparency: reduce)'];
+function visualEffectsAllowed(){
+  if(typeof window==='undefined'||!window.matchMedia)return false;
+  return ACCESSIBILITY_MEDIA.every(query=>!window.matchMedia(query).matches);
+}
 export function GlassComposerSurface({enabled,children}:{
   enabled:boolean;
   children:ReactNode;
 }){
+  const [effectsAllowed,setEffectsAllowed]=useState(visualEffectsAllowed);
+  useEffect(()=>{
+    if(!window.matchMedia)return;
+    const media=ACCESSIBILITY_MEDIA.map(query=>window.matchMedia(query));
+    const update=()=>setEffectsAllowed(visualEffectsAllowed());
+    media.forEach(query=>query.addEventListener?.('change',update));
+    update();
+    return ()=>media.forEach(query=>query.removeEventListener?.('change',update));
+  },[]);
   if(!enabled)return <>{children}</>;
+  if(!effectsAllowed)return <div className="strip-liquid-composer strip-liquid-composer--fallback"><div className="strip-liquid-composer__content">{children}</div></div>;
   return <div className="strip-liquid-composer" data-liquid-glass-surface="rdev">
     <div className="strip-liquid-composer__lens" aria-hidden="true">
       <LiquidGlass

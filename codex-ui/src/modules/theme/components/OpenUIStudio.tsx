@@ -3,6 +3,20 @@ import {applyImportedTheme,clearImportedTheme,hasImportedTheme,parseOpenUITheme}
 import '../styles/openui-studio.css';
 
 type OpenUIStatus={online:boolean;url:string;source:string};
+type Layout='codex'|'compact'|'focus';
+const layoutOptions=[
+ {id:'codex',label:'Codex 标准',detail:'侧栏 · 对话 · 底部输入框'},
+ {id:'compact',label:'紧凑工作台',detail:'窄侧栏 · 双栏工作区'},
+ {id:'focus',label:'专注模式',detail:'隐藏侧栏 · 宽对话区'}
+] as const;
+const TARGETS=['聊天工作区','设置页面','插件页面','项目列表'] as const;
+function buildImplementationPrompt(instruction:string,layout:Layout,target:string,code:string){
+ const palette=parseOpenUITheme(code);
+ return ['请在 StripBot 项目中提出并实现以下 UI 改造（仅在用户明确批准后修改文件）：',
+ '目标模块：'+target,'布局：'+layoutOptions.find(x=>x.id===layout)?.label,
+ '设计需求：'+instruction,'主题变量：',...Object.entries(palette).map(([k,v])=>k+': '+v+';'),
+ '要求：先列出拟修改文件与差异；保持现有功能、审批流程、模型速率拉杆和桌宠逻辑；不执行外部生成的脚本；提供恢复方案。'].join('\n');
+}
 const example=`:root {
   --bg: #f7f9fc;
   --fg: #263044;
@@ -25,6 +39,9 @@ export function OpenUIStudio(){
  const [code,setCode]=useState(example);
  const [instruction,setInstruction]=useState('设计一个 Codex 风格的简洁 AI Agent 工作台，圆角矩形、清晰的信息层级、柔和对比度，保持输入框和工具栏易用。');
  const [preview,setPreview]=useState<Record<string,string>|null>(null);
+ const [layout,setLayout]=useState<Layout>('codex');
+ const [target,setTarget]=useState<string>(TARGETS[0]);
+ const [implementation,setImplementation]=useState('');
  const [message,setMessage]=useState('');
  const [hasCustom,setHasCustom]=useState(hasImportedTheme);
  async function refresh(){
@@ -43,6 +60,7 @@ export function OpenUIStudio(){
    window.addEventListener('strip:openui-theme-changed',sync);
    return ()=>window.removeEventListener('strip:openui-theme-changed',sync);
  },[]);
+ function prepareImplementation(){try{const prompt=buildImplementationPrompt(instruction,layout,target,code);setImplementation(prompt);setMessage('已生成代码改造任务草案；尚未修改任何项目文件。');}catch(error){setMessage(error instanceof Error?error.message:'无法生成任务草案');}}
  function previewColors(){try{setPreview(parseOpenUITheme(code));setMessage('已生成本地颜色预览；未修改当前主题。');}catch(error){setMessage(error instanceof Error?error.message:'预览失败');}}
  function apply(){
    try{
@@ -58,6 +76,7 @@ export function OpenUIStudio(){
    </div>
    <div className="strip-openui-presets"><h3>Codex 风格预设</h3><p className="strip-muted">选择预设后可预览、编辑并确认应用，不会直接覆盖当前主题。</p><div className="strip-openui-preset-grid">{presets.map(item=><button key={item.id} type="button" onClick={()=>{setCode(paletteCss(item.palette));setPreview({...item.palette});setMessage('已选择 '+item.label+'，确认应用前不会修改主题。');}}><span className="strip-openui-preset-swatch" style={{background:item.palette['--bg'],color:item.palette['--fg'],borderColor:item.palette['--accent']}}>Aa <span style={{background:item.palette['--accent']}}/></span><strong>{item.label}</strong><small>{item.description}</small></button>)}</div></div>
    <div className="strip-openui-instructions"><label htmlFor="strip-openui-prompt">界面设计需求</label><textarea id="strip-openui-prompt" rows={3} value={instruction} onChange={event=>setInstruction(event.target.value.slice(0,2000))}/><button type="button" className="strip-btn strip-btn--secondary" onClick={()=>{const prompt=instruction+'\\n请输出 :root CSS 颜色变量，至少包含 --bg、--fg、--accent；仅使用十六进制颜色。';void navigator.clipboard.writeText(prompt).then(()=>setMessage('设计需求已复制，可粘贴到 OpenUI 生成器。')).catch(()=>setMessage('无法复制，请手动复制设计需求。'));}}>复制生成指令</button><p className="strip-muted">生成需要本地 OpenUI 服务及其单独配置的 AI 模型；预设和颜色预览可离线使用。</p></div>
+   <div className="strip-openui-layouts"><h3>工作区布局</h3><div className="strip-openui-layout-grid">{layoutOptions.map(item=><button type="button" key={item.id} aria-pressed={layout===item.id} onClick={()=>setLayout(item.id)}><strong>{item.label}</strong><small>{item.detail}</small></button>)}</div><label>改造目标<select value={target} onChange={event=>setTarget(event.target.value)}>{TARGETS.map(item=><option key={item}>{item}</option>)}</select></label><button className="strip-btn strip-btn--secondary" type="button" onClick={prepareImplementation}>生成 Codex 改造任务</button>{implementation&&<div className="strip-openui-implementation"><label htmlFor="strip-openui-task">待审核的代码修改任务</label><textarea id="strip-openui-task" readOnly rows={9} value={implementation}/><button type="button" className="strip-btn strip-btn--secondary" onClick={()=>{void navigator.clipboard.writeText(implementation).then(()=>setMessage('已复制任务，请在 Codex 会话中审核并执行。')).catch(()=>setMessage('复制失败，请手动复制。'));}}>复制到 Codex 使用</button><p className="strip-muted">不会自动修改源代码。请在 Codex 中先审查变更范围，再明确批准执行。</p></div>}</div>
    <div className="strip-openui-actions">
      <button className="strip-btn strip-btn--secondary" type="button" disabled={!service?.online} onClick={()=>setShowFrame(v=>!v)}>{showFrame?'收起生成器':'打开 OpenUI 生成器'}</button>
      <a className="strip-btn strip-btn--secondary" href="http://127.0.0.1:7878/ai" target="_blank" rel="noopener noreferrer">浏览器打开</a>

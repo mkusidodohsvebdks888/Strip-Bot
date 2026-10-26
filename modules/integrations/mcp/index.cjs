@@ -100,7 +100,7 @@ function createIntegrationRegistry({root}) {
       if(!item)return {id,tool,mode:'deny',allowed:false,reason:'server_missing'};
       if(!item.enabled)return {id,tool,mode:'deny',allowed:false,reason:'server_disabled'};
       const data=await readPermissions();
-      const configured=data[id]&&Object.hasOwn(data[id],tool)?data[id][tool]:'ask';
+      const configured=data[id]&&Object.hasOwn(data[id],tool)?data[id][tool]:data[id]?.['*']||'ask';
       const mode=['allow','ask','deny'].includes(configured)?configured:'deny';
       return {id,tool,mode,allowed:mode==='allow',reason:mode==='deny'?'denied':mode==='ask'?'approval_required':'permitted'};
     },
@@ -174,7 +174,10 @@ function createIntegrationRegistry({root}) {
     }),
     async asMcpServers() {
       const items = await pending.then(read);
-      return Object.fromEntries(items.filter(item=>item.enabled).map(item=>[item.id, item.type==='local'
+      const policies=await readPermissions();
+      // Codex currently has no per-MCP-tool interception in this adapter.
+      // Never expose an entire server unless its explicit wildcard policy permits every tool.
+      return Object.fromEntries(items.filter(item=>item.enabled && policies[item.id]?.['*']==='allow').map(item=>[item.id, item.type==='local'
         ? {type:'local',command:item.command,...(item.cwd?{cwd:item.cwd}:{})}
         : {type:'remote',url:item.url}]));
     },

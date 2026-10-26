@@ -1,6 +1,8 @@
 'use strict';
 if(process.argv.includes('--nono-pet')){
   require(require('node:path').join(process.resourcesPath,'nono-desktop','desktop.cjs'));
+}else if(process.argv.includes(require('node:path').join(process.resourcesPath,'dsh-pet','runtime','electron-helper','main.js'))){
+  require(require('node:path').join(process.resourcesPath,'dsh-pet','runtime','electron-helper','main.js'));
 }else{
 const { app, BrowserWindow, Menu, dialog, shell, ipcMain, nativeTheme } = require('electron');
 const fs = require('node:fs');
@@ -20,6 +22,7 @@ function trace(stage) {
 trace('main-loaded');
 let window;
 let service;
+let updates;
 app.setName('Strip Bot');
 // An explicit acceptance run uses its own profile, leaving the active app alone.
 if (process.env.STRIPBOT_VERIFY_PROFILE) app.setPath('userData',path.resolve(process.env.STRIPBOT_VERIFY_PROFILE));
@@ -62,6 +65,10 @@ async function start() {
   window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   window.webContents.on('page-title-updated', event => { event.preventDefault(); window.setTitle('Strip Bot'); });
   window.once('ready-to-show', () => window.show());
+  const updateSupport=app.isPackaged&&fs.existsSync(path.join(process.resourcesPath,'app-update.yml'));
+  updates=require('./runtime/updates.cjs').createUpdates({app,ipcMain,getWindow:()=>window,baseUrl:BASE_URL,supported:updateSupport,
+    updater:updateSupport?require('electron-updater').autoUpdater:null,
+    beforeInstall:async()=>{await require(path.join(resources,'plugins','deepseek-harness-pet','index.cjs')).stop();}});
   await window.loadURL(BASE_URL);
   trace('window-loaded');
   // Only explicit acceptance runs produce this local evidence file.
@@ -77,7 +84,5 @@ async function start() {
   }
 }
 app.on('window-all-closed', () => { trace('window-all-closed'); app.quit(); });
-app.on('before-quit', () => { void service?.close(); });
+app.on('before-quit', () => { updates?.dispose(); void service?.close(); });
 }
-
-

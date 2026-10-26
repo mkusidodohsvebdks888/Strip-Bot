@@ -1,4 +1,5 @@
 import {ToolsHub} from './components/Sidebar/ToolsHub';
+import {DesktopUpdates} from './components/DesktopUpdates';
 import {BackendProjectsTool} from './components/Sidebar/BackendProjectsTool';
 import {SkillsTool} from './components/Sidebar/SkillsTool';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
@@ -258,6 +259,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
     {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
+    <DesktopUpdates notice busy={conversation.sending||busy||!!snapshot?.manualRunning}/>
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
       onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
     <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)}>
@@ -307,10 +309,3 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     <NotificationHost items={notifications} scope={active}/>
   </div>;
 }
-
-
-
-
-
-
-

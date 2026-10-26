@@ -1,5 +1,4 @@
 import {useLayoutEffect,useState} from 'react';
-import {restoreImportedTheme} from './generated-theme';
 
 export type StripAppearance = 'warm' | 'white' | 'mist' | 'dark' | 'graphite';
 const storageKey = 'strip_appearance_v1';

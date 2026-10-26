@@ -2,7 +2,6 @@ import {parseOpenUITheme} from './generated-theme';
 
 export type LayoutKind='codex'|'compact'|'focus';
 export type GeneratedUI={filename:string;source:string;diff:string;summary:string};
-const safe=(value:string)=>value.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]||char));
 const HEX=/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 export function generateUI({instruction,layout,target,css}:{instruction:string;layout:LayoutKind;target:string;css:string}):GeneratedUI{
  if(!instruction.trim()||instruction.length>2000)throw new Error('设计需求长度必须为 1-2000 字符。');

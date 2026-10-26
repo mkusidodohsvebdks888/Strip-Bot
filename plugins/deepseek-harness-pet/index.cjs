@@ -29,6 +29,7 @@ function resolveScript({env=process.env,baseDir=__dirname}={}){
     return path.resolve(env.DSH_PET_STANDALONE_PATH);
   }
   // Root project source clone / pinned dsh-pet submodule.
+  if(process.resourcesPath){const bundled=path.join(process.resourcesPath,'dsh-pet','lib','standalone.js');if(existsSync(bundled))return bundled;}
   const relative=path.join('桌宠','DeepSeek-Q版-dsh-pet','dsh-pet','lib','standalone.js');
   return findExternal(baseDir,relative)||path.resolve(baseDir,'..','..',relative);
 }
@@ -52,11 +53,13 @@ async function launch({env=process.env,baseDir=__dirname,spawnImpl=spawn}={}){
   const local=await status({env,baseDir});
   if(!local.supported)throw fail('当前平台不支持该桌宠。');
   if(!local.installed)throw fail('尚未构建 Q 版桌宠。请参照 plugins/deepseek-harness-pet/README.md 的安装步骤。',503);
-  const runtime=env.DSH_PET_NODE_BIN||'node';
+  const bundledNode=process.resourcesPath&&path.join(process.resourcesPath,'node','node.exe');
+  const runtime=env.DSH_PET_NODE_BIN||(bundledNode&&existsSync(bundledNode)?bundledNode:'node');
   if(runtime.includes('\n')||runtime.includes('\r'))throw fail('Node.js 启动程序路径无效。');
   const childEnv={...env};
   // Reuse the locally installed Electron runtime instead of downloading one on launch.
   if(!childEnv.DSH_PET_ELECTRON_PATH){
+    if(process.resourcesPath&&existsSync(path.join(process.resourcesPath,'dsh-pet','runtime','electron-helper','main.js')))childEnv.DSH_PET_ELECTRON_PATH=process.execPath;
     const electron=findExternal(path.dirname(local.command),path.join('desktop-app','node_modules','electron','dist',process.platform==='win32'?'electron.exe':'electron'));
     if(electron)childEnv.DSH_PET_ELECTRON_PATH=electron;
   }

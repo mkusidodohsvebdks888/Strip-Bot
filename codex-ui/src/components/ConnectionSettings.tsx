@@ -7,14 +7,16 @@ import {ChatGPTAccount} from './ChatGPTAccount';
 import {modelVendor,modelVendors} from './model-vendors';
 import {discoverModels} from './api-models';
 import {NonoPluginSettings} from './NonoPluginSettings';
+import {DesktopUpdates} from './DesktopUpdates';
 import {SettingsDiagnostics} from './SettingsDiagnostics';
 import type {DiscoveredModel} from './api-models';
 const settingsGroups=[
   {label:'AI 与模型',pages:[{id:'model',label:'模型与厂商'},{id:'api',label:'API 连接'},{id:'models',label:'模型列表'}]},
   {label:'工作区与运行',pages:[{id:'project',label:'项目与目录'},{id:'diagnostics',label:'运行诊断'}]},
-  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'页面背景'},{id:'nono',label:'桌面宠物'}]}
+  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'页面背景'},{id:'nono',label:'桌面宠物'},{id:'updates',label:'软件更新'}]}
 ] as const;
-const settingsPages=settingsGroups.flatMap(group=>group.pages);
+type SettingsEntry=typeof settingsGroups[number]['pages'][number];
+const settingsPages=settingsGroups.flatMap<SettingsEntry>(group=>group.pages);
 type SettingsPage=typeof settingsPages[number]['id'];
 const pageKey='strip_settings_page_v1';
 function storedPage():SettingsPage {try{const value=localStorage.getItem(pageKey);return settingsPages.find(item=>item.id===value)?.id || 'model';}catch{return 'model';}}
@@ -22,7 +24,6 @@ type ApiConfig={baseUrl:string;model:string;protocol:string;hasKey:boolean;confi
 export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,metrics,mode,onMode,onBack,onSaved,busy,account,nativeModel,onNativeModel,workspace,workspaceLocked,onWorkspace}:{pageRequest?:{page:'project'};appearanceSettings?:ReactNode;displayRate:{rate:number|null;commit:(value:number|null)=>void;error:string};metrics?:ModelMetrics|null;workspace:string;workspaceLocked:boolean;onWorkspace:(value:string)=>void;account:{connected:boolean;models:{id:string;name:string}[];attempt?:{status:string}};nativeModel:string;onNativeModel:(value:string)=>void;mode:ConnectionMode;onMode:(value:ConnectionMode)=>void;onBack:()=>void;onSaved:()=>void;busy:boolean}){
   const [page,setPage]=useState<SettingsPage>(storedPage);
   const pageId=useId();
-  const [confirmClear,setConfirmClear]=useState(false);
   useEffect(()=>{if(pageRequest)changePage(pageRequest.page);},[pageRequest]);
   function changePage(value:SettingsPage){setPage(value);try{localStorage.setItem(pageKey,value);}catch{/* Tabs still work when storage is blocked. */}}
   const panelProps=(value:SettingsPage)=>({role:'tabpanel' as const,id:pageId+'-'+value,'aria-labelledby':pageId+'-tab-'+value,hidden:page!==value,tabIndex:0});
@@ -129,6 +130,7 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
     <div className="strip-settings-page" {...panelProps('diagnostics')}><SettingsDiagnostics mode={mode} workspace={workspace} configured={config.configured} hasKey={config.hasKey} model={config.model} onRefresh={onSaved}/></div>
     <div className="strip-settings-page" {...panelProps('appearance')}>{appearanceSettings || <p className="strip-muted">当前环境未提供外观设置。</p>}</div>
     {page==='nono' && <div className="strip-settings-page" {...panelProps('nono')}><NonoPluginSettings/></div>}
+    {page==='updates' && <div className="strip-settings-page" {...panelProps('updates')}><DesktopUpdates busy={busy}/></div>}
     {feedback && <div className="strip-connection-feedback" role="status">{feedback}<button type="button" aria-label="关闭连接提示" onClick={()=>setFeedback('')}><ControlIcon name="close" size={16}/></button></div>}
     <p className="strip-muted">切换连接后使用新对话；旧会话记录和工具审批保持保留。</p>
   </div>;

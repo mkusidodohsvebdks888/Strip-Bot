@@ -1,15 +1,22 @@
 {
   "name": "strip-bot-desktop",
   "productName": "Strip Bot",
-  "version": "1.0.1",
+  "description": "Strip Bot Windows AI workspace and desktop companion",
+  "author": "Strip Bot",
+  "version": "1.0.3",
   "private": true,
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "package": "node build.cjs"
+    "package": "node build.cjs",
+    "installer": "node installer.cjs"
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
-    "electron": "^44.7.0"
+    "electron": "^44.7.0",
+    "electron-builder": "26.18.0"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11"
   }
 }

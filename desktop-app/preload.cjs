@@ -1,6 +1,13 @@
 'use strict';
 const { ipcRenderer, contextBridge, webUtils } = require('electron');
 const storage = ipcRenderer.sendSync('stripbot-initial-storage');
+contextBridge.exposeInMainWorld('stripUpdates',Object.freeze({
+  status:()=>ipcRenderer.invoke('stripbot:update-status'),
+  check:()=>ipcRenderer.invoke('stripbot:update-check'),
+  download:()=>ipcRenderer.invoke('stripbot:update-download'),
+  install:()=>ipcRenderer.invoke('stripbot:update-install'),
+  onStatus(listener){const handler=(_event,state)=>listener(state);ipcRenderer.on('stripbot:update-status',handler);return ()=>ipcRenderer.removeListener('stripbot:update-status',handler);}
+}));
 // Seed only a fresh desktop profile. Never overwrite the user's desktop data.
 try {
   if (!localStorage.getItem('lucent_conversations_v1') && storage && typeof storage === 'object') {

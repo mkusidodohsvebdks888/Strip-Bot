@@ -1,0 +1,5 @@
+.strip-update-notice{position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(380px,calc(100vw - 48px));padding:18px;border:1px solid var(--border-10);border-radius:14px;background:var(--card-bg);color:var(--fg);box-shadow:0 8px 28px #0002;font-size:13px}
+.strip-update-notice h2{font-size:15px;margin:0 0 8px}
+.strip-update-notice p{line-height:1.6;margin:6px 0}
+.strip-update-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.strip-update-notice progress{width:100%}

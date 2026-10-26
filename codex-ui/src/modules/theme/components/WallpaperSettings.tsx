@@ -12,12 +12,13 @@ export function WallpaperSettings({theme,onThemeChange,wallpaper:w,children}:{th
   const choose=()=>input.current?.click();
   return <section className="strip-connection-card strip-appearance-settings strip-wallpaper-settings" aria-label="外观设置">
     <h2>外观主题</h2><p>点击立即切换，自动记住你的选择。图片仅保存到本机。</p>
-    <ThemePicker theme={theme} wallpaperActive={active} onChange={value=>{clearImportedTheme();w.disableWallpaper();onThemeChange(value);}} customControl={
+    <ThemePicker theme={theme} wallpaperActive={active} onChange={value=>{clearImportedTheme();w.disableWallpaper();w.disableFluidGlass();onThemeChange(value);}} customControl={
       <button type="button" className="strip-theme-choice strip-theme-custom" aria-pressed={active} disabled={w.busy || w.wallpaperLoading} onClick={()=>w.wallpaper?w.enableWallpaper():choose()}>
         <span className="strip-theme-choice__preview" aria-hidden="true">{w.wallpaper?<img src={w.wallpaper.url} alt=""/>:<span>＋ 选择图片</span>}</span>
         <span className="strip-theme-choice__label"><strong>自定义图片</strong><span className="strip-theme-choice__tick" aria-hidden="true">{active?'✓':''}</span></span>
       </button>
     }/>
+    <div className="strip-fluid-glass-option"><button type="button" className="strip-fluid-glass-option__button" aria-pressed={w.fluidGlassEnabled} onClick={w.fluidGlassEnabled?w.disableFluidGlass:w.enableFluidGlass}><span className="strip-fluid-glass-option__preview" aria-hidden="true"/><span><strong>流体毛玻璃</strong><small>柔和渐变 · 流动光晕 · 玻璃质感</small></span><span aria-hidden="true">{w.fluidGlassEnabled?'✓':'启用'}</span></button></div>
     <input ref={input} type="file" hidden accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp" aria-label="选择本地背景图片" disabled={w.busy || w.wallpaperLoading} onChange={event=>{const file=event.target.files?.[0];event.target.value='';if(file)void w.uploadWallpaper(file);}}/>
     {w.wallpaper?<div className="strip-wallpaper-editor">
       <p className="strip-wallpaper-filename">{w.wallpaper.name} · {w.wallpaper.width} × {w.wallpaper.height}</p>

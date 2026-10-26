@@ -17,6 +17,9 @@ on:
       - 'codex-ui/src/components/Sidebar/GithubToolsTool.tsx'
       - 'codex-ui/src/styles/left-tool-workspace.css'
       - 'test/ui-simplification.test.js'
+      - 'test/window-frame.test.js'
+      - 'codex-ui/src/components/Window/**'
+      - 'codex-ui/src/styles/codex-reference-layout.css'
       - 'codex-ui/src/App.tsx'
       - 'codex-ui/src/components/ui/StripButton.tsx'
       - 'codex-ui/src/components/ui/StripIconButton.tsx'
@@ -52,6 +55,9 @@ on:
       - 'codex-ui/src/components/Sidebar/GithubToolsTool.tsx'
       - 'codex-ui/src/styles/left-tool-workspace.css'
       - 'test/ui-simplification.test.js'
+      - 'test/window-frame.test.js'
+      - 'codex-ui/src/components/Window/**'
+      - 'codex-ui/src/styles/codex-reference-layout.css'
       - 'codex-ui/src/App.tsx'
       - 'codex-ui/src/components/ui/StripButton.tsx'
       - 'codex-ui/src/components/ui/StripIconButton.tsx'
@@ -79,7 +85,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test cloud MCP server and client
-        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js test/api-avatar-dicebear.test.js test/ui-simplification.test.js
+        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js test/api-avatar-dicebear.test.js test/ui-simplification.test.js test/window-frame.test.js
   cloud-ui-typecheck:
     runs-on: ubuntu-latest
     defaults:

@@ -88,6 +88,8 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
       if (route === '/tasks' && method === 'GET') return scheduler.overview();
       if(route==='/project-index' && method==='GET')return projectIndex.scan(root);
       if(route==='/project-search' && method==='POST')return projectIndex.search(root,body?.query);
+      if(route==='/project-content-search' && method==='POST')return projectIndex.searchContent(root,body?.query);
+      if(route==='/project-index/refresh' && method==='POST')return projectIndex.scan(root,{refresh:true});
       if (route === '/status' && method === 'GET') {
         const result = engine.checkInstallation ? await engine.checkInstallation() : {installed:await fs.access(engine.executable).then(()=>true,()=>false),version:'unknown'};
         return {...result,taskScheduler:await scheduler.overview(),engine:'Codex CLI (app-server)',bridge:engine.bridgeInfo?.() || {mode:'none',enabled:false},workspace:root,workspaceBase,limits:{promptChars:MAX_PROMPT_CHARS,attachmentBytes:MAX_FILE_BYTES,manualCommandSeconds:30}};

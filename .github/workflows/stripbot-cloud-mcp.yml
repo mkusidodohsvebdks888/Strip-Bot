@@ -11,6 +11,12 @@ on:
       - 'codex-ui/src/components/Sidebar/BuiltinPluginsTool.tsx'
       - 'codex-ui/src/components/Sidebar/MarketplaceTool.tsx'
       - 'codex-ui/src/components/Sidebar/ToolsHub.tsx'
+      - 'codex-ui/src/components/Sidebar/ToolWorkspace.tsx'
+      - 'codex-ui/src/components/Sidebar/ChatHistory.tsx'
+      - 'codex-ui/src/components/Sidebar/chat-history.css'
+      - 'codex-ui/src/components/Sidebar/GithubToolsTool.tsx'
+      - 'codex-ui/src/styles/left-tool-workspace.css'
+      - 'test/ui-simplification.test.js'
       - 'codex-ui/src/App.tsx'
       - 'codex-ui/src/components/ui/StripButton.tsx'
       - 'codex-ui/src/components/ui/StripIconButton.tsx'
@@ -40,6 +46,12 @@ on:
       - 'codex-ui/src/components/Sidebar/BuiltinPluginsTool.tsx'
       - 'codex-ui/src/components/Sidebar/MarketplaceTool.tsx'
       - 'codex-ui/src/components/Sidebar/ToolsHub.tsx'
+      - 'codex-ui/src/components/Sidebar/ToolWorkspace.tsx'
+      - 'codex-ui/src/components/Sidebar/ChatHistory.tsx'
+      - 'codex-ui/src/components/Sidebar/chat-history.css'
+      - 'codex-ui/src/components/Sidebar/GithubToolsTool.tsx'
+      - 'codex-ui/src/styles/left-tool-workspace.css'
+      - 'test/ui-simplification.test.js'
       - 'codex-ui/src/App.tsx'
       - 'codex-ui/src/components/ui/StripButton.tsx'
       - 'codex-ui/src/components/ui/StripIconButton.tsx'
@@ -67,7 +79,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test cloud MCP server and client
-        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js test/api-avatar-dicebear.test.js
+        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js test/api-avatar-dicebear.test.js test/ui-simplification.test.js
   cloud-ui-typecheck:
     runs-on: ubuntu-latest
     defaults:

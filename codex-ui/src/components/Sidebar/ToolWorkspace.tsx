@@ -4,12 +4,11 @@ import {StripIconButton} from '../ui/StripIconButton';
 
 export type ToolView = 'history' | 'activity' | 'backend' | 'astrbot' | 'skills' | 'github-tools' | 'integrations' | 'plugins';
 
+// Left rail shows only the essential entry points; hidden modules retain
+// their source code and API data, so UI clean-up never deletes user projects.
 const toolDefinitions:{id:ToolView;name:string;icon:string}[] = [
   {id:'history',name:'聊天记录',icon:'chat-soft'},
-  {id:'activity',name:'执行记录与输出',icon:'terminal-soft'},
-  {id:'backend',name:'本地后端',icon:'server'},
-  {id:'skills',name:'Skills 技能',icon:'blocks'},
-  {id:'plugins',name:'工具与插件',icon:'package'},
+  {id:'plugins',name:'插件',icon:'package'},
 ];
 export const toolTitle = (view:ToolView) => toolDefinitions.find(item=>item.id===view)?.name || '工具';
 
@@ -39,7 +38,7 @@ export function ToolRail({active,opened,settings,busy,onTool,onNew,onSearch,onAt
 export function ToolPanel({active,opened,onClose,children}:{active:ToolView;opened:boolean;onClose:()=>void;children:ReactNode}){
   return <aside id="strip-tool-panel" className={'strip-tool-panel'+(active==='plugins'?' strip-tool-panel--plugins':'')+(opened?' strip-sidebar-open':'')} aria-label={toolTitle(active)} aria-hidden={!opened} hidden={!opened}>
     <header className="strip-tool-panel__header strip-drag">
-      <div className="strip-tool-panel__brand"><span className="strip-tool-panel__eyebrow">STRIP BOT / 工作区</span><strong>{toolTitle(active)}</strong></div>
+      <span className="strip-tool-panel__sr-title">{toolTitle(active)}</span>
       <StripIconButton className="strip-tool-panel__close" title="收起面板 (Ctrl+B)" label="收起工具面板" icon="panel-left" onClick={onClose}/>
     </header>
     <div className={'strip-tool-panel__body'+(active==='history'?' is-history':'')}>

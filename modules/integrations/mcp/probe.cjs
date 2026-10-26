@@ -19,9 +19,10 @@ async function readLimited(response){
 }
 async function probeRemote(item,{timeoutMs=6000}={}){
   if(!item||item.type!=='remote')throw httpError(400,'当前仅支持 HTTP MCP 连接测试');
-  const target=new URL(item.url);
+  let target;
+  try{target=new URL(item.url);}catch{throw httpError(400,'无效的 MCP 地址');}
   if(!['localhost','127.0.0.1','[::1]'].includes(target.hostname.toLowerCase()))throw httpError(400,'当前仅允许测试本机 MCP 地址，避免访问内网或不可信远程服务');
-  if(!['http:','https:'].includes(target.protocol)||target.username||target.password)throw httpError(400,'无效的 MCP 地址');
+  if(!['http:','https:'].includes(target.protocol)||target.username||target.password||target.hash)throw httpError(400,'无效的 MCP 地址');
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
@@ -39,7 +40,7 @@ async function probeRemote(item,{timeoutMs=6000}={}){
       : body;
     let parsed;
     try{parsed=JSON.parse(candidate||'');}catch{throw httpError(502,'MCP 初始化响应不是有效 JSON-RPC');}
-    if(parsed.jsonrpc!=='2.0'||!parsed.result||!parsed.result.protocolVersion)throw httpError(502,'MCP 初始化响应缺少协议版本');
+    if(parsed.jsonrpc!=='2.0'||parsed.id!==1||!parsed.result||typeof parsed.result.protocolVersion!=='string')throw httpError(502,'MCP 初始化响应缺少协议版本');
     return {connected:true,protocolVersion:String(parsed.result.protocolVersion),serverInfo:parsed.result.serverInfo||null,tools:null,message:'MCP 初始化握手成功；尚未执行工具发现'};
   }catch(error){
     if(controller.signal.aborted)throw httpError(504,'MCP 连接超时');

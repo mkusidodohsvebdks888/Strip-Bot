@@ -6,6 +6,26 @@ const DRAFTS=new Map();
 const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 const allowed=/^codex-ui\/src\/generated-ui\/[A-Za-z][A-Za-z0-9]{0,75}Preview\.tsx$/;
 const HISTORY=new Map();
+const historyDirectory=workspace=>path.join(workspace,'.stripbot','ui-generation-history');
+async function saveHistory(entry,undo){
+ const directory=historyDirectory(entry.workspace);
+ await fs.mkdir(directory,{recursive:true,mode:0o700});
+ const filename=path.join(directory,undo+'.json');
+ await fs.writeFile(filename,JSON.stringify(entry),{flag:'wx',mode:0o600});
+}
+async function loadHistory(workspace,undo){
+ if(typeof undo!=='string'||!/^uir_[a-f0-9]{24}$/.test(undo))throw Object.assign(new Error('无效的恢复标识'),{status:400});
+ const base=await fs.realpath(workspace);
+ const memory=HISTORY.get(undo);
+ if(memory&&memory.workspace===base)return memory;
+ const file=path.join(historyDirectory(base),undo+'.json');
+ const stat=await fs.lstat(file).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
+ if(!stat||!stat.isFile()||stat.size>250000)throw Object.assign(new Error('恢复记录不存在或不安全'),{status:404});
+ const entry=JSON.parse(await fs.readFile(file,'utf8'));
+ if(entry.workspace!==base||!allowed.test(entry.filename)||typeof entry.appliedHash!=='string'||(entry.previous!==null&&typeof entry.previous!=='string'))throw Object.assign(new Error('恢复记录校验失败'),{status:409});
+ return entry;
+}
+
 function syntaxCheck(workspace,source){
  let ts;
  try{ts=require(require.resolve('typescript',{paths:[path.join(workspace,'codex-ui')]}));}
@@ -77,13 +97,15 @@ async function apply({workspace,id,hash,confirmed}){
  if(actual===null){const handle=await fs.open(target,'wx',0o600);try{await handle.writeFile(item.source,'utf8');}finally{await handle.close();}}
  else{const temporary=target+'.'+crypto.randomBytes(8).toString('hex')+'.tmp';const handle=await fs.open(temporary,'wx',0o600);try{await handle.writeFile(item.source,'utf8');}finally{await handle.close();}try{await fs.rename(temporary,target);}catch(error){await fs.unlink(temporary).catch(()=>{});throw error;}}
  const undo='uir_'+crypto.randomBytes(12).toString('hex');
- HISTORY.set(undo,{workspace:item.workspace,filename:item.filename,previous:item.previous,appliedHash:item.hash,at:Date.now()});
+ const entry={workspace:item.workspace,filename:item.filename,previous:item.previous,appliedHash:item.hash,at:Date.now()};
+ await saveHistory(entry,undo);
+ HISTORY.set(undo,entry);
  DRAFTS.delete(id);
  return {ok:true,filename:item.filename,hash:item.hash,undo};
 }
 async function rollback({workspace,undo,confirmed}){
  if(confirmed!==true)throw Object.assign(new Error('需要明确确认恢复'),{status:400});
- const entry=HISTORY.get(undo);
+ const entry=await loadHistory(workspace,undo);
  if(!entry||entry.workspace!==await fs.realpath(workspace))throw Object.assign(new Error('恢复记录不存在或已失效'),{status:404});
  const target=path.resolve(entry.workspace,...entry.filename.split('/'));
  let current=entry.workspace;
@@ -92,6 +114,8 @@ async function rollback({workspace,undo,confirmed}){
  if(!stat.isFile()||sha(await fs.readFile(target,'utf8'))!==entry.appliedHash)throw Object.assign(new Error('文件已经被其他操作修改，拒绝恢复'),{status:409});
  if(entry.previous===null)await fs.unlink(target);
  else await fs.writeFile(target,entry.previous,{flag:'w'});
- HISTORY.delete(undo);return {ok:true,filename:entry.filename};
+ HISTORY.delete(undo);
+ await fs.unlink(path.join(historyDirectory(entry.workspace),undo+'.json')).catch(error=>{if(error.code!=='ENOENT')throw error;});
+ return {ok:true,filename:entry.filename};
 }
 module.exports={propose,apply,rollback};

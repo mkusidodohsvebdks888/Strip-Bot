@@ -23,9 +23,8 @@ import {ToolRail,ToolPanel} from './components/Sidebar/ToolWorkspace';
 import type {ToolView} from './components/Sidebar/ToolWorkspace';
 import {MarkdownReply} from './components/MessageThread/MarkdownReply';
 import type {Snapshot} from './components/AgentPanel';
-import {WallpaperSettings,OpenUIStudio,useWallpaper,useAppearance,baseAppearance,type AppTheme,type StripAppearance} from './modules/theme';
+import {WallpaperSettings,useWallpaper,useAppearance,baseAppearance,type AppTheme,type StripAppearance} from './modules/theme';
 
-import type {CSSProperties} from 'react';
 
 
 import {useSidebar} from './state/useSidebar';
@@ -56,7 +55,6 @@ import './styles/codex-composer-refresh.css';
 import './styles/composer-layout-fix.css';
 import './styles/agent-buttons.css';
 import './styles/claude-codex-composer.css';
-import './modules/theme/styles/wallpaper.css';
 import './modules/theme/styles/fluid-glass.css';
 import './styles/api-entry-merged.css';
 import './styles/home-motion.css';
@@ -102,8 +100,6 @@ export default function App(){
 }
 function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appearance}:{onDisconnected:()=>void;appearance:StripAppearance;initialSettings:boolean;theme:AppTheme;onThemeChange:(theme:StripAppearance)=>void}) {
   const wallpaper=useWallpaper();
-  const showWallpaper=wallpaper.wallpaperEnabled && Boolean(wallpaper.wallpaper);
-  const wallpaperStyle={'--wallpaper-opacity':String(wallpaper.opacity/100),'--wallpaper-fade':`${wallpaper.softness*.45}%`} as CSSProperties;
   const [settingsView,setSettingsView] = useState(initialSettings);
   const [settingsPageRequest,setSettingsPageRequest]=useState<{page:'project'}>();
   const connection=useConnection();
@@ -257,10 +253,9 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   if(modelChanged) notifications.push({id:'model-changed',title:'模型已变化',message:'此会话保留原模型，请新建对话继续。',action:<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>conversation.newConversation(draft)}>保留输入并新建对话</button>});
   if(blockedReason && !modelError && !modelChanged && !modelsLoading && !conversation.loading && !waiting) notifications.push({id:'blocked',title:'消息提示',message:blockedReason,action:!selectedModel?<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>:<button className="strip-btn strip-btn--secondary strip-btn--sm" onClick={openSettings}>打开设置</button>});
   if(notice) notifications.push({id:'composer-'+noticeRevision,title:'消息提示',message:notice});
-  return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-wallpaper={showWallpaper} data-fluid-glass={wallpaper.fluidGlassEnabled} style={wallpaperStyle}>
+  return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-fluid-glass={wallpaper.fluidGlassEnabled}>
     <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
     {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
-    {showWallpaper && <div className="strip-wallpaper-layer" data-fit={wallpaper.fit} aria-hidden="true"><img src={wallpaper.wallpaper!.url} alt="" draggable={false}/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
       onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
@@ -283,7 +278,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
       </div>}
     </ToolPanel>
     {parallelOpen && <dialog open aria-label="并行新任务" className="strip-task-dialog"><form onSubmit={event=>{event.preventDefault();void launchParallel();}}><h2>并行新任务</h2><p>在独立会话中执行，最多同时运行 3 个任务。相同或嵌套目录会自动排队。</p><label>项目目录<input autoFocus required value={parallelPath} onChange={event=>setParallelPath(event.target.value)} placeholder="填写已授权的项目目录"/></label><label>任务指令<textarea required rows={4} value={parallelPrompt} onChange={event=>setParallelPrompt(event.target.value)}/></label><div><button type="button" disabled={parallelSending} onClick={()=>setParallelOpen(false)}>取消</button><button type="submit" disabled={parallelSending||!parallelPath.trim()||!parallelPrompt.trim()}>{parallelSending?'提交中…':'创建任务'}</button></div></form></dialog>}
-    <main className={shell.main+' strip-wallpaper-main'}>{settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<><OpenUIStudio sessionID={active.startsWith('ses_')?active:undefined} onGenerateWithAgent={async prompt=>{if(busy||conversation.loading||conversation.sending||blocked)throw new Error('当前 Agent 不可用或仍有任务运行，请稍后重试。');setSettingsView(false);setActiveTool('history');await conversation.send(prompt,[]);}} onSendToAgent={prompt=>{conversation.setDraft(prompt);setSettingsView(false);setActiveTool('history');requestAnimationFrame(()=>composerRef.current?.focus());}}/><details className="strip-theme-legacy"><summary>原有主题和背景图片设置</summary><WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/></details></>} displayRate={displayRate} metrics={snapshot?.metrics} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
+    <main className={shell.main+' strip-wallpaper-main'}>{settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} displayRate={displayRate} metrics={snapshot?.metrics} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
       <div className="strip-thread strip-unified-thread" ref={scroll}>
         {!messages.length && !legacyContext?.messages.length && !conversation.loading && <HomeWelcome inputActivity={homeInputActivity}/>}
         <div className="strip-messages strip-chat--codex strip-stream">

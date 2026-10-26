@@ -6,11 +6,13 @@ on:
     paths:
       - 'codex-ui/**'
       - 'modules/agent/ui-generation/**'
+      - 'test/command-timeline.test.js'
       - '.github/workflows/stripbot-ui-build.yml'
   pull_request:
     paths:
       - 'codex-ui/**'
       - 'modules/agent/ui-generation/**'
+      - 'test/command-timeline.test.js'
       - '.github/workflows/stripbot-ui-build.yml'
   workflow_dispatch:
 
@@ -44,6 +46,8 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: TypeScript type check
         run: npm run typecheck
+      - name: Verify command timeline grouping and failure retention
+        run: node --test ../test/command-timeline.test.js
       - name: Vite production build
         run: npm run build
       - name: Upload build output

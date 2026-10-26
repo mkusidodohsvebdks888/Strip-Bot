@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: stripbot-mcp-readonly
+    runtime: docker
+    dockerfilePath: ./deploy/mcp-server/Dockerfile
+    dockerContext: ./deploy/mcp-server
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MCP_ACCESS_TOKEN
+        generateValue: true
+      - key: PORT
+        value: "8080"

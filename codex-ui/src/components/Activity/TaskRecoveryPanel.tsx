@@ -38,6 +38,16 @@ export function TaskRecoveryPanel({sessionID,tasks,onError}:Props){
     }catch(error){onError(error instanceof Error?error.message:String(error));}
     finally{setBusy(false);}
   }
+  async function reviewTask(taskID:string,verified:boolean){
+    const note=window.prompt(verified?'填写验证说明（可留空）':'填写未通过原因（可留空）','');
+    if(note===null)return;
+    setBusy(true);
+    try{
+      await request('/sessions/'+sessionID+'/tasks/'+taskID+'/review',{verified,note});
+      onError(verified?'已标记人工验证通过。':'已标记需要进一步处理。');
+    }catch(error){onError(error instanceof Error?error.message:String(error));}
+    finally{setBusy(false);}
+  }
   async function restoreSelected(){
     if(!diff||busy||!selectedFiles.length)return;
     const files=diff.changes.filter(change=>selectedFiles.includes(change.path)).map(change=>({filePath:change.path,expectedHash:change.afterHash}));
@@ -58,6 +68,7 @@ export function TaskRecoveryPanel({sessionID,tasks,onError}:Props){
     {busy&&<p role="status">正在处理…</p>}
     {diff&&<div className="strip-task-recovery__changes"><p>已检查 {diff.checked} 个快照文件；发现 {diff.changes.length} 项变化。</p>
       {!diff.changes.length&&<p>快照文件没有变化，或其他新增文件不在快照范围内。</p>}
+      <div className="strip-task-recovery__bulk"><button type="button" disabled={busy} onClick={()=>void reviewTask(diff.taskID,true)}>标记验证通过</button><button type="button" disabled={busy} onClick={()=>void reviewTask(diff.taskID,false)}>需要进一步处理</button></div>
       <div className="strip-task-recovery__bulk"><span>已选 {selectedFiles.length} 项</span><button type="button" disabled={busy||!selectedFiles.length} onClick={()=>void restoreSelected()}>恢复所选文件</button></div>
       {diff.changes.map(change=><div className="strip-task-recovery__file" key={change.path}><input type="checkbox" aria-label={'选择恢复 '+change.path} checked={selectedFiles.includes(change.path)} disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onChange={event=>setSelectedFiles(previous=>event.target.checked?[...previous,change.path]:previous.filter(name=>name!==change.path))}/><code title={change.path}>{change.path}</code><span>{change.status}</span><button type="button" disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onClick={()=>void restore(change)}>恢复文件</button></div>)}
     </div>}

@@ -119,3 +119,10 @@ html[data-strip-palette] .strip-app .strip-action-control.codex-ui-button[data-t
 .strip-app .codex-ui-composer-dock__surface{min-width:0;width:100%;position:relative}
 @media(max-width:650px){.strip-app .codex-ui-agent-message[data-role="user"]>.codex-ui-agent-message__content{max-width:94%}.strip-app .codex-ui-button{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.strip-app .codex-ui-button,.strip-app .codex-ui-activity__button-chevron{transition:none}.strip-app .codex-ui-button__spinner,.strip-app .codex-ui-status-indicator[data-status="running"]{animation:none}}
+
+
+/* Existing StripBot rail and popover geometry must survive the icon replacement. */
+.strip-app .codex-ui-icon-button.strip-tool-btn{width:38px;height:38px;padding:0;border-radius:10px;color:var(--muted)}
+.strip-app .codex-ui-icon-button.strip-tool-btn.is-active{background:var(--surface-2);border-color:var(--border-09);color:var(--fg)}
+.strip-app .codex-ui-icon-button.strip-tool-btn--brand{margin-bottom:5px;color:var(--fg)}
+.strip-app .codex-ui-icon-button.strip-tool-panel__close{width:29px;height:29px;padding:0;border-radius:8px}

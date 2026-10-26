@@ -91,7 +91,8 @@ function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bo
     void save().catch(logger);
     const launch=(async()=>{
       try{
-        await onBeforeStart(task);
+        const preflight=await onBeforeStart(task);
+        if(preflight){task.preflight=preflight;await save();}
         if(active.get(task.sessionID)!==task.id || task.status!=='running')return;
         await getEngine().request('/api/session/'+task.sessionID+'/prompt',{text:makePrompt(task)});
         // turn/start is non-blocking; only turn/completed releases this slot.

@@ -1,4 +1,8 @@
 import {ToolsHub} from './components/Sidebar/ToolsHub';
+import {BackendProjectsTool} from './components/Sidebar/BackendProjectsTool';
+import {SkillsTool} from './components/Sidebar/SkillsTool';
+import {Icon} from './Icons';
+import {TopCommandBar} from './components/Window/TopCommandBar';
 import {DesktopUpdates} from './components/DesktopUpdates';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
 import {useManualCommands} from './state/useManualCommands';
@@ -76,6 +80,7 @@ import './modules/theme/styles/window-frame.css';
 // Global Codex-inspired control polish; rate sliders remain untouched.
 import './styles/codex-global-controls.css';
 import './vendor/codex-ui-kit/kit-theme.css';
+import './styles/codex-reference-layout.css';
 
 // OpenCode may return the same reply both on the message and in text parts.
 // Prefer parts when available to avoid displaying an entire reply twice.
@@ -159,6 +164,10 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   const model = active.startsWith('ses_') ? snapshot?.model?.id || '读取会话模型…' : selectedModel;
   const models=active.startsWith('ses_') ? [{value:model,label:model,description:'会话已绑定模型'}]: [{value:routeModel,label:routeModel || '等待模型',description:connection.mode==='opencode'?'Codex CLI · OpenAI':connection.mode==='direct'?'当前 API 连接':'自动跟随 CC Switch · Codex 路由'}];
   const entries=[...conversation.sessions.map(s=>({id:s.id,title:s.title,description:conversation.overview.runningSessions.includes(s.id)?'执行中':conversation.overview.pausedSessions.includes(s.id)?'队列已暂停':'对话 · 编程',updatedAt:s.updatedAt || 0,workspace:s.workspace || ''})),...conversation.legacyChats.filter(c=>!conversation.sessions.some(s=>s.legacyId===c.id)).map(c=>({id:'legacy:'+c.id,title:c.title,description:'历史对话',updatedAt:c.updatedAt,workspace:''}))].sort((a,b)=>b.updatedAt-a.updatedAt);
+  const entryIndex=entries.findIndex(entry=>entry.id===active);
+  const previousEntry=entryIndex>0?entries[entryIndex-1]:undefined;
+  const nextEntry=entryIndex>=0?entries[entryIndex+1]:undefined;
+  const activeTitle=entries.find(entry=>entry.id===active)?.title || '新聊天';
   const messages=[...(snapshot?.messages || [])].reverse().filter(m=>m.type==='user' || m.type==='assistant' || m.error);
   const lastTurnUserIndex=messages.map(message=>message.type).lastIndexOf('user');
   const lastTurnAssistantIndex=messages.map(message=>message.type).lastIndexOf('assistant');
@@ -198,7 +207,17 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   const waiting = Boolean(snapshot?.permissions.length || snapshot?.forms.length);
   const blockedReason = (commands.running || snapshot?.manualRunning) ? '手动命令正在运行，请结束后再发送。':modelChanged ? '连接或模型已变化，请保留输入并新建对话。':conversation.loading ? '正在读取会话，请稍候。':waiting ? '请先处理对话中的审批或问题。':!workspace ? '请填写有效的项目目录。':modelsLoading ? '正在加载模型，请稍候。':modelError ? modelError:!active.startsWith('ses_') && !selectedModel ? '未读取到模型，请先配置模型连接。':'';
   const blocked = Boolean(blockedReason);
-  function newChat(){commands.close();displayRun.current=null;stopTarget.current=null;setAbortedMessages(new Set());conversation.newConversation();setSettingsView(false);setActiveTool('history');if(window.innerWidth<=900)setPanelOpen(false);requestAnimationFrame(()=>composerRef.current?.focus());}
+  function newChat(){if(conversation.sending||conversation.loading||conversation.removing)return;commands.close();displayRun.current=null;stopTarget.current=null;setAbortedMessages(new Set());conversation.newConversation();setSettingsView(false);setActiveTool('history');if(window.innerWidth<=900)setPanelOpen(false);requestAnimationFrame(()=>composerRef.current?.focus());}
+  useEffect(()=>{
+    const onShortcut=(event:KeyboardEvent)=>{
+      if(event.defaultPrevented||event.repeat||event.isComposing||event.altKey||event.shiftKey)return;
+      if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='n'){
+        event.preventDefault();newChat();
+      }
+    };
+    window.addEventListener('keydown',onShortcut);
+    return()=>window.removeEventListener('keydown',onShortcut);
+  });
   function openTool(view:ToolView){commands.close();
     setSettingsView(false);
     setActiveTool(view);
@@ -208,7 +227,10 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   function openProject(path:string){if(conversation.sending || conversation.removing || conversation.loading)return;conversation.setWorkspace(path);newChat();}
   function openProjectSettings(){commands.close();setSettingsPageRequest({page:'project'});setSettingsView(true);if(window.innerWidth<=900)setPanelOpen(false);}
   function openSettings(){commands.close();setSettingsPageRequest(undefined);setSettingsView(true);if(window.innerWidth<=900)setPanelOpen(false);}
-  function addAttachment(){if(settingsView){setSettingsView(false);showNotice('已返回对话，点击左侧添加附件按钮选择文件。');return;}composerRef.current?.openFilePicker();}
+  function addAttachment(){if(settingsView){setSettingsView(false);requestAnimationFrame(()=>composerRef.current?.openFilePicker());return;}composerRef.current?.openFilePicker();}
+  function showSidebarTool(view:ToolView){commands.close();setSettingsView(false);setActiveTool(view);setPanelOpen(true);}
+  function requestSearch(){window.dispatchEvent(new Event('stripbot:open-search'));}
+  function toggleSidebar(){if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}
   function applyModel(mode:typeof connection.mode,nextModel:string){
     if(busy)return;
     displayRun.current=null;stopTarget.current=null;setAbortedMessages(new Set());
@@ -247,20 +269,53 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   if(blockedReason && !modelError && !modelChanged && !modelsLoading && !conversation.loading && !waiting) notifications.push({id:'blocked',title:'消息提示',message:blockedReason,action:!selectedModel?<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>:<button className="strip-btn strip-btn--secondary strip-btn--sm" onClick={openSettings}>打开设置</button>});
   if(notice) notifications.push({id:'composer-'+noticeRevision,title:'消息提示',message:notice});
   return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-fluid-glass={wallpaper.fluidGlassEnabled}>
-    <div className="strip-window-topbar" aria-hidden="true"/>
+    <div className="strip-window-topbar">
+      <span className="strip-window-topbar__title strip-sr-only">Strip Bot</span>
+      <TopCommandBar
+        canPrevious={Boolean(previousEntry)&&!conversation.loading&&!conversation.sending}
+        canNext={Boolean(nextEntry)&&!conversation.loading&&!conversation.sending}
+        onPrevious={()=>{if(previousEntry)selectConversation(previousEntry.id);}}
+        onNext={()=>{if(nextEntry)selectConversation(nextEntry.id);}}
+        sidebarOpen={toolsVisible} onToggleSidebar={toggleSidebar}
+        onNewChat={newChat} onSearch={requestSearch}
+        onFocusComposer={()=>{setSettingsView(false);requestAnimationFrame(()=>composerRef.current?.focus());}}
+        onAttach={addAttachment} onOpenProject={openProjectSettings}
+        onOpenSettings={openSettings}
+        onHistory={()=>showSidebarTool('history')} onPlugins={()=>showSidebarTool('plugins')}
+      />
+    </div>
     {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <DesktopUpdates notice busy={conversation.sending||busy||!!snapshot?.manualRunning}/>
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
-      onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
-    <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)}>
-      {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool) && <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'}/>}
-      {activeTool==='history' && <>
-        <ChatHistory entries={entries} search="" active={active} busy={conversation.sending || !!conversation.removing || conversation.loading} workspace={workspace} onOpenProject={openProject} onProjectSettings={openProjectSettings} onSelect={selectConversation} onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>
-      </>}
+      onTool={openTool} onAttach={addAttachment} onToggle={toggleSidebar} onSettings={openSettings}
+      accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy||waiting||conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
+    <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)} onTool={showSidebarTool} onSettings={openSettings}
+      searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing}
+        onSelect={selectConversation} onBeforeOpen={()=>showSidebarTool('history')}/>}>
+      {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool)&&
+        <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'}/>}
+      {activeTool==='backend'&&<BackendProjectsTool modelName={model} disabled={busy||!!snapshot?.manualRunning||conversation.loading||conversation.sending}
+        onSelect={folder=>{if(busy||snapshot?.manualRunning||conversation.loading||conversation.sending){showNotice('请完成当前任务后再切换项目。');return;}conversation.setWorkspace(folder);newChat();}}/>}
+      {activeTool==='skills'&&<SkillsTool/>}
+      {activeTool==='history'&&<ChatHistory entries={entries} search="" active={active}
+        busy={conversation.sending||!!conversation.removing||conversation.loading}
+        workspace={workspace} onNew={newChat} onOpenProject={openProject} onProjectSettings={openProjectSettings}
+        onSelect={selectConversation}
+        onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>}
     </ToolPanel>
     {parallelOpen && <dialog open aria-label="并行新任务" className="strip-task-dialog"><form onSubmit={event=>{event.preventDefault();void launchParallel();}}><h2>并行新任务</h2><p>在独立会话中执行，最多同时运行 3 个任务。相同或嵌套目录会自动排队。</p><label>项目目录<input autoFocus required value={parallelPath} onChange={event=>setParallelPath(event.target.value)} placeholder="填写已授权的项目目录"/></label><label>任务指令<textarea required rows={4} value={parallelPrompt} onChange={event=>setParallelPrompt(event.target.value)}/></label><div><button type="button" disabled={parallelSending} onClick={()=>setParallelOpen(false)}>取消</button><button type="submit" disabled={parallelSending||!parallelPath.trim()||!parallelPrompt.trim()}>{parallelSending?'提交中…':'创建任务'}</button></div></form></dialog>}
-    <main className={shell.main+' strip-wallpaper-main'}>{settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
+    <main className={shell.main+' strip-wallpaper-main'}>
+      {!settingsView&&<header className="strip-workspace-heading strip-drag">
+        <div className="strip-workspace-heading__name" title={activeTitle}>
+          <Icon name="folder-soft"/><span>{activeTitle}</span>
+        </div>
+        <div className="strip-workspace-heading__actions">
+          <button type="button" title="项目与目录" aria-label="项目与目录" onClick={openProjectSettings}><Icon name="folder-open"/></button>
+          <button type="button" title="新建聊天" aria-label="新建聊天" disabled={conversation.sending||conversation.loading||!!conversation.removing} onClick={newChat}><Icon name="square-pen"/></button>
+        </div>
+      </header>}
+      {settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
       <div className="strip-thread strip-unified-thread" ref={scroll}>
         {!messages.length && !legacyContext?.messages.length && !conversation.loading && <HomeWelcome inputActivity={homeInputActivity}/>}
         <div className="strip-messages strip-chat--codex strip-stream">

@@ -12,7 +12,7 @@ import type {DiscoveredModel} from './api-models';
 const settingsGroups=[
   {label:'AI 与模型',pages:[{id:'model',label:'模型与厂商'},{id:'api',label:'API 连接'},{id:'models',label:'模型列表'}]},
   {label:'工作区与运行',pages:[{id:'project',label:'项目与目录'},{id:'diagnostics',label:'运行诊断'}]},
-  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'主题与生成式 UI'},{id:'nono',label:'桌面宠物'}]}
+  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'页面背景'},{id:'nono',label:'桌面宠物'}]}
 ] as const;
 const settingsPages=settingsGroups.flatMap(group=>group.pages);
 type SettingsPage=typeof settingsPages[number]['id'];

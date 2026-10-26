@@ -16,6 +16,8 @@ type SearchPopupProps = {
   active: string;
   busy: boolean;
   onSelect: (id: string) => void;
+  /** Open the history panel before measuring the search anchor. */
+  onBeforeOpen?: () => void;
 };
 
 const RECENT_LIMIT = 8;
@@ -29,7 +31,7 @@ function formatDate(timestamp: number) {
 }
 
 /** A compact, anchored search palette. The sidebar history remains untouched. */
-export function SearchPopup({entries, active, busy, onSelect}: SearchPopupProps) {
+export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: SearchPopupProps) {
   const uid=useId();
   const popupId=uid+'-search-popover',resultsId=uid+'-search-results';
   const [open, setOpen] = useState(false);
@@ -58,11 +60,14 @@ export function SearchPopup({entries, active, busy, onSelect}: SearchPopupProps)
   }, []);
 
   const openSearch = useCallback(() => {
+    onBeforeOpen?.();
     setQuery('');
     setHighlighted(0);
     updatePosition();
     setOpen(true);
-  }, [updatePosition]);
+    // A sidebar that was closed needs one paint before its new position is known.
+    requestAnimationFrame(updatePosition);
+  }, [updatePosition,onBeforeOpen]);
 
   const closeSearch = useCallback((restoreFocus = false) => {
     setOpen(false);
@@ -85,6 +90,12 @@ export function SearchPopup({entries, active, busy, onSelect}: SearchPopupProps)
     document.addEventListener('keydown', onShortcut);
     return () => document.removeEventListener('keydown', onShortcut);
   }, [open, openSearch, closeSearch]);
+
+  useEffect(() => {
+    const onRequested=()=>openSearch();
+    window.addEventListener('stripbot:open-search',onRequested);
+    return()=>window.removeEventListener('stripbot:open-search',onRequested);
+  },[openSearch]);
 
   useEffect(() => {
     if (!open) return;

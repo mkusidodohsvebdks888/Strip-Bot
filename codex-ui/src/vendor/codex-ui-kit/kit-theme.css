@@ -1,0 +1,121 @@
+/*
+ * MIT Codex UI Kit component integration for StripBot.
+ * Structural class names correspond to JaminZhou/codex-ui-kit (0.1.2);
+ * local palettes remain authoritative. No external fonts or UI assets.
+ */
+.strip-app {
+  --codex-ui-text: var(--fg, #25272c);
+  --codex-ui-text-secondary: var(--muted, #727781);
+  --codex-ui-text-tertiary: var(--muted-3, #959ba3);
+  --codex-ui-bg: var(--bg, #f8f9fa);
+  --codex-ui-bg-subtle: var(--surface-2, #f2f3f4);
+  --codex-ui-bg-elevated: var(--card-bg, #fff);
+  --codex-ui-border: var(--border-10, #dfe2e5);
+  --codex-ui-border-strong: var(--border-10, #cfd3d9);
+  --codex-ui-focus: var(--border-focus, var(--accent, #7893c6));
+  --codex-ui-success: var(--color-success, #379b6c);
+  --codex-ui-danger: var(--diff-del-fg, #c85c5e);
+  --codex-ui-warning: #b88a46;
+  --codex-ui-radius-message: 18px;
+  --codex-ui-group-gap: 8px;
+  --codex-ui-user-message-max-width: min(84%, 600px);
+  --codex-ui-font-size-xs: 12px;
+  --codex-ui-line-height-xs: 16px;
+  --codex-ui-transition: 150ms ease;
+  --codex-ui-transition-fast: 120ms ease;
+  --codex-ui-font-sans: var(--font-ui, system-ui, sans-serif);
+}
+.strip-app .codex-ui-button,
+.strip-app .codex-ui-icon-button {
+  -webkit-app-region: no-drag;
+  appearance:none;display:inline-flex;align-items:center;justify-content:center;
+  gap:7px;min-width:0;min-height:34px;padding:6px 13px;
+  border:1px solid var(--codex-ui-border);border-radius:10px;
+  background:var(--codex-ui-bg-elevated);color:var(--codex-ui-text);
+  font:500 13px/1.35 var(--codex-ui-font-sans);cursor:pointer;
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease;
+}
+.strip-app .codex-ui-button__label{display:inline-flex;align-items:center;gap:5px;min-width:0;justify-content:center}
+.strip-app .codex-ui-button[data-size="small"],
+.strip-app .codex-ui-icon-button[data-size="small"]{min-height:28px;padding:4px 10px;font-size:12px;border-radius:8px}
+.strip-app .codex-ui-button[data-size="large"]{min-height:40px;padding:7px 16px;font-size:14px}
+.strip-app .codex-ui-button[data-size="toolbar"],
+.strip-app .codex-ui-icon-button[data-size="toolbar"]{min-height:30px;padding:4px 8px}
+.strip-app .codex-ui-button[data-tone="primary"]{background:var(--accent,#343942);color:var(--accent-contrast,#fff);border-color:var(--accent,#343942)}
+.strip-app .codex-ui-button[data-tone="ghost"],
+.strip-app .codex-ui-icon-button[data-tone="ghost"]{background:transparent;border-color:transparent}
+.strip-app .codex-ui-button[data-tone="danger"]{color:var(--codex-ui-danger);background:color-mix(in srgb,var(--codex-ui-danger) 7%,transparent);border-color:transparent}
+.strip-app .codex-ui-button[data-tone="outline"]{background:transparent}
+.strip-app .codex-ui-button:is(:hover,:focus-visible):not(:disabled),
+.strip-app .codex-ui-icon-button:is(:hover,:focus-visible):not(:disabled){box-shadow:0 0 0 1px color-mix(in srgb,var(--codex-ui-text) 8%,transparent)}
+.strip-app .codex-ui-button[data-tone="ghost"]:hover:not(:disabled),
+.strip-app .codex-ui-icon-button[data-tone="ghost"]:hover:not(:disabled){background:var(--codex-ui-bg-subtle)}
+.strip-app .codex-ui-button[data-pressed]:not(:disabled){background:var(--codex-ui-bg-elevated);border-color:var(--codex-ui-border);color:var(--codex-ui-text)}
+.strip-app .codex-ui-button:focus-visible,
+.strip-app .codex-ui-icon-button:focus-visible{outline:2px solid var(--codex-ui-focus);outline-offset:2px}
+.strip-app .codex-ui-button:disabled,
+.strip-app .codex-ui-icon-button:disabled{opacity:.48;cursor:not-allowed}
+.strip-app .codex-ui-button__spinner{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:strip-kit-spin .8s linear infinite}
+.strip-app .codex-ui-button__icon,.strip-app .codex-ui-icon-button__icon{display:inline-flex;align-items:center;justify-content:center}
+.strip-app .codex-ui-icon-button{width:34px;height:34px;padding:0}
+.strip-app .codex-ui-icon-button[data-size="small"]{width:28px;height:28px;padding:0}
+@keyframes strip-kit-spin{to{transform:rotate(360deg)}}
+/* The shared StripButton adapter retains the legacy class for feature CSS but uses Kit markup. */
+html[data-strip-palette] .strip-app .strip-action-control.codex-ui-button[data-tone="secondary"]{background:var(--codex-ui-bg-elevated);color:var(--codex-ui-text);border-color:var(--codex-ui-border)}
+html[data-strip-palette] .strip-app .strip-action-control.codex-ui-button[data-tone="primary"]{background:var(--accent);color:var(--accent-contrast);border-color:var(--accent)}
+html[data-strip-palette] .strip-app .strip-action-control.codex-ui-button[data-tone="ghost"]{background:transparent;border-color:transparent}
+html[data-strip-palette] .strip-app .strip-action-control.codex-ui-button[data-tone="danger"]{background:color-mix(in srgb,var(--codex-ui-danger) 7%,transparent);color:var(--codex-ui-danger);border-color:transparent}
+.strip-app .codex-ui-agent-message{display:flex;flex-direction:column;min-width:0;color:var(--codex-ui-text);margin:0}
+.strip-app .codex-ui-agent-message[data-role="user"]{align-items:flex-end;justify-content:flex-end}
+.strip-app .codex-ui-agent-message__content{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.strip-app .codex-ui-agent-message[data-role="user"]>.codex-ui-agent-message__content{
+  max-width:var(--codex-ui-user-message-max-width);padding:10px 13px;
+  background:var(--codex-ui-bg-subtle);border-radius:var(--codex-ui-radius-message);
+}
+.strip-app .codex-ui-agent-message[data-role="assistant"]>.codex-ui-agent-message__content{width:100%}
+.strip-app .codex-ui-agent-message__content .strip-chat__body{max-width:100%;font-size:inherit}
+.strip-app .codex-ui-agent-message__accessories{color:var(--codex-ui-text-tertiary);display:flex;align-items:center;gap:8px;font-size:12px}
+.strip-app .codex-ui-agent-message__actions{display:flex;gap:6px}
+.strip-app .codex-ui-agent-message[data-role="user"] .strip-chat__body{
+  background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;
+}
+.strip-app .codex-ui-activity{color:var(--codex-ui-text-secondary);min-width:0;font-size:12px}
+.strip-app .codex-ui-activity__header{display:flex;align-items:center;gap:9px;min-height:30px;min-width:0;width:100%;padding:3px 5px;color:inherit}
+.strip-app button.codex-ui-activity__header{cursor:pointer;background:transparent;border:0;text-align:left;font:inherit;border-radius:8px}
+.strip-app button.codex-ui-activity__header:hover:not(:disabled){background:var(--codex-ui-bg-subtle)}
+.strip-app button.codex-ui-activity__header:disabled{opacity:1;cursor:default}
+.strip-app .codex-ui-activity__summary{flex:1;min-width:0;color:var(--codex-ui-text);overflow:hidden}
+.strip-app .codex-ui-activity__detail{color:var(--codex-ui-text-tertiary);white-space:nowrap}
+.strip-app .codex-ui-activity__button-chevron{display:inline-flex;align-items:center;justify-content:center;width:14px;opacity:.55;transition:transform .15s ease}
+.strip-app .codex-ui-activity__disclosure[data-open] .codex-ui-activity__button-chevron{transform:rotate(90deg)}
+.strip-app .codex-ui-activity__button-chevron svg{height:14px;width:14px}
+.strip-app .codex-ui-activity__body{margin:3px 0 9px;padding:4px 0 3px 12px;border-left:1px solid var(--codex-ui-border)}
+.strip-app .codex-ui-activity__description{color:var(--codex-ui-text-tertiary);padding:0 5px 5px}
+.strip-app .codex-ui-status-indicator{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;background:var(--codex-ui-text-tertiary)}
+.strip-app .codex-ui-status-indicator[data-status="pending"]{background:transparent;border:1px solid var(--codex-ui-text-tertiary)}
+.strip-app .codex-ui-status-indicator[data-status="running"]{background:var(--accent);animation:strip-kit-pulse 1.3s ease-in-out infinite}
+.strip-app .codex-ui-status-indicator[data-status="completed"]{background:var(--codex-ui-success)}
+.strip-app .codex-ui-status-indicator[data-status="failed"]{background:var(--codex-ui-danger)}
+.strip-app .codex-ui-status-indicator[data-status="warning"]{background:var(--codex-ui-warning)}
+@keyframes strip-kit-pulse{50%{opacity:.3}}
+.strip-app .strip-kit-step .codex-ui-activity__summary{display:flex;align-items:center;gap:8px;min-width:0}
+.strip-app .strip-kit-step .codex-ui-activity__body .strip-stream-step-content{padding:0}
+.strip-app .strip-kit-step .codex-ui-activity__detail{font-size:11px}
+.strip-app .codex-ui-plan{border:1px solid var(--codex-ui-border);border-radius:12px;overflow:hidden;background:var(--codex-ui-bg-elevated)}
+.strip-app .codex-ui-plan__header{appearance:none;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:0;background:var(--codex-ui-bg-subtle);padding:10px 12px;color:var(--codex-ui-text);font:inherit;font-size:12px;cursor:pointer}
+.strip-app .codex-ui-plan__summary{display:flex;gap:8px;align-items:center}
+.strip-app .codex-ui-plan__progress{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.strip-app .codex-ui-plan__chevron{border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);width:6px;height:6px;transition:transform .15s ease}
+.strip-app .codex-ui-plan[data-expanded] .codex-ui-plan__chevron{transform:rotate(225deg)}
+.strip-app .codex-ui-plan__content{padding:7px 11px}
+.strip-app .codex-ui-plan__steps{margin:0;padding:0;list-style:none;display:grid;gap:7px;max-height:300px;overflow:auto}
+.strip-app .codex-ui-plan__step{display:flex;align-items:flex-start;gap:10px;font-size:12px}
+.strip-app .codex-ui-plan__step-leading{display:inline-flex;align-items:center;gap:5px;color:var(--codex-ui-text-tertiary)}
+.strip-app .codex-ui-plan__step-status{height:8px;width:8px;margin-top:5px;border:1px solid currentColor;border-radius:50%}
+.strip-app .codex-ui-plan__step[data-status="completed"] .codex-ui-plan__step-status{background:var(--codex-ui-success);border-color:var(--codex-ui-success)}
+.strip-app .codex-ui-plan__step[data-status="in_progress"] .codex-ui-plan__step-status{background:var(--accent);border-color:var(--accent)}
+.strip-app .codex-ui-plan__step-text{overflow-wrap:anywhere}
+.strip-app .codex-ui-composer-dock{display:grid;min-width:0;width:100%}
+.strip-app .codex-ui-composer-dock__surface{min-width:0;width:100%;position:relative}
+@media(max-width:650px){.strip-app .codex-ui-agent-message[data-role="user"]>.codex-ui-agent-message__content{max-width:94%}.strip-app .codex-ui-button{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.strip-app .codex-ui-button,.strip-app .codex-ui-activity__button-chevron{transition:none}.strip-app .codex-ui-button__spinner,.strip-app .codex-ui-status-indicator[data-status="running"]{animation:none}}

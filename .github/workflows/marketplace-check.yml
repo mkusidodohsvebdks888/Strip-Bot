@@ -1,0 +1,20 @@
+name: Marketplace registry check
+on:
+  push:
+    paths:
+      - 'marketplace/**'
+      - '.github/workflows/marketplace-check.yml'
+  pull_request:
+    paths:
+      - 'marketplace/**'
+      - '.github/workflows/marketplace-check.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate registry
+        run: node marketplace/validate.cjs

@@ -1,0 +1,48 @@
+'use strict';
+// Explicit, bounded MCP Streamable HTTP probe. Never run on page load.
+const {httpError}=require('../../core/providers/index.cjs');
+const MAX_BODY=256*1024;
+async function readLimited(response){
+  if(!response.body)return '';
+  const reader=response.body.getReader();
+  const parts=[];let total=0;
+  try{
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      total+=value.byteLength;
+      if(total>MAX_BODY)throw httpError(413,'MCP 响应超过大小限制');
+      parts.push(Buffer.from(value));
+    }
+  }finally{await reader.cancel().catch(()=>{});}
+  return Buffer.concat(parts).toString('utf8');
+}
+async function probeRemote(item,{timeoutMs=6000}={}){
+  if(!item||item.type!=='remote')throw httpError(400,'当前仅支持 HTTP MCP 连接测试');
+  const target=new URL(item.url);
+  if(!['http:','https:'].includes(target.protocol)||target.username||target.password)throw httpError(400,'无效的 MCP 地址');
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const response=await fetch(target.href,{
+      method:'POST',redirect:'manual',signal:controller.signal,
+      headers:{'Content-Type':'application/json','Accept':'application/json, text/event-stream'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'StripBot',version:'1.0'}}})
+    });
+    if(response.status>=300&&response.status<400)throw httpError(502,'MCP 服务发生重定向，已拒绝跟随');
+    const body=await readLimited(response);
+    if(!response.ok)throw httpError(502,`MCP 服务返回 HTTP ${response.status}`);
+    const contentType=response.headers.get('content-type')||'';
+    const candidate=contentType.includes('text/event-stream')
+      ? body.split(/\r?\n/).filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trim()).find(line=>line.startsWith('{'))
+      : body;
+    let parsed;
+    try{parsed=JSON.parse(candidate||'');}catch{throw httpError(502,'MCP 初始化响应不是有效 JSON-RPC');}
+    if(parsed.jsonrpc!=='2.0'||!parsed.result||!parsed.result.protocolVersion)throw httpError(502,'MCP 初始化响应缺少协议版本');
+    return {connected:true,protocolVersion:String(parsed.result.protocolVersion),serverInfo:parsed.result.serverInfo||null,tools:null,message:'MCP 初始化握手成功；尚未执行工具发现'};
+  }catch(error){
+    if(controller.signal.aborted)throw httpError(504,'MCP 连接超时');
+    throw error;
+  }finally{clearTimeout(timer);}
+}
+module.exports={probeRemote};

@@ -8,6 +8,7 @@ const {createCcSwitch} = require('./ccswitch.cjs');
 const {createApiConnection} = require('./api-connection.cjs');
 const {createAccount} = require('./codex-account.cjs');
 const {createIntegrationRegistry} = require('./integrations.cjs');
+const {createMarketplace} = require('./marketplace.cjs');
 const {createBackendRegistry} = require('./backend-projects.cjs');
 const {createSkillsRegistry} = require('./skills.cjs');
 const {createGithubTools} = require('./github-tools.cjs');
@@ -45,6 +46,7 @@ function createGateway({defaults = {}, apiKey = '', ccOnly = false, nativeAgent 
   const config = Object.freeze({...DEFAULTS, ...defaults});
   const direct = apiConnection || createApiConnection({root:agentRoot});
   const integrations = createIntegrationRegistry({root:agentRoot});
+  const marketplace=createMarketplace({root:agentRoot});
   const backends = createBackendRegistry({root:agentRoot});
   const skills = createSkillsRegistry({root:agentRoot});
   const githubTools = createGithubTools({root:agentRoot});
@@ -247,7 +249,7 @@ async function serveStatic(res, pathname) {
 const app = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, `http://${HOST}:${PORT}`).pathname;
-    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/') || pathname.startsWith('/api/connection/') || pathname.startsWith('/api/plugins/nono') || pathname.startsWith('/api/plugins/astrbot') || pathname.startsWith('/api/plugins/bundled') || pathname.startsWith('/api/openui/') || ['/api/integrations','/api/backend-projects','/api/skills','/api/github-tools'].some(prefix=>pathname===prefix || pathname.startsWith(prefix+'/'))) {
+    if (pathname.startsWith('/api/agent/') || pathname.startsWith('/api/cc-switch/') || pathname.startsWith('/api/connection/') || pathname.startsWith('/api/plugins/nono') || pathname.startsWith('/api/plugins/astrbot') || pathname.startsWith('/api/plugins/bundled') || pathname.startsWith('/api/marketplace') || pathname.startsWith('/api/openui/') || ['/api/integrations','/api/backend-projects','/api/skills','/api/github-tools'].some(prefix=>pathname===prefix || pathname.startsWith(prefix+'/'))) {
       try {const host = requireLocalUrl(`http://${req.headers.host}`);if (Number(host.port || 80) !== req.socket.localPort) throw new Error();}
       catch {return respondJson(res,403,{error:'无效的本机来源。'});}
       const origin = req.headers.origin;
@@ -290,6 +292,12 @@ const app = http.createServer(async (req, res) => {
       if(pathname.startsWith('/api/plugins/astrbot')) {
         if(pathname==='/api/plugins/astrbot/status' && req.method==='GET')return respondJson(res,200,await astrbot.status());
         return respondJson(res,404,{error:'AstrBot 插件接口不存在。'});
+      }
+      if(pathname.startsWith('/api/marketplace')){
+        if(pathname==='/api/marketplace'&&req.method==='GET')return respondJson(res,200,await marketplace.registry());
+        if(pathname==='/api/marketplace/installed'&&req.method==='GET')return respondJson(res,200,{items:await marketplace.installed()});
+        if(pathname==='/api/marketplace/install'&&req.method==='POST')return respondJson(res,200,await marketplace.install(await readJsonBody(req)));
+        if(pathname==='/api/marketplace/uninstall'&&req.method==='POST')return respondJson(res,200,await marketplace.uninstall(await readJsonBody(req)));
       }
       if(pathname.startsWith('/api/integrations')) {
         if (pathname === '/api/integrations' && req.method === 'GET') return respondJson(res,200,{items:await integrations.list()});

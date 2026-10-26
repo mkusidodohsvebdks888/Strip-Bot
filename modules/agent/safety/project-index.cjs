@@ -11,14 +11,17 @@ async function scan(workspace,{refresh=false}={}){
   const queue=[{dir:cwd,depth:0}],files=[];let truncated=false;
   while(queue.length&&files.length<400){
     const {dir,depth}=queue.shift();
-    const entries=(await fs.readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name));
+    let entries;
+    try{entries=(await fs.readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name));}
+    catch(error){if(['EACCES','EPERM','ENOENT'].includes(error.code)){truncated=true;continue;}throw error;}
     for(const item of entries){
       if(item.isSymbolicLink()||SKIP.has(item.name)||item.name.startsWith('.env'))continue;
       const full=path.join(dir,item.name);
       if(item.isDirectory()){if(depth<5)queue.push({dir:full,depth:depth+1});else truncated=true;continue;}
       if(!item.isFile()||!EXT.has(path.extname(item.name).toLowerCase()))continue;
-      const stat=await fs.stat(full);
-      if(stat.size>1024*1024)continue;
+      let stat;
+      try{stat=await fs.lstat(full);}catch(error){if(['EACCES','EPERM','ENOENT'].includes(error.code)){truncated=true;continue;}throw error;}
+      if(!stat.isFile()||stat.isSymbolicLink()||stat.size>1024*1024)continue;
       files.push({path:path.relative(cwd,full).split(path.sep).join('/'),bytes:stat.size,modifiedAt:stat.mtimeMs});
       if(files.length>=400){truncated=true;break;}
     }
@@ -37,9 +40,10 @@ async function searchContent(workspace,query){
     if(matches.length>=50)break;
     const absolute=path.join(cwd,file.path);
     let stat;
-    try{stat=await fs.lstat(absolute);}catch(error){if(error.code==='ENOENT')continue;throw error;}
+    try{stat=await fs.lstat(absolute);}catch(error){if(['ENOENT','EACCES','EPERM'].includes(error.code))continue;throw error;}
     if(!stat.isFile()||stat.isSymbolicLink()||stat.size>128*1024)continue;
-    const source=await fs.readFile(absolute,'utf8');
+    let source;
+    try{source=await fs.readFile(absolute,'utf8');}catch(error){if(['ENOENT','EACCES','EPERM'].includes(error.code))continue;throw error;}
     if(source.includes('\\0'))continue;
     const lines=source.split(/\r?\n/);
     for(let i=0;i<lines.length&&matches.length<50;i++){

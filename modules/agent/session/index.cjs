@@ -13,6 +13,7 @@ const {appendRestoreAudit,readRestoreAudit} = require('../safety/restore-audit.c
 const {projectContext,contextPrompt} = require('../safety/project-context.cjs');
 const {projectManifest} = require('../safety/project-manifest.cjs');
 const projectIndex=require('../safety/project-index.cjs');
+const uiGeneration=require('../ui-generation/index.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -86,6 +87,13 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     close:() => engine.close(),
     async handle(method,route,body = {}) {
       if (route === '/tasks' && method === 'GET') return scheduler.overview();
+      const uiRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/ui-generation\/(propose|apply)$/.exec(route);
+      if(uiRoute&&method==='POST'){
+        const id=await session(uiRoute[1]);
+        if(await scheduler.hasOutstanding())throw httpError(409,'Agent 仍有任务执行或排队，请先结束任务。');
+        const workspace=owned[id].workspace;
+        return uiRoute[2]==='propose'?uiGeneration.propose({workspace,filename:body?.filename,source:body?.source}):uiGeneration.apply({workspace,id:body?.id,hash:body?.hash,confirmed:body?.confirmed});
+      }
       const projectRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project\/(index|search|content-search|refresh)$/.exec(route);
       if(projectRoute){
         const id=await session(projectRoute[1]);

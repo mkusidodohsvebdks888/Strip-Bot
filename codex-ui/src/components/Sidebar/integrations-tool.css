@@ -73,3 +73,7 @@
 .strip-integrations__diagnostic>div{display:flex;flex-direction:column;gap:2px}
 .strip-integrations__diagnostic span{font-size:12px;color:var(--fg)}
 .strip-integrations__diagnostic small{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+
+.strip-integrations__permission{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.strip-integrations__permission select{min-height:30px;padding:4px 8px;border-radius:8px;border:1px solid var(--border-10);background:var(--card-bg);color:var(--fg);font:inherit}
+.strip-integrations__permission select:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}

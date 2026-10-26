@@ -297,6 +297,8 @@ const app = http.createServer(async (req, res) => {
         if(pathname==='/api/marketplace'&&req.method==='GET')return respondJson(res,200,await marketplace.registry());
         if(pathname==='/api/marketplace/installed'&&req.method==='GET')return respondJson(res,200,{items:await marketplace.installed()});
         if(pathname==='/api/marketplace/install'&&req.method==='POST')return respondJson(res,200,await marketplace.install(await readJsonBody(req)));
+        if(pathname==='/api/marketplace/updates'&&req.method==='GET')return respondJson(res,200,await marketplace.updates());
+        if(pathname==='/api/marketplace/download'&&req.method==='POST')return respondJson(res,200,await marketplace.download(await readJsonBody(req)));
         if(pathname==='/api/marketplace/uninstall'&&req.method==='POST')return respondJson(res,200,await marketplace.uninstall(await readJsonBody(req)));
       }
       if(pathname.startsWith('/api/integrations')) {

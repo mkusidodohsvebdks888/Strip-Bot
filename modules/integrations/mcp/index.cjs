@@ -38,6 +38,10 @@ function normalize(raw, {previous = null, allowEnabled = false} = {}) {
 function createIntegrationRegistry({root}) {
   const file = path.join(root, '.runtime', 'integrations.json');
   const permissionsFile = path.join(root, '.runtime', 'mcp-permissions.json');
+  const approvalRequests = new Map();
+  const APPROVAL_TTL_MS = 120000;
+  const MAX_APPROVALS = 50;
+  const {randomUUID} = require('node:crypto');
   let pending = Promise.resolve();
   async function read() {
     try {
@@ -99,6 +103,26 @@ function createIntegrationRegistry({root}) {
       const configured=data[id]&&Object.hasOwn(data[id],tool)?data[id][tool]:'ask';
       const mode=['allow','ask','deny'].includes(configured)?configured:'deny';
       return {id,tool,mode,allowed:mode==='allow',reason:mode==='deny'?'denied':mode==='ask'?'approval_required':'permitted'};
+    },
+    async requestApproval({id,tool}){
+      const decision=await this.evaluatePermission({id,tool});
+      if(decision.reason!=='approval_required')return {...decision,requestId:null};
+      const now=Date.now();
+      for(const [key,value] of approvalRequests)if(value.expiresAt<=now)approvalRequests.delete(key);
+      if(approvalRequests.size>=MAX_APPROVALS)throw httpError(429,'待处理批准请求过多');
+      const requestId=randomUUID();
+      approvalRequests.set(requestId,{id,tool,expiresAt:now+APPROVAL_TTL_MS});
+      return {...decision,requestId,expiresAt:now+APPROVAL_TTL_MS};
+    },
+    async decideApproval({requestId,allow}){
+      if(typeof requestId!=='string'||typeof allow!=='boolean')throw httpError(400,'批准参数无效');
+      const pendingRequest=approvalRequests.get(requestId);
+      if(!pendingRequest)throw httpError(404,'批准请求不存在或已处理');
+      approvalRequests.delete(requestId);
+      if(pendingRequest.expiresAt<=Date.now())throw httpError(410,'批准请求已过期');
+      const current=await this.evaluatePermission(pendingRequest);
+      if(current.reason!=='approval_required')return {ok:false,allowed:false,reason:'policy_changed'};
+      return {ok:true,allowed:allow,id:pendingRequest.id,tool:pendingRequest.tool,reason:allow?'user_approved':'user_denied',note:'仅记录批准决定，尚未授权或执行工具调用'};
     },
     async probe({id,confirmed}){
       if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');

@@ -38,8 +38,8 @@ test('pinned cloud client completes authenticated MCP handshake and only allows 
   assert.deepEqual(await client.call(TOKEN,'service_status',{}),{content:[{type:'text',text:'{"ok":true}'}]});
   assert(calls.some(call=>call.method==='tools/call'));
   await assert.rejects(client.probe(BAD_TOKEN),{status:401});
-  await assert.rejects(client.call(TOKEN,'shell',{command:'ls'}),{status:403});
-  await assert.rejects(client.call(TOKEN,'service_status',{unwanted:true}),{status:403});
+  assert.throws(()=>client.call(TOKEN,'shell',{command:'ls'}),{status:403});
+  assert.throws(()=>client.call(TOKEN,'service_status',{unwanted:true}),{status:403});
   assert.equal(isCloud({id:CLOUD_ID,type:'remote',url:CLOUD_URL}),true);
   assert.equal(isCloud({id:CLOUD_ID,type:'remote',url:'http://169.254.169.254/mcp'}),false);
 });

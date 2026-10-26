@@ -1,6 +1,7 @@
 import {lazy,Suspense,useEffect,useRef,useState,type ReactNode} from 'react';
-const LiquidGlass=lazy(()=>import('../../../vendor/liquid-glass-react'));
 import '../styles/liquid-glass-surface.css';
+
+const LiquidGlass=lazy(()=>import('../../../vendor/liquid-glass-react'));
 
 /**
  * Active only for the preset glass theme. The actual editor stays outside

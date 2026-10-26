@@ -39,7 +39,21 @@ function syntaxCheck(workspace,source){
    });
    throw Object.assign(new Error('TSX 语法检查未通过：'+details.join('；')),{status:400});
  }
- return {ok:true,engine:'TypeScript parser',note:'已检查 TSX 语法，未执行生成代码；完整类型检查仍需运行项目构建。'};
+ const fileName=path.join(workspace,'codex-ui','src','generated-ui','GeneratedPreview.tsx');
+ const configPath=ts.findConfigFile(path.join(workspace,'codex-ui'),ts.sys.fileExists,'tsconfig.json');
+ if(!configPath)throw Object.assign(new Error('未找到 codex-ui/tsconfig.json'),{status:503});
+ const configFile=ts.readConfigFile(configPath,ts.sys.readFile);
+ if(configFile.error)throw Object.assign(new Error('无法读取 TypeScript 配置'),{status:503});
+ const parsed=ts.parseJsonConfigFileContent(configFile.config,ts.sys,path.dirname(configPath));
+ const options={...parsed.options,noEmit:true};
+ const host=ts.createCompilerHost(options);
+ const originalRead=host.readFile.bind(host),originalExists=host.fileExists.bind(host);
+ host.readFile=name=>path.resolve(name)===fileName?source:originalRead(name);
+ host.fileExists=name=>path.resolve(name)===fileName||originalExists(name);
+ const program=ts.createProgram([fileName],options,host);
+ const issues=ts.getPreEmitDiagnostics(program).filter(d=>d.file&&path.resolve(d.file.fileName)===fileName);
+ if(issues.length)throw Object.assign(new Error('TSX 类型检查未通过：'+issues.slice(0,5).map(d=>ts.flattenDiagnosticMessageText(d.messageText,' ')).join('；')),{status:400});
+ return {ok:true,engine:'TypeScript compiler',note:'已检查生成组件的 TSX 语法与 TypeScript 类型；尚未执行完整 Vite 构建。'};
 }
 function validate(filename,source){
  if(typeof filename!=='string'||!allowed.test(filename))throw Object.assign(new Error('仅允许写入 generated-ui 下的独立预览组件'),{status:400});

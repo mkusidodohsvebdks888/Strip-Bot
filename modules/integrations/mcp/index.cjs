@@ -37,6 +37,7 @@ function normalize(raw, {previous = null, allowEnabled = false} = {}) {
 }
 function createIntegrationRegistry({root}) {
   const file = path.join(root, '.runtime', 'integrations.json');
+  const permissionsFile = path.join(root, '.runtime', 'mcp-permissions.json');
   let pending = Promise.resolve();
   async function read() {
     try {
@@ -66,8 +67,28 @@ function createIntegrationRegistry({root}) {
     pending = outcome.catch(()=>{});
     return outcome;
   }
+  async function readPermissions(){
+    try{const stat=await fs.stat(permissionsFile);if(stat.size>262144)throw httpError(413,'权限文件过大');const data=JSON.parse(await fs.readFile(permissionsFile,'utf8'));if(!data||typeof data!=='object'||Array.isArray(data))throw httpError(500,'权限文件格式错误');return data;}
+    catch(error){if(error.code==='ENOENT')return {};throw error;}
+  }
+  async function writePermissions(data){await fs.mkdir(path.dirname(permissionsFile),{recursive:true});const temp=permissionsFile+'.tmp';await fs.writeFile(temp,JSON.stringify(data,null,2),{mode:0o600});await fs.rename(temp,permissionsFile);}
   return {
     list: () => pending.then(read),
+    async permissions({id}){
+      const items=await pending.then(read);
+      if(!items.some(item=>item.id===id))throw httpError(404,'MCP 服务器不存在');
+      const data=await readPermissions();return {id,tools:data[id]||{}};
+    },
+    async setPermission({id,tool,mode}){
+      if(typeof tool!=='string'||!tool.trim()||tool.length>128||!['allow','ask','deny'].includes(mode))throw httpError(400,'工具名称或权限模式无效');
+      return transaction(async items=>{
+        if(!items.some(item=>item.id===id))throw httpError(404,'MCP 服务器不存在');
+        const data=await readPermissions();
+        data[id]={...(data[id]||{}),[tool]:mode};
+        await writePermissions(data);
+        return {ok:true,id,tool,mode};
+      });
+    },
     async probe({id,confirmed}){
       if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');
       const items=await pending.then(read);

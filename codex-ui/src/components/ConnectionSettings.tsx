@@ -2,18 +2,16 @@ import {useEffect,useId,useState,type ReactNode} from 'react';
 import type {ConnectionMode} from '../state/useConnection';
 import './connection-settings.css';
 import {ControlIcon} from './ControlIcon';
-import type {ModelMetrics} from './AgentPanel';
 import {ChatGPTAccount} from './ChatGPTAccount';
 import {modelVendor,modelVendors} from './model-vendors';
 import {discoverModels} from './api-models';
-import {NonoPluginSettings} from './NonoPluginSettings';
 import {DesktopUpdates} from './DesktopUpdates';
 import {SettingsDiagnostics} from './SettingsDiagnostics';
 import type {DiscoveredModel} from './api-models';
 const settingsGroups=[
   {label:'AI 与模型',pages:[{id:'model',label:'模型与厂商'},{id:'api',label:'API 连接'},{id:'models',label:'模型列表'}]},
   {label:'工作区与运行',pages:[{id:'project',label:'项目与目录'},{id:'diagnostics',label:'运行诊断'}]},
-  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'页面背景'},{id:'nono',label:'桌面宠物'},{id:'updates',label:'软件更新'}]}
+  {label:'外观与扩展',pages:[{id:'appearance',label:'页面背景'},{id:'updates',label:'软件更新'}]}
 ] as const;
 type SettingsEntry=typeof settingsGroups[number]['pages'][number];
 const settingsPages=settingsGroups.flatMap<SettingsEntry>(group=>group.pages);
@@ -21,7 +19,7 @@ type SettingsPage=typeof settingsPages[number]['id'];
 const pageKey='strip_settings_page_v1';
 function storedPage():SettingsPage {try{const value=localStorage.getItem(pageKey);return settingsPages.find(item=>item.id===value)?.id || 'model';}catch{return 'model';}}
 type ApiConfig={baseUrl:string;model:string;protocol:string;hasKey:boolean;configured:boolean;reasoningEnabled:boolean;reasoningEffort:string};
-export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,metrics,mode,onMode,onBack,onSaved,busy,account,nativeModel,onNativeModel,workspace,workspaceLocked,onWorkspace}:{pageRequest?:{page:'project'};appearanceSettings?:ReactNode;displayRate:{rate:number|null;commit:(value:number|null)=>void;error:string};metrics?:ModelMetrics|null;workspace:string;workspaceLocked:boolean;onWorkspace:(value:string)=>void;account:{connected:boolean;models:{id:string;name:string}[];attempt?:{status:string}};nativeModel:string;onNativeModel:(value:string)=>void;mode:ConnectionMode;onMode:(value:ConnectionMode)=>void;onBack:()=>void;onSaved:()=>void;busy:boolean}){
+export function ConnectionSettings({pageRequest,appearanceSettings,mode,onMode,onBack,onSaved,busy,account,nativeModel,onNativeModel,workspace,workspaceLocked,onWorkspace}:{pageRequest?:{page:'project'};appearanceSettings?:ReactNode;workspace:string;workspaceLocked:boolean;onWorkspace:(value:string)=>void;account:{connected:boolean;models:{id:string;name:string}[];attempt?:{status:string}};nativeModel:string;onNativeModel:(value:string)=>void;mode:ConnectionMode;onMode:(value:ConnectionMode)=>void;onBack:()=>void;onSaved:()=>void;busy:boolean}){
   const [page,setPage]=useState<SettingsPage>(storedPage);
   const pageId=useId();
   useEffect(()=>{if(pageRequest)changePage(pageRequest.page);},[pageRequest]);
@@ -115,21 +113,11 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
         <button type="button" className="strip-btn strip-btn--secondary" disabled={locked} onClick={onSaved}>刷新模型</button>
       </section>}
     </div>
-    <div className="strip-settings-page" {...panelProps('performance')}>
-    <section className="strip-connection-card" aria-label="显示与性能"><h2>显示与性能</h2>
-      <label>文字显示速度 <output>{displayRate.rate===null?'不限速（最高）':displayRate.rate+' tok/s'}</output><input aria-label="文字显示速度" type="range" min="10" max="210" step="10" value={displayRate.rate ?? 210} onChange={event=>displayRate.commit(Number(event.target.value)===210?null:Number(event.target.value))}/><small>默认最高档，不限制文字显示；此选项不改变模型实际生成速度。</small></label>
-      {displayRate.error && <p role="alert">{displayRate.error}</p>}
-      <p>当前模型：<code>{nativeModel || '尚未选择'}</code></p>
-      <p>调用渠道：{mode==='opencode'?'ChatGPT · Codex CLI':mode==='ccswitch'?'CC Switch':'API Key 连接'}</p>
-      <p className="strip-muted">{metrics?.model===nativeModel && metrics.provider===({opencode:'Codex CLI · ChatGPT',ccswitch:'CC Switch',direct:'API 连接'})[mode]?`最近会话实测：${metrics.tokensPerSecond==null?'速率未测量':'≈ '+metrics.tokensPerSecond.toFixed(1)+' tok/s'} · 首输出 ${metrics.ttftMs==null?'未测量':Math.round(metrics.ttftMs)+' ms'}`:'当前模型暂无测速数据。'} 推理强度以模型实际提供的档位为准。</p>
-    </section>
-    </div>
     <div className="strip-settings-page" {...panelProps('project')}>
     <section className="strip-connection-card strip-workspace-settings" aria-label="项目设置"><h2>项目设置</h2><label>项目目录<input aria-label="项目目录" value={workspace} disabled={workspaceLocked} onChange={event=>onWorkspace(event.target.value)} placeholder="选择 G:\p 内的项目目录"/></label><p className="strip-muted">新对话使用此目录；已有会话保留绑定目录。文件与命令仍逐次审批。</p></section>
     </div>
     <div className="strip-settings-page" {...panelProps('diagnostics')}><SettingsDiagnostics mode={mode} workspace={workspace} configured={config.configured} hasKey={config.hasKey} model={config.model} onRefresh={onSaved}/></div>
     <div className="strip-settings-page" {...panelProps('appearance')}>{appearanceSettings || <p className="strip-muted">当前环境未提供外观设置。</p>}</div>
-    {page==='nono' && <div className="strip-settings-page" {...panelProps('nono')}><NonoPluginSettings/></div>}
     {page==='updates' && <div className="strip-settings-page" {...panelProps('updates')}><DesktopUpdates busy={busy}/></div>}
     {feedback && <div className="strip-connection-feedback" role="status">{feedback}<button type="button" aria-label="关闭连接提示" onClick={()=>setFeedback('')}><ControlIcon name="close" size={16}/></button></div>}
     <p className="strip-muted">切换连接后使用新对话；旧会话记录和工具审批保持保留。</p>

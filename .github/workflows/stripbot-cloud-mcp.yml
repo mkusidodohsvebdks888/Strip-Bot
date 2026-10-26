@@ -55,7 +55,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test cloud MCP server and client
-        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js
+        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js
   cloud-ui-typecheck:
     runs-on: ubuntu-latest
     defaults:

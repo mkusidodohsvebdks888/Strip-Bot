@@ -16,7 +16,7 @@ const sections:{id:ToolsSection;label:string}[]=[
   {id:'marketplace',label:'插件市场'}
 ];
 
-export function ToolsHub({initialSection='local',onOpenSkills}:{initialSection?:ToolsSection;onOpenSkills:()=>void}){
+export function ToolsHub({initialSection='local'}:{initialSection?:ToolsSection}){
   const [section,setSection]=useState<ToolsSection>(initialSection);
   return <div className="strip-tools-hub">
     <div className="strip-tools-hub__categories" role="group" aria-label="工具与插件分类">
@@ -24,7 +24,7 @@ export function ToolsHub({initialSection='local',onOpenSkills}:{initialSection?:
     </div>
     <div className="strip-tools-hub__content">
       {section==='local'&&<BuiltinPluginsTool/>}
-      {section==='github'&&<GithubToolsTool onOpenSkills={onOpenSkills}/>}
+      {section==='github'&&<GithubToolsTool/>}
       {section==='mcp'&&<IntegrationsTool/>}
       {section==='astrbot'&&<AstrBotTool/>}
       {section==='marketplace'&&<MarketplaceTool onOpenMcp={()=>setSection('mcp')}/>}

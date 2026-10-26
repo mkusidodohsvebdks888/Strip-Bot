@@ -122,7 +122,7 @@ function createIntegrationRegistry({root}) {
       if(pendingRequest.expiresAt<=Date.now())throw httpError(410,'批准请求已过期');
       const current=await this.evaluatePermission(pendingRequest);
       if(current.reason!=='approval_required')return {ok:false,allowed:false,reason:'policy_changed'};
-      return {ok:true,allowed:allow,id:pendingRequest.id,tool:pendingRequest.tool,reason:allow?'user_approved':'user_denied',note:'仅记录批准决定，尚未授权或执行工具调用'};
+      return {ok:true,allowed:allow,id:pendingRequest.id,tool:pendingRequest.tool,reason:allow?'user_approved':'user_denied',note:'批准决定仅适用于当前请求，不会自动开放整个 MCP 服务器。'};
     },
     async probe({id,confirmed}){
       if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');

@@ -5,6 +5,7 @@ const {httpError} = require('../../core/providers/index.cjs');
 const {probeRemote}=require('./probe.cjs');
 const {probeStdio}=require('./stdio-probe.cjs');
 const serviceControl=require('./service-control.cjs');
+const {CLOUD_ID,CLOUD_URL,READ_TOOL,isCloud,createCloudClient}=require('./cloud-client.cjs');
 
 const ID_PATTERN = /^[a-z][a-z0-9_-]{1,39}$/;
 const MAX_INTEGRATIONS = 30;
@@ -36,10 +37,12 @@ function normalize(raw, {previous = null, allowEnabled = false} = {}) {
   if (!allowEnabled && previous && previous.type === result.type && JSON.stringify(previous.command || []) === JSON.stringify(result.command || []) && previous.url === result.url && previous.cwd === result.cwd) result.enabled = previous.enabled === true;
   return result;
 }
-function createIntegrationRegistry({root}) {
+function createIntegrationRegistry({root,cloudClient=createCloudClient()}) {
   const file = path.join(root, '.runtime', 'integrations.json');
   const permissionsFile = path.join(root, '.runtime', 'mcp-permissions.json');
   const approvalRequests = new Map();
+  const cloudCredentials=new Map();
+  const cloudAuditFile=path.join(root,'.runtime','mcp-cloud-audit.jsonl');
   const APPROVAL_TTL_MS = 120000;
   const MAX_APPROVALS = 50;
   const {randomUUID} = require('node:crypto');
@@ -77,8 +80,44 @@ function createIntegrationRegistry({root}) {
     catch(error){if(error.code==='ENOENT')return {};throw error;}
   }
   async function writePermissions(data){await fs.mkdir(path.dirname(permissionsFile),{recursive:true});const temp=permissionsFile+'.tmp';await fs.writeFile(temp,JSON.stringify(data,null,2),{mode:0o600});await fs.rename(temp,permissionsFile);}
+  async function auditCloud(action,outcome){
+    const record={at:new Date().toISOString(),requestId:randomUUID(),server:CLOUD_ID,action,outcome};
+    try{
+      await fs.mkdir(path.dirname(cloudAuditFile),{recursive:true});
+      await fs.appendFile(cloudAuditFile,JSON.stringify(record)+'\n',{mode:0o600});
+    }catch{} // Audit never contains tokens, arguments or tool results.
+  }
+  async function cloudOperation(action,operation){
+    try{const result=await operation();await auditCloud(action,'ok');return result;}
+    catch(error){await auditCloud(action,'failed');throw error;}
+  }
   return {
     list: () => pending.then(read),
+    async cloudStatus(){
+      const current=(await pending.then(read)).find(item=>isCloud(item));
+      return {registered:!!current,enabled:current?.enabled===true,credentialsLoaded:cloudCredentials.has(CLOUD_ID),url:CLOUD_URL,authentication:'session-only'};
+    },
+    async connectCloud({token,confirmed}={}){
+      if(confirmed!==true)throw httpError(400,'请确认连接 StripBot Cloud');
+      if(typeof token!=='string'||token.length<24||token.length>512||/[\r\n]/.test(token))throw httpError(400,'请填写 Render 中生成的有效 Token（至少24位）');
+      return cloudOperation('connect',async()=>{
+        const result=await transaction(async items=>{
+          const index=items.findIndex(item=>item.id===CLOUD_ID);
+          if(index>=0&&!isCloud(items[index]))throw httpError(409,'stripbot_cloud 标识已被其他 MCP 服务占用');
+          const item=normalize({id:CLOUD_ID,label:'StripBot Cloud（Render）',type:'remote',url:CLOUD_URL,enabled:true},{allowEnabled:true});
+          if(index>=0)items.splice(index,1,item);else{
+            if(items.length>=MAX_INTEGRATIONS)throw httpError(400,'最多连接 30 个项目');
+            items.push(item);
+          }
+          const policies=await readPermissions();
+          policies[CLOUD_ID]={...(policies[CLOUD_ID]||{}),[READ_TOOL]:policies[CLOUD_ID]?.[READ_TOOL]||'allow'};
+          await writePermissions(policies);
+          return {ok:true,id:CLOUD_ID,enabled:true,credentialsLoaded:true,connected:null,message:'连接设置已保存；请测试握手以验证 Token。Token 仅保留在当前进程内存。'};
+        });
+        cloudCredentials.set(CLOUD_ID,token);
+        return result;
+      });
+    },
     async permissions({id}){
       const items=await pending.then(read);
       if(!items.some(item=>item.id===id))throw httpError(404,'MCP 服务器不存在');

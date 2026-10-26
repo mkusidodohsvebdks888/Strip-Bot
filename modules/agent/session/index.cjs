@@ -4,6 +4,7 @@ const path = require('node:path');
 const {createEngine} = require('../engine/codex-engine.cjs');
 const {createTaskScheduler} = require('../scheduler/index.cjs');
 const {gitPreflight} = require('../safety/git-preflight.cjs');
+const {snapshot} = require('../safety/worktree-snapshot.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -16,6 +17,8 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
   const metrics=createModelMetrics();let watching=false;
   const scheduler=createTaskScheduler({root,getEngine:()=>engine,onBeforeStart:async task=>{
     const preflight=await gitPreflight(task.workspace);
+    const captured=await snapshot({workspace:task.workspace,root,taskID:task.id});
+    preflight.snapshot=captured;
     await ensure();metrics.begin(task.sessionID,owned?.[task.sessionID]?.model?.id,({codex:'Codex CLI · ChatGPT',ccswitch:'CC Switch',direct:'API 连接'})[connection] || 'Codex CLI');
     return preflight;
   }});

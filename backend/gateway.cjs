@@ -296,6 +296,8 @@ const app = http.createServer(async (req, res) => {
         if (pathname === '/api/integrations' && req.method === 'POST') return respondJson(res,200,await integrations.upsert(await readJsonBody(req)));
         if (pathname === '/api/integrations/enable' && req.method === 'POST') return respondJson(res,200,await integrations.enable(await readJsonBody(req)));
         if (pathname === '/api/integrations/remove' && req.method === 'POST') return respondJson(res,200,await integrations.remove(await readJsonBody(req)));
+        if (pathname === '/api/integrations/approval/request' && req.method === 'POST') return respondJson(res,200,await integrations.requestApproval(await readJsonBody(req)));
+        if (pathname === '/api/integrations/approval/decide' && req.method === 'POST') return respondJson(res,200,await integrations.decideApproval(await readJsonBody(req)));
         if (pathname === '/api/integrations/permissions' && req.method === 'POST') return respondJson(res,200,await integrations.permissions(await readJsonBody(req)));
         if (pathname === '/api/integrations/permission' && req.method === 'POST') return respondJson(res,200,await integrations.setPermission(await readJsonBody(req)));
         if (pathname === '/api/integrations/probe' && req.method === 'POST') return respondJson(res,200,await integrations.probe(await readJsonBody(req)));

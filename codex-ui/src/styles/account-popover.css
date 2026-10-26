@@ -57,3 +57,37 @@
 .strip-account-menu :is(.strip-account-profile__identity strong,.strip-account-subpage h3){font-size:calc(15px * var(--strip-type-scale))}
 .strip-account-menu :is(.strip-account-profile__identity span,.strip-account-details span,.strip-account-details strong,.strip-account-subpage p,.strip-account-row__hint,.strip-account-error){font-size:calc(13px * var(--strip-type-scale))}
 .strip-account-menu button:focus-visible{outline:2px solid var(--muted);outline-offset:-2px}
+
+/* DiceBear Bottts local SVG for direct API authorization only.
+   CC Switch / ChatGPT account icons intentionally keep their previous appearance. */
+.strip-account-avatar--dicebear,
+.strip-account-profile__avatar--dicebear{
+  overflow:hidden;
+  padding:0;
+  background:#eef0fc;
+  border-color:color-mix(in srgb,var(--border-10) 85%,transparent);
+}
+.strip-account-avatar--dicebear{
+  border-radius:50%;
+  box-shadow:0 1px 4px #12172c12;
+}
+.strip-account-avatar--dicebear img,
+.strip-account-profile__avatar--dicebear img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  flex:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.strip-account-profile__avatar--dicebear{
+  width:34px;
+  border-radius:10px;
+}
+.strip-account-profile__avatar--dicebear img{border-radius:9px}
+@media (forced-colors:active){
+  .strip-account-avatar--dicebear,.strip-account-profile__avatar--dicebear{
+    border:1px solid CanvasText;
+  }
+}

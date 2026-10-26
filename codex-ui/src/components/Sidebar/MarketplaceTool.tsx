@@ -1,0 +1,21 @@
+import {useEffect,useState} from 'react';
+import './marketplace-tool.css';
+type Entry={id:string;name:string;version:string;description:string;repository:string;manifest?:string;endpoint?:string;transport?:string;access?:string};
+type Registry={schemaVersion:number;plugins:Entry[];mcpServers:Entry[]};
+export function MarketplaceTool(){
+ const [registry,setRegistry]=useState<Registry|null>(null);
+ const [error,setError]=useState('');
+ const [busy,setBusy]=useState(false);
+ const [installed,setInstalled]=useState<string[]>([]);
+ useEffect(()=>{fetch('/api/marketplace').then(async response=>{if(!response.ok)throw new Error('无法加载插件市场');return response.json();}).then(setRegistry).catch(e=>setError(e.message));fetch('/api/marketplace/installed').then(r=>r.json()).then(data=>setInstalled(data.items||[])).catch(()=>{});},[]);
+ async function install(entry:Entry,kind:'plugin'|'mcp'){
+  if(!window.confirm('确认登记 '+entry.name+'？此操作不会下载或运行第三方代码。'))return;
+  setBusy(true);setError('');
+  try{const response=await fetch('/api/marketplace/install',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:entry.id,kind})});const data=await response.json();if(!response.ok)throw new Error(data.error||'操作失败');setInstalled(data.items);}
+  catch(e){setError(e instanceof Error?e.message:'操作失败');}finally{setBusy(false);}
+ }
+ async function uninstall(id:string){
+  setBusy(true);try{const response=await fetch('/api/marketplace/uninstall',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});const data=await response.json();if(!response.ok)throw new Error(data.error||'操作失败');setInstalled(data.items);}catch(e){setError(e instanceof Error?e.message:'操作失败');}finally{setBusy(false);}
+ }
+ return <section className="strip-marketplace"><h3>插件与 MCP 市场</h3><p>从仓库注册表发现插件和 MCP 服务。安装操作仅保存订阅记录，不会执行第三方程序。</p>{error&&<p role="alert">{error}</p>}{!registry&&<p>正在加载市场…</p>}{registry&&<><p>插件 {registry.plugins.length} 个 · MCP 服务 {registry.mcpServers.length} 个</p>{([['插件',registry.plugins,'plugin'],['MCP 服务',registry.mcpServers,'mcp']] as const).map(([label,entries,kind])=><div key={kind}><h4>{label}</h4>{entries.length===0&&<p>暂无已审核条目</p>}{entries.map(entry=><article key={entry.id}><div><strong>{entry.name}</strong><span> v{entry.version}</span><p>{entry.description}</p><small>{entry.repository}</small></div>{installed.includes(entry.id)?<button disabled={busy} onClick={()=>void uninstall(entry.id)}>移除订阅</button>:<button disabled={busy} onClick={()=>void install(entry,kind)}>添加到我的市场</button>}</article>)}</div>)}</>}</section>;
+}

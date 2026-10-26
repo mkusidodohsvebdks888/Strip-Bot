@@ -19,6 +19,7 @@ const openUI = require('../modules/integrations/openui/index.cjs');
 const APP_VERSION = '1.5.2';
 const DEFAULTS = Object.freeze({provider:'openai', endpoint:'http://127.0.0.1:3010/v1/chat/completions', model:'chatgpt', systemPrompt:'你是一个清晰、准确的中文 AI 助手。'});
 const MIME = {
+  '/avatars/dicebear-bottts-api.svg': ['avatars/dicebear-bottts-api.svg', 'image/svg+xml'],
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],

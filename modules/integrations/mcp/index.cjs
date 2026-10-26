@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const {httpError} = require('../../core/providers/index.cjs');
 const {probeRemote}=require('./probe.cjs');
+const {probeStdio}=require('./stdio-probe.cjs');
 
 const ID_PATTERN = /^[a-z][a-z0-9_-]{1,39}$/;
 const MAX_INTEGRATIONS = 30;
@@ -72,7 +73,7 @@ function createIntegrationRegistry({root}) {
       const items=await pending.then(read);
       const item=items.find(entry=>entry.id===id);
       if(!item)throw httpError(404,'MCP 服务器不存在');
-      return probeRemote(item);
+      return item.type==='local'?probeStdio(item):probeRemote(item);
     },
     async inspect({id}) {
       const items=await pending.then(read);

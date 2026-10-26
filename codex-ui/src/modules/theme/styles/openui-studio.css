@@ -37,3 +37,15 @@
 .strip-openui-live-preview p{font-size:12px;margin:0}
 .strip-openui-live-preview>div>div{padding:12px;border-radius:9px;font-size:12px}
 @media(max-width:650px){.strip-openui-preset-grid{grid-template-columns:1fr}}
+
+.strip-openui-layouts{display:grid;gap:12px;padding:14px;border:1px solid var(--border-10);border-radius:13px;background:var(--surface-2)}
+.strip-openui-layouts h3{margin:0;font-size:15px}
+.strip-openui-layout-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.strip-openui-layout-grid button{display:flex;flex-direction:column;gap:5px;text-align:left;padding:12px;border:1px solid var(--border-10);border-radius:10px;background:var(--card-bg);color:var(--fg);cursor:pointer}
+.strip-openui-layout-grid button[aria-pressed=true]{outline:2px solid var(--accent);outline-offset:1px}
+.strip-openui-layout-grid small{color:var(--muted);font-size:11px}
+.strip-openui-layouts label,.strip-openui-implementation label{display:grid;gap:7px;font-size:13px;font-weight:600}
+.strip-openui-layouts select,.strip-openui-implementation textarea{width:100%;box-sizing:border-box;background:var(--surface-search);color:var(--fg);border:1px solid var(--border-10);border-radius:9px;padding:10px;font:inherit}
+.strip-openui-implementation{display:grid;gap:10px}
+.strip-openui-implementation textarea{font-family:var(--font-code,monospace);resize:vertical;font-size:12px}
+@media(max-width:650px){.strip-openui-layout-grid{grid-template-columns:1fr}}

@@ -7,8 +7,9 @@ import {ChatGPTAccount} from './ChatGPTAccount';
 import {modelVendor,modelVendors} from './model-vendors';
 import {discoverModels} from './api-models';
 import {NonoPluginSettings} from './NonoPluginSettings';
+import {SettingsDiagnostics} from './SettingsDiagnostics';
 import type {DiscoveredModel} from './api-models';
-const settingsPages=[{id:'model',label:'模型设置'},{id:'api',label:'API 连接'},{id:'models',label:'可用模型'},{id:'performance',label:'显示与性能'},{id:'project',label:'项目设置'},{id:'appearance',label:'AI 生成式 UI'},{id:'nono',label:'桌面宠物'}] as const;
+const settingsPages=[{id:'model',label:'模型设置'},{id:'api',label:'API 连接'},{id:'models',label:'可用模型'},{id:'performance',label:'显示与性能'},{id:'project',label:'项目设置'},{id:'diagnostics',label:'运行诊断'},{id:'appearance',label:'AI 生成式 UI'},{id:'nono',label:'桌面宠物'}] as const;
 type SettingsPage=typeof settingsPages[number]['id'];
 const pageKey='strip_settings_page_v1';
 function storedPage():SettingsPage {try{const value=localStorage.getItem(pageKey);return settingsPages.find(item=>item.id===value)?.id || 'model';}catch{return 'model';}}
@@ -111,6 +112,7 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
     <div className="strip-settings-page" {...panelProps('project')}>
     <section className="strip-connection-card strip-workspace-settings" aria-label="项目设置"><h2>项目设置</h2><label>项目目录<input aria-label="项目目录" value={workspace} disabled={workspaceLocked} onChange={event=>onWorkspace(event.target.value)} placeholder="选择 G:\p 内的项目目录"/></label><p className="strip-muted">新对话使用此目录；已有会话保留绑定目录。文件与命令仍逐次审批。</p></section>
     </div>
+    <div className="strip-settings-page" {...panelProps('diagnostics')}><SettingsDiagnostics mode={mode} workspace={workspace} configured={config.configured} hasKey={config.hasKey} model={config.model} onRefresh={onSaved}/></div>
     <div className="strip-settings-page" {...panelProps('appearance')}>{appearanceSettings || <p className="strip-muted">当前环境未提供外观设置。</p>}</div>
     {page==='nono' && <div className="strip-settings-page" {...panelProps('nono')}><NonoPluginSettings/></div>}
     {feedback && <div className="strip-connection-feedback" role="status">{feedback}<button type="button" aria-label="关闭连接提示" onClick={()=>setFeedback('')}><ControlIcon name="close" size={16}/></button></div>}

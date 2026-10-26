@@ -16,6 +16,8 @@ test('integrations require explicit consent, generate v2 MCP configuration and a
   assert.deepEqual(await registry.asMcpServers(),{});
   await assert.rejects(registry.enable({id:'my_pet',enabled:true}),{status:400});
   await registry.enable({id:'my_pet',enabled:true,confirmed:true});
+  assert.deepEqual(await registry.asMcpServers(),{},'MCP servers must not reach Agent without a wildcard allow policy');
+  await registry.setPermission({id:'my_pet',tool:'*',mode:'allow'});
   assert.deepEqual(await registry.asMcpServers(),{my_pet:{type:'local',command}});
   await registry.upsert({id:'my_pet',label:'桌宠',type:'local',command:['node','changed.js']});
   assert.equal((await registry.list())[0].enabled,false);
@@ -23,6 +25,8 @@ test('integrations require explicit consent, generate v2 MCP configuration and a
   assert.equal((await registry.list())[0].enabled,false);
   await registry.upsert({id:'localhost_api',label:'本地 MCP',type:'remote',url:'http://127.0.0.1:5010/mcp'});
   await registry.enable({id:'localhost_api',enabled:true,confirmed:true});
+  assert.equal((await registry.asMcpServers()).localhost_api,undefined);
+  await registry.setPermission({id:'localhost_api',tool:'*',mode:'allow'});
   assert.deepEqual((await registry.asMcpServers()).localhost_api,{type:'remote',url:'http://127.0.0.1:5010/mcp'});
   await assert.rejects(registry.upsert({id:'bad',label:'bad',type:'remote',url:'http://unsafe.example/mcp'}),{status:400});
   await assert.rejects(registry.upsert({id:'bad',label:'bad',type:'remote',url:'file:///tmp/x'}),{status:400});

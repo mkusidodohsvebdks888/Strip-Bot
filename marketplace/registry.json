@@ -2,5 +2,16 @@
   "schemaVersion": 1,
   "updatedAt": "2026-10-26",
   "plugins": [],
-  "mcpServers": []
+  "mcpServers": [
+    {
+      "id": "stripbot-cloud",
+      "name": "StripBot Cloud MCP",
+      "version": "0.1.0",
+      "description": "已部署的 Render 只读 MCP 服务，须使用个人 Bearer Token 认证；当前仅提供 service_status。",
+      "repository": "https://github.com/mkusidodohsvebdks888/Strip-Bot",
+      "transport": "streamable-http",
+      "endpoint": "https://stripbot-mcp-v2.onrender.com/mcp",
+      "access": "authenticated"
+    }
+  ]
 }

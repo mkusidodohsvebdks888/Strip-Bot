@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useMemo,useState} from 'react';
 import {Icon} from '../../Icons';
+import {Button as KitButton,IconButton as KitIconButton} from '../../vendor/codex-ui-kit/Button';
 import {workspaceRequest as call,shortError} from './workspace-api';
 import './builtin-plugins.css';
 
@@ -129,7 +130,7 @@ export function BuiltinPluginsTool(){
     <div className="spm-overview">
       <div className="spm-overview__heading">
         <div><strong>本地工具与插件</strong></div>
-        <button className="spm-icon-button" type="button" title="刷新插件" aria-label="刷新插件状态" onClick={()=>void refresh()} disabled={loading||busyId!==null}><Icon name="refresh"/></button>
+        <KitIconButton className="spm-icon-button" type="button" title="刷新插件" label="刷新插件状态" icon={<Icon name="refresh"/>} onClick={()=>void refresh()} disabled={loading||busyId!==null}/>
       </div>
       <div className="spm-overview__stats"><span><strong>{countEnabled}</strong> 已启用</span><i aria-hidden="true"/><span><strong>{items.length}</strong> 个插件</span></div>
     </div>
@@ -141,7 +142,7 @@ export function BuiltinPluginsTool(){
     </label>
 
     <div className="spm-filter" role="group" aria-label="按启用状态筛选">
-      {FILTERS.map(option=><button key={option.id} type="button" aria-pressed={filter===option.id} onClick={()=>setFilter(option.id)}>{option.name}</button>)}
+      {FILTERS.map(option=><KitButton key={option.id} type="button" tone="ghost" size="small" pressed={filter===option.id} onClick={()=>setFilter(option.id)}>{option.name}</KitButton>)}
     </div>
 
     {error&&<div className="spm-notice spm-notice--error" role="alert">{error}</div>}
@@ -203,7 +204,7 @@ export function BuiltinPluginsTool(){
                       <input id={'spm-input-'+plugin.id} value={form.input} placeholder="C:/Files/example.docx" onChange={event=>updateForm(plugin.id,'input',event.target.value)} disabled={isBusy}/>
                       <label htmlFor={'spm-output-'+plugin.id}>{plugin.id==='office-pdf'?'PDF 输出文件夹':form.action==='extract'?'解压到新文件夹':'压缩包输出路径'}</label>
                       <input id={'spm-output-'+plugin.id} value={form.output} placeholder={form.action==='compress'?'C:/Files/example.7z':'C:/Files/output'} onChange={event=>updateForm(plugin.id,'output',event.target.value)} disabled={isBusy}/>
-                      <button type="button" className="spm-primary" disabled={isBusy} onClick={()=>void execute(plugin)}><Icon name="play"/>确认并执行</button>
+                      <KitButton type="button" tone="primary" className="spm-primary" disabled={isBusy} onClick={()=>void execute(plugin)}><Icon name="play"/>确认并执行</KitButton>
                     </div>}
                   
                 </div>}

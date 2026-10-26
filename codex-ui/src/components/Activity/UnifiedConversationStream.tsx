@@ -7,9 +7,11 @@ import {AgentPlan as KitAgentPlan} from '../../vendor/codex-ui-kit/AgentPlan';
 import {Icon} from '../../Icons';
 import {ApprovalPanel,type Decide} from './ApprovalPanel';
 import {activityStatus,linearActivity,type ActivityEvent} from './activity-events';
+import {CommandBatch,groupTimeline,isCommandEvent} from './CommandBatch';
 import {TaskQueuePanel} from './TaskQueuePanel';
 import {TaskRecoveryPanel} from './TaskRecoveryPanel';
 import './unified-conversation-stream.css';
+import './codex-command-timeline.css';
 
 type Message=Snapshot['messages'][number];
 type Filter='all'|'ops'|'files'|'alerts';
@@ -67,19 +69,21 @@ function Detail({event,onError}:{event:ActivityEvent;onError:(message:string)=>v
   return <div className={'strip-stream-detail'+(kind==='error'?' strip-stream-detail--error':'')}><pre>{str(detail.message)||'暂无更多详情'}</pre>{detail.code!==undefined && <code>{str(detail.code)}</code>}</div>;
 }
 
-function Step({event,opened,toggle,onError,children}:{event:ActivityEvent;opened:boolean;toggle:()=>void;onError:(message:string)=>void;children?:ReactNode}){
+function Step({event,opened,toggle,onError,children,commandIndex}:{event:ActivityEvent;opened:boolean;toggle:()=>void;onError:(message:string)=>void;children?:ReactNode;commandIndex?:number}){
   const hasDetail=Boolean(event.detail || children);
+  const command=isCommandEvent(event);
+  const title=command?(commandIndex!==undefined?`命令 ${commandIndex}`:event.status==='running'?'正在运行命令':'运行了命令'):event.title;
   const status=event.status==='error'?'failed':event.status==='success'?'completed':event.status==='pending'?'pending':event.status==='running'?'running':'completed';
-  const kind=event.type==='edit'?'file-change':event.type==='command'?'command':event.type==='search'?'search':event.type==='thinking'?'reasoning':'tool';
+  const kind=command?'command':event.type==='edit'?'file-change':event.type==='search'?'search':event.type==='thinking'?'reasoning':'tool';
   const subtitle=event.subtitle && !['已完成','执行失败','等待执行','执行中','已停止或状态未知'].includes(event.subtitle)?event.subtitle:null;
-  return <article className="strip-stream-step strip-kit-step" data-status={event.status} data-type={event.type} data-event-id={event.id}>
+  return <article className="strip-stream-step strip-kit-step" data-status={event.status} data-type={event.type} data-event-id={event.id} data-command={command?'true':undefined}>
     <span className="strip-stream-rail" aria-hidden="true"><Icon name={ICON_NAME[event.type]||'file'}/></span>
     <div className="strip-stream-step-main">
-      <KitAgentActivity status={status} kind={kind} disclosureMode="button"
+      <KitAgentActivity status={status} kind={kind} indicator={command?null:undefined} disclosureMode="button"
         open={hasDetail?opened:undefined} onOpenChange={hasDetail?toggle:undefined}
-        summary={<span className="strip-stream-step-label"><strong>{event.title}</strong>{event.path&&<code title={event.path}>{event.path}</code>}{(event.add!==undefined||event.del!==undefined)&&<span className="strip-stream-change">{event.add!==undefined&&<span>+{event.add}</span>}{event.del!==undefined&&<span>-{event.del}</span>}</span>}</span>}
-        detail={<span className="strip-stream-step-end"><small>{STATE_LABEL[event.status]||event.status}</small></span>}
-        description={subtitle?<p className="strip-stream-step-hint">{subtitle}</p>:undefined}>
+        summary={<span className="strip-stream-step-label"><strong>{title}</strong>{!command&&event.path&&<code title={event.path}>{event.path}</code>}{(event.add!==undefined||event.del!==undefined)&&<span className="strip-stream-change">{event.add!==undefined&&<span>+{event.add}</span>}{event.del!==undefined&&<span>-{event.del}</span>}</span>}</span>}
+        detail={<span className="strip-stream-step-end">{(!command||event.status!=='success')&&<small>{STATE_LABEL[event.status]||event.status}</small>}</span>}
+        description={subtitle&&(!command||opened)?<p className="strip-stream-step-hint">{subtitle}</p>:undefined}>
         {hasDetail?<div className="strip-stream-step-content">{children||<Detail event={event} onError={onError}/>}</div>:undefined}
       </KitAgentActivity>
     </div>
@@ -132,6 +136,22 @@ export function UnifiedConversationStream({snapshot,busy,deciding,loading,onDeci
   const queue=!!snapshot?.permissions.length;
   const showQueue=queue;
   const remainder=show(activity.tail);
+  function renderTimeline(events:ActivityEvent[]):ReactNode{
+    return groupTimeline(events).map(row=>{
+      if(row.kind==='event'){
+        const event=row.event;
+        return <li key={row.key}><Step event={event}
+          opened={isOpen(event)||(!isCommandEvent(event)&&event.status==='running')}
+          toggle={()=>toggle(event)} onError={onError}/></li>;
+      }
+      const batchExpanded=opened[row.key]??(groupOpen===true);
+      return <li key={row.key}><CommandBatch events={row.events} opened={batchExpanded}
+        toggle={()=>setOpened(current=>({...current,[row.key]:!(current[row.key]??(groupOpen===true))}))}>
+        {row.events.map((event,index)=><Step key={event.id} event={event}
+          commandIndex={index+1} opened={isOpen(event)} toggle={()=>toggle(event)} onError={onError}/>)}
+      </CommandBatch></li>;
+    });
+  }
   const rootRef=useRef<HTMLDivElement>(null),scrollHost=useRef<HTMLElement|null>(null);
   const followTail=useRef(true);
   const [showJump,setShowJump]=useState(false);
@@ -172,13 +192,11 @@ export function UnifiedConversationStream({snapshot,busy,deciding,loading,onDeci
     {renderedTurns.map(({turn,streamEvents})=><Fragment key={turn.id}>
       {turn.user && renderMessage(turn.user)}
       {!!streamEvents.length && <section className="strip-stream-activity" aria-label="执行步骤">
-        <ol className="strip-stream-linear" aria-label="按时间排列的执行步骤">{streamEvents.map(event=><li key={event.id}>
-          <Step event={event} opened={isOpen(event)||event.status==='running'} toggle={()=>toggle(event)} onError={onError}/>
-        </li>)}</ol>
+        <ol className="strip-stream-linear" aria-label="按时间排列的执行步骤">{renderTimeline(streamEvents)}</ol>
       </section>}
       {turn.assistants.map(renderMessage)}
     </Fragment>)}
-    {!!remainder.length && <section className="strip-stream-aggregate" aria-label="会话汇总与文件修改"><p className="strip-stream-subheading">会话文件变更与附加记录</p><div className="strip-stream-steps">{remainder.map(event=><Step key={event.id} event={event} opened={isOpen(event)} toggle={()=>toggle(event)} onError={onError}/>)}</div></section>}
+    {!!remainder.length && <section className="strip-stream-aggregate" aria-label="会话汇总与文件修改"><p className="strip-stream-subheading">会话文件变更与附加记录</p><ol className="strip-stream-linear" aria-label="附加执行步骤">{renderTimeline(remainder)}</ol></section>}
     {showQueue && snapshot && <section className="strip-stream-approval-inline" aria-label="待审批操作"><div className="strip-stream-steps"><Step event={{id:'approval-queue',type:'approval',title:`等待批准 · ${snapshot.permissions.length} 项操作`,status:'pending'}} opened toggle={()=>undefined} onError={onError}><ApprovalPanel snapshot={snapshot} deciding={deciding} onDecide={onDecide} onApproveAll={onApproveAll}/></Step></div></section>}
     {snapshot?.forms.map(form=><section key={form.id} className="strip-stream-form" aria-label="等待答复的问题"><span className="strip-stream-form-marker" aria-hidden="true"><Icon name="circle-help"/></span><div className="strip-unified-approval"><QuestionForm form={form} onAnswer={answer=>onAnswer(form.id,answer)}/></div></section>)}
     {showJump && <button type="button" className="strip-stream-jump-bottom" aria-label="一键滚动到会话底部" onClick={jumpToBottom}><Icon name="arrow-down"/>到底部</button>}

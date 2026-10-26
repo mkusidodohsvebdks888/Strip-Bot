@@ -24,7 +24,7 @@ test('window frame has a responsive rounded rectangle and theme-aware border',()
 test('workbench and API onboarding expose the same desktop caption strip',()=>{
   for(const html of [app,entry]){
     assert.match(html,/className="strip-window-topbar"/);
-    assert.match(html,/className="strip-window-topbar__title"/);
+    assert.match(html,/className="strip-window-topbar__title(?: [^"]*)?"/);
   }
   assert.match(css,/html\[data-strip-desktop="true"\] \.strip-window-topbar/);
   assert.match(css,/-webkit-app-region:\s*drag/);

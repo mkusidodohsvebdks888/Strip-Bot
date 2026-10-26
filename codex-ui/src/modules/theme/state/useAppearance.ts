@@ -39,7 +39,8 @@ export function useAppearance(){
     document.documentElement.style.colorScheme=base==='dark'?'dark':'light';
     if(window.stripWindowAppearance){document.documentElement.dataset.stripDesktop='true';window.stripWindowAppearance.sync(appearance);}
   },[appearance]);
-  useLayoutEffect(()=>{restoreImportedTheme();},[]);
+  // Backgrounds now use the preconfigured palettes only. Keep legacy OpenUI
+  // custom colors in storage, but do not inject them over the selected preset.
   // Keep separate StripBot browser windows in step; a storage event only fires in other windows.
   useLayoutEffect(()=>{
     const sync=(event:StorageEvent)=>{

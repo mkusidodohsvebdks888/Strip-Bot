@@ -16,10 +16,13 @@ export function TaskRecoveryPanel({sessionID,tasks,onError}:Props){
   const [selected,setSelected]=useState('');
   const [diff,setDiff]=useState<Diff|null>(null);
   const [busy,setBusy]=useState(false);
+  const [selectedFiles,setSelectedFiles]=useState<string[]>([]);
+  const [audit,setAudit]=useState<{at:string;filePath:string;outcome:string;reason?:string}[]>([]);
   const finished=tasks.filter(t=>['done','failed','cancelled'].includes(t.status));
   if(!/^ses_[a-zA-Z0-9]+$/.test(sessionID)||!finished.length)return null;
   async function inspect(id:string){
-    setBusy(true);setSelected(id);setDiff(null);
+    setBusy(true);setSelected(id);setDiff(null);setSelectedFiles([]);
+    void request<{items:typeof audit}>('/sessions/'+sessionID+'/tasks/'+id+'/restore-audit').then(value=>setAudit(value.items)).catch(()=>setAudit([]));
     try{setDiff(await request<Diff>('/sessions/'+sessionID+'/tasks/'+id+'/diff'));}
     catch(error){onError(error instanceof Error?error.message:String(error));}
     finally{setBusy(false);}
@@ -35,14 +38,30 @@ export function TaskRecoveryPanel({sessionID,tasks,onError}:Props){
     }catch(error){onError(error instanceof Error?error.message:String(error));}
     finally{setBusy(false);}
   }
+  async function restoreSelected(){
+    if(!diff||busy||!selectedFiles.length)return;
+    const files=diff.changes.filter(change=>selectedFiles.includes(change.path)).map(change=>({filePath:change.path,expectedHash:change.afterHash}));
+    if(!window.confirm('确定批量恢复 '+files.length+' 个文件？此操作逐文件执行，部分文件可能因冲突失败。'))return;
+    setBusy(true);
+    try{
+      const result=await request<{restored:number;failed:number}>('/sessions/'+sessionID+'/tasks/'+diff.taskID+'/restore-batch',{files,confirmed:true});
+      onError('批量恢复完成：成功 '+result.restored+'，失败 '+result.failed+'。');
+      setDiff(await request<Diff>('/sessions/'+sessionID+'/tasks/'+diff.taskID+'/diff'));
+      setSelectedFiles([]);
+      const history=await request<{items:typeof audit}>('/sessions/'+sessionID+'/tasks/'+diff.taskID+'/restore-audit');setAudit(history.items);
+    }catch(error){onError(error instanceof Error?error.message:String(error));}
+    finally{setBusy(false);}
+  }
   return <section className="strip-task-recovery" aria-label="任务文件修改与恢复">
     <div className="strip-task-recovery__title"><strong>任务文件记录</strong><span>只显示快照中已有的文件</span></div>
     <div className="strip-task-recovery__tasks">{finished.slice(-8).reverse().map(task=><button type="button" key={task.id} disabled={busy} aria-pressed={selected===task.id} onClick={()=>void inspect(task.id)}>{task.preview.slice(0,36)||'任务'} · 查看修改</button>)}</div>
     {busy&&<p role="status">正在处理…</p>}
     {diff&&<div className="strip-task-recovery__changes"><p>已检查 {diff.checked} 个快照文件；发现 {diff.changes.length} 项变化。</p>
       {!diff.changes.length&&<p>快照文件没有变化，或其他新增文件不在快照范围内。</p>}
-      {diff.changes.map(change=><div className="strip-task-recovery__file" key={change.path}><code title={change.path}>{change.path}</code><span>{change.status}</span><button type="button" disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onClick={()=>void restore(change)}>恢复文件</button></div>)}
+      <div className="strip-task-recovery__bulk"><span>已选 {selectedFiles.length} 项</span><button type="button" disabled={busy||!selectedFiles.length} onClick={()=>void restoreSelected()}>恢复所选文件</button></div>
+      {diff.changes.map(change=><div className="strip-task-recovery__file" key={change.path}><input type="checkbox" aria-label={'选择恢复 '+change.path} checked={selectedFiles.includes(change.path)} disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onChange={event=>setSelectedFiles(previous=>event.target.checked?[...previous,change.path]:previous.filter(name=>name!==change.path))}/><code title={change.path}>{change.path}</code><span>{change.status}</span><button type="button" disabled={busy||change.beforeHash===null||!['modified','deleted'].includes(change.status)} onClick={()=>void restore(change)}>恢复文件</button></div>)}
     </div>}
+    {!!audit.length&&<details className="strip-task-recovery__audit"><summary>恢复操作记录（{audit.length}）</summary>{audit.slice(0,15).map((entry,index)=><p key={index}><time>{entry.at}</time> · {entry.outcome} · <code>{entry.filePath}</code>{entry.reason?' · '+entry.reason:''}</p>)}</details>}
     <SnapshotManager sessionID={sessionID} tasks={tasks} onError={onError}/>
   </section>;
 }

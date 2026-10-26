@@ -50,10 +50,10 @@ function syntaxCheck(workspace,source){
  const originalRead=host.readFile.bind(host),originalExists=host.fileExists.bind(host);
  host.readFile=name=>path.resolve(name)===fileName?source:originalRead(name);
  host.fileExists=name=>path.resolve(name)===fileName||originalExists(name);
- const program=ts.createProgram([fileName],options,host);
- const issues=ts.getPreEmitDiagnostics(program).filter(d=>d.file&&path.resolve(d.file.fileName)===fileName);
+ const program=ts.createProgram([...new Set([...parsed.fileNames,fileName])],options,host);
+ const issues=ts.getPreEmitDiagnostics(program).filter(d=>!d.file||path.resolve(d.file.fileName)===fileName);
  if(issues.length)throw Object.assign(new Error('TSX 类型检查未通过：'+issues.slice(0,5).map(d=>ts.flattenDiagnosticMessageText(d.messageText,' ')).join('；')),{status:400});
- return {ok:true,engine:'TypeScript compiler',note:'已检查生成组件的 TSX 语法与 TypeScript 类型；尚未执行完整 Vite 构建。'};
+ return {ok:true,engine:'TypeScript compiler',note:'已按工作区 tsconfig 检查生成组件及其类型依赖；尚未执行完整 Vite 构建。'};
 }
 function validate(filename,source){
  if(typeof filename!=='string'||!allowed.test(filename))throw Object.assign(new Error('仅允许写入 generated-ui 下的独立预览组件'),{status:400});
@@ -132,4 +132,21 @@ async function rollback({workspace,undo,confirmed}){
  await fs.unlink(path.join(historyDirectory(entry.workspace),undo+'.json')).catch(error=>{if(error.code!=='ENOENT')throw error;});
  return {ok:true,filename:entry.filename};
 }
-module.exports={propose,apply,rollback};
+async function listHistory({workspace}){
+ const base=await fs.realpath(workspace);
+ const directory=historyDirectory(base);
+ const names=await fs.readdir(directory).catch(error=>{if(error.code==='ENOENT')return [];throw error;});
+ const results=[];
+ for(const name of names.filter(value=>/^uir_[a-f0-9]{24}\\.json$/.test(value)).slice(-100)){
+  const undo=name.slice(0,-5);
+  try{
+   const entry=await loadHistory(base,undo);
+   const target=path.resolve(base,...entry.filename.split('/'));
+   const stat=await fs.lstat(target).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
+   const current=stat?.isFile()?await fs.readFile(target,'utf8'):null;
+   results.push({undo,filename:entry.filename,at:entry.at,canRestore:current!==null&&sha(current)===entry.appliedHash,action:entry.previous===null?'add':'replace'});
+  }catch{continue;}
+ }
+ return {items:results.sort((a,b)=>b.at-a.at)};
+}
+module.exports={propose,apply,rollback,listHistory};

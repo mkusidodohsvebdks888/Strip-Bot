@@ -14,6 +14,7 @@ const {projectContext,contextPrompt} = require('../safety/project-context.cjs');
 const {projectManifest} = require('../safety/project-manifest.cjs');
 const projectIndex=require('../safety/project-index.cjs');
 const uiGeneration=require('../ui-generation/index.cjs');
+const projectConnector=require('../project-connector/index.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -94,6 +95,11 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         const workspace=owned[id].workspace;
         if(uiRoute[2]==='history')return uiGeneration.listHistory({workspace});
         return uiRoute[2]==='propose'?uiGeneration.propose({workspace,filename:body?.filename,source:body?.source}):uiRoute[2]==='rollback'?uiGeneration.rollback({workspace,undo:body?.undo,confirmed:body?.confirmed}):uiGeneration.apply({workspace,id:body?.id,hash:body?.hash,confirmed:body?.confirmed});
+      }
+      const connectorRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project-connector\/discover$/.exec(route);
+      if(connectorRoute&&method==='GET'){
+        const id=await session(connectorRoute[1]);
+        return projectConnector.discover(owned[id].workspace);
       }
       const projectRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project\/(index|search|content-search|refresh)$/.exec(route);
       if(projectRoute){

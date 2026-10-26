@@ -138,6 +138,15 @@ function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bo
       await save();notify();return {accepted:true,task:safeTask(task),...state(sessionID)};
     },
     async state(sessionID){await load();return state(sessionID);},
+    async markReviewed(sessionID,id,{verified,note}={}){
+      await load();
+      const task=taskFor(sessionID,id);
+      if(!['done','failed','cancelled'].includes(task.status))throw problem(409,'任务尚未结束，无法标记验证结果');
+      if(typeof verified!=='boolean'||typeof note!=='string'||note.length>500)throw problem(400,'验证结果或说明无效');
+      task.review={phase:verified?'verified':'requires_attention',finishedAt:task.endedAt,automaticallyVerified:false,manuallyVerified:verified,note:note.trim(),reviewedAt:Date.now()};
+      await save();
+      return {task:safeTask(task)};
+    },
     async overview(){await load();return {maxParallel,activeCount:active.size,queued:tasks.filter(t=>t.status==='queued').length,pausedSessions:[...paused],runningSessions:[...active.keys()]};},
     async hasOutstanding(){await load();return tasks.some(t=>['running','queued','paused'].includes(t.status));},
     onEvent(event){

@@ -1,6 +1,5 @@
 import {ToolsHub} from './components/Sidebar/ToolsHub';
 import {DesktopUpdates} from './components/DesktopUpdates';
-import {BackendProjectsTool} from './components/Sidebar/BackendProjectsTool';
 import {SkillsTool} from './components/Sidebar/SkillsTool';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
 import {useManualCommands} from './state/useManualCommands';
@@ -16,7 +15,6 @@ import {UnifiedConversationStream} from './components/Activity/UnifiedConversati
 import {AgentMessage as KitAgentMessage} from './vendor/codex-ui-kit/AgentMessage';
 import {ComposerDock} from './vendor/codex-ui-kit/ComposerDock';
 import {GlassComposerSurface} from './modules/theme/components/GlassComposerSurface';
-import {activityEvents} from './components/Activity/activity-events';
 import type {ResponseOption} from './components/ModelSwitcher/response-mode.mjs';
 import {ModelSwitcher} from './components/ModelSwitcher/ModelSwitcher';
 import {SearchPopup} from './components/Sidebar/SearchPopup';
@@ -211,10 +209,6 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   function openProject(path:string){if(conversation.sending || conversation.removing || conversation.loading)return;conversation.setWorkspace(path);newChat();}
   function openProjectSettings(){commands.close();setSettingsPageRequest({page:'project'});setSettingsView(true);if(window.innerWidth<=900)setPanelOpen(false);}
   function openSettings(){commands.close();setSettingsPageRequest(undefined);setSettingsView(true);if(window.innerWidth<=900)setPanelOpen(false);}
-  function showExecution(){
-    setSettingsView(false);if(window.innerWidth<=900)setPanelOpen(false);
-    requestAnimationFrame(()=>scroll.current?.querySelector('.strip-stream-toolbar')?.scrollIntoView({block:'start',behavior:'smooth'}));
-  }
   function addAttachment(){if(settingsView){setSettingsView(false);showNotice('已返回对话，点击左侧添加附件按钮选择文件。');return;}composerRef.current?.openFilePicker();}
   function applyModel(mode:typeof connection.mode,nextModel:string){
     if(busy)return;
@@ -246,8 +240,6 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
       displayRun.current=null;conversation.newConversation(draft);
     }
   }
-  const activityCount=activityEvents(snapshot).length;
-  const sourceLabel=connection.mode==='opencode'?'Codex CLI · ChatGPT':connection.mode==='direct'?'直接 API':'CC Switch';
   const notifications:Notification[]=[];
   const primaryIssue=selectTurnIssue(messages,conversation.error);
   if(primaryIssue)notifications.push(errorNotification(primaryIssue.id,primaryIssue.raw));
@@ -256,32 +248,21 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   if(blockedReason && !modelError && !modelChanged && !modelsLoading && !conversation.loading && !waiting) notifications.push({id:'blocked',title:'消息提示',message:blockedReason,action:!selectedModel?<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>:<button className="strip-btn strip-btn--secondary strip-btn--sm" onClick={openSettings}>打开设置</button>});
   if(notice) notifications.push({id:'composer-'+noticeRevision,title:'消息提示',message:notice});
   return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-fluid-glass={wallpaper.fluidGlassEnabled}>
-    <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
+    <div className="strip-window-topbar" aria-hidden="true"/>
     {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <DesktopUpdates notice busy={conversation.sending||busy||!!snapshot?.manualRunning}/>
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
       onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
     <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)}>
-      {activeTool==='backend' && <BackendProjectsTool modelName={model} disabled={busy || !!snapshot?.manualRunning || conversation.loading || conversation.sending} onSelect={folder=>{
-        if(busy || snapshot?.manualRunning || conversation.loading || conversation.sending){showNotice('请完成当前任务后再切换本地后端。');return;}
-        conversation.setWorkspace(folder);newChat();showNotice('已切换到授权后端；新对话将使用该项目源码。');
-      }}/>}
       {activeTool==='skills' && <SkillsTool/>}
       {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool) && <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'} onOpenSkills={()=>setActiveTool('skills')}/>}
       {activeTool==='history' && <>
         <ChatHistory entries={entries} search="" active={active} busy={conversation.sending || !!conversation.removing || conversation.loading} workspace={workspace} onOpenProject={openProject} onProjectSettings={openProjectSettings} onSelect={selectConversation} onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>
-        <p className="strip-attribution">Strip Bot · <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide Icons</a></p>
       </>}
-      {activeTool==='activity' && <div className="strip-tool-content">
-        <div className="strip-tool-meta"><span>任务来源</span><strong>{sourceLabel} · {model || '尚未连接'}</strong></div>
-        <h3 className="strip-tool-section-heading">执行与输出记录 <span>{activityCount}</span></h3>
-        <p className="strip-tool-description">执行步骤、命令输出和文件差异已与聊天合并，共享同一个滚动区域。</p>
-        <button type="button" className="strip-tool-action" onClick={showExecution}>查看会话执行记录</button>
-      </div>}
     </ToolPanel>
     {parallelOpen && <dialog open aria-label="并行新任务" className="strip-task-dialog"><form onSubmit={event=>{event.preventDefault();void launchParallel();}}><h2>并行新任务</h2><p>在独立会话中执行，最多同时运行 3 个任务。相同或嵌套目录会自动排队。</p><label>项目目录<input autoFocus required value={parallelPath} onChange={event=>setParallelPath(event.target.value)} placeholder="填写已授权的项目目录"/></label><label>任务指令<textarea required rows={4} value={parallelPrompt} onChange={event=>setParallelPrompt(event.target.value)}/></label><div><button type="button" disabled={parallelSending} onClick={()=>setParallelOpen(false)}>取消</button><button type="submit" disabled={parallelSending||!parallelPath.trim()||!parallelPrompt.trim()}>{parallelSending?'提交中…':'创建任务'}</button></div></form></dialog>}
-    <main className={shell.main+' strip-wallpaper-main'}>{settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} displayRate={displayRate} metrics={snapshot?.metrics} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
+    <main className={shell.main+' strip-wallpaper-main'}>{settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>
       <div className="strip-thread strip-unified-thread" ref={scroll}>
         {!messages.length && !legacyContext?.messages.length && !conversation.loading && <HomeWelcome inputActivity={homeInputActivity}/>}
         <div className="strip-messages strip-chat--codex strip-stream">

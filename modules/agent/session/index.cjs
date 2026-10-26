@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const {createEngine} = require('../engine/codex-engine.cjs');
 const {createTaskScheduler} = require('../scheduler/index.cjs');
+const {gitPreflight} = require('../safety/git-preflight.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -14,7 +15,9 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
   const autoApprovalSessions=new Set(); // Process-local; never persist authority in history.
   const metrics=createModelMetrics();let watching=false;
   const scheduler=createTaskScheduler({root,getEngine:()=>engine,onBeforeStart:async task=>{
+    const preflight=await gitPreflight(task.workspace);
     await ensure();metrics.begin(task.sessionID,owned?.[task.sessionID]?.model?.id,({codex:'Codex CLI · ChatGPT',ccswitch:'CC Switch',direct:'API 连接'})[connection] || 'Codex CLI');
+    return preflight;
   }});
   const ensure = async () => {await engine.ensure();started = true;if(!watching && engine.subscribe){const source=engine;watching=true;try{await source.subscribe(event=>{if(source===engine){scheduler.onEvent(event);if(owned?.[event?.data?.sessionID])metrics.event(event);}},()=>{if(source===engine){watching=false;metrics.disconnect();}});}catch{watching=false;metrics.disconnect();}}};
   const sameConfig = (a,b) => ['endpoint','model','provider','connection'].every(key => a?.[key] === b?.[key]);

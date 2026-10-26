@@ -11,11 +11,20 @@ const example=`:root {
   --sidebar-bg: #edf1f8;
 }`;
 
+const presets=[
+ {id:'codex-light',label:'Codex · 明亮',description:'柔和白色、灰色侧栏、低饱和蓝色',palette:{'--bg':'#f8f9fb','--fg':'#222831','--accent':'#718cad','--card-bg':'#ffffff','--sidebar-bg':'#f0f2f5','--muted':'#737b86','--surface-2':'#eef1f5'}},
+ {id:'codex-dark',label:'Codex · 深色',description:'深灰工作区、克制的对比度',palette:{'--bg':'#181a1d','--fg':'#e8e9eb','--accent':'#9db2ce','--card-bg':'#212429','--sidebar-bg':'#15171a','--muted':'#a1a7b0','--surface-2':'#282b30'}},
+ {id:'glass',label:'柔和毛玻璃',description:'浅色背景、柔和卡片和边框',palette:{'--bg':'#edf2f7','--fg':'#2b3544','--accent':'#829cb8','--card-bg':'#f9fbfe','--sidebar-bg':'#e4ebf3','--muted':'#778596','--surface-2':'#f1f5fa'}}
+] as const;
+function paletteCss(palette:Record<string,string>){return ':root {\\n'+Object.entries(palette).map(([key,value])=>'  '+key+': '+value+';').join('\\n')+'\\n}';}
+
 export function OpenUIStudio(){
  const [service,setService]=useState<OpenUIStatus|null>(null);
  const [loading,setLoading]=useState(true);
  const [showFrame,setShowFrame]=useState(false);
  const [code,setCode]=useState(example);
+ const [instruction,setInstruction]=useState('设计一个 Codex 风格的简洁 AI Agent 工作台，圆角矩形、清晰的信息层级、柔和对比度，保持输入框和工具栏易用。');
+ const [preview,setPreview]=useState<Record<string,string>|null>(null);
  const [message,setMessage]=useState('');
  const [hasCustom,setHasCustom]=useState(hasImportedTheme);
  async function refresh(){
@@ -34,6 +43,7 @@ export function OpenUIStudio(){
    window.addEventListener('strip:openui-theme-changed',sync);
    return ()=>window.removeEventListener('strip:openui-theme-changed',sync);
  },[]);
+ function previewColors(){try{setPreview(parseOpenUITheme(code));setMessage('已生成本地颜色预览；未修改当前主题。');}catch(error){setMessage(error instanceof Error?error.message:'预览失败');}}
  function apply(){
    try{
      const palette=parseOpenUITheme(code);
@@ -46,6 +56,8 @@ export function OpenUIStudio(){
    <div className="strip-openui-studio__header"><div><h2>生成式 UI · OpenUI</h2><p>使用自然语言描述界面，实时预览，反复调整，再把颜色导入 StripBot。</p></div>
      <span className={'strip-openui-status'+(service?.online?' is-ready':'')}>{loading?'检测中…':service?.online?'已连接 OpenUI':'OpenUI 未启动'}</span>
    </div>
+   <div className="strip-openui-presets"><h3>Codex 风格预设</h3><p className="strip-muted">选择预设后可预览、编辑并确认应用，不会直接覆盖当前主题。</p><div className="strip-openui-preset-grid">{presets.map(item=><button key={item.id} type="button" onClick={()=>{setCode(paletteCss(item.palette));setPreview({...item.palette});setMessage('已选择 '+item.label+'，确认应用前不会修改主题。');}}><span className="strip-openui-preset-swatch" style={{background:item.palette['--bg'],color:item.palette['--fg'],borderColor:item.palette['--accent']}}>Aa <span style={{background:item.palette['--accent']}}/></span><strong>{item.label}</strong><small>{item.description}</small></button>)}</div></div>
+   <div className="strip-openui-instructions"><label htmlFor="strip-openui-prompt">界面设计需求</label><textarea id="strip-openui-prompt" rows={3} value={instruction} onChange={event=>setInstruction(event.target.value.slice(0,2000))}/><button type="button" className="strip-btn strip-btn--secondary" onClick={()=>{const prompt=instruction+'\\n请输出 :root CSS 颜色变量，至少包含 --bg、--fg、--accent；仅使用十六进制颜色。';void navigator.clipboard.writeText(prompt).then(()=>setMessage('设计需求已复制，可粘贴到 OpenUI 生成器。')).catch(()=>setMessage('无法复制，请手动复制设计需求。'));}}>复制生成指令</button><p className="strip-muted">生成需要本地 OpenUI 服务及其单独配置的 AI 模型；预设和颜色预览可离线使用。</p></div>
    <div className="strip-openui-actions">
      <button className="strip-btn strip-btn--secondary" type="button" disabled={!service?.online} onClick={()=>setShowFrame(v=>!v)}>{showFrame?'收起生成器':'打开 OpenUI 生成器'}</button>
      <a className="strip-btn strip-btn--secondary" href="http://127.0.0.1:7878/ai" target="_blank" rel="noopener noreferrer">浏览器打开</a>
@@ -63,9 +75,11 @@ export function OpenUIStudio(){
       <label htmlFor="strip-openui-css">主题颜色变量</label>
       <textarea id="strip-openui-css" rows={7} spellCheck={false} value={code} onChange={event=>setCode(event.target.value)}/>
       <div className="strip-openui-actions">
+        <button className="strip-btn strip-btn--secondary" type="button" onClick={previewColors}>预览颜色</button>
         <button className="strip-btn strip-btn--primary" type="button" onClick={apply}>确认并应用</button>
         <button className="strip-btn strip-btn--secondary" type="button" disabled={!hasCustom} onClick={()=>{clearImportedTheme();setMessage('已恢复 StripBot 原有主题颜色。');}}>恢复原主题</button>
       </div>
+      {preview&&<div className="strip-openui-live-preview" style={{background:preview['--bg'],color:preview['--fg']}}><aside style={{background:preview['--sidebar-bg']||preview['--bg']}}>对话<br/>项目<br/>设置</aside><div><strong>StripBot · 主题预览</strong><p>这是独立预览，不影响当前界面。</p><div style={{background:preview['--card-bg']||preview['--bg']}}>Agent 已准备就绪 <span style={{color:preview['--accent']}}>●</span></div></div></div>}
       {message&&<p className="strip-openui-feedback" role="status">{message}</p>}
    </div>
  </section>;

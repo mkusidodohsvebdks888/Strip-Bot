@@ -30,7 +30,7 @@ const presets=[
  {id:'codex-dark',label:'Codex · 深色',description:'深灰工作区、克制的对比度',palette:{'--bg':'#181a1d','--fg':'#e8e9eb','--accent':'#9db2ce','--card-bg':'#212429','--sidebar-bg':'#15171a','--muted':'#a1a7b0','--surface-2':'#282b30'}},
  {id:'glass',label:'柔和毛玻璃',description:'浅色背景、柔和卡片和边框',palette:{'--bg':'#edf2f7','--fg':'#2b3544','--accent':'#829cb8','--card-bg':'#f9fbfe','--sidebar-bg':'#e4ebf3','--muted':'#778596','--surface-2':'#f1f5fa'}}
 ] as const;
-function paletteCss(palette:Record<string,string>){return ':root {\\n'+Object.entries(palette).map(([key,value])=>'  '+key+': '+value+';').join('\\n')+'\\n}';}
+function paletteCss(palette:Record<string,string>){return ':root {\n'+Object.entries(palette).map(([key,value])=>'  '+key+': '+value+';').join('\n')+'\n}';}
 
 export function OpenUIStudio(){
  const [service,setService]=useState<OpenUIStatus|null>(null);

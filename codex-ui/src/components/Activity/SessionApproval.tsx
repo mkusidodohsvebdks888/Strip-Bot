@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import type {ApprovalMode} from '../AgentPanel';
 import {ControlIcon} from '../ControlIcon';
+import {Button as KitButton} from '../../vendor/codex-ui-kit/Button';
 import './session-approval.css';
 import {useAnchoredPopup} from '../useAnchoredPopup';
 
@@ -11,7 +12,7 @@ export function ApprovalConfirm({title,children,label,onConfirm,onCancel}:{title
   async function submit(){if(lock.current)return;lock.current=true;setWorking(true);setError('');try{await onConfirm();onCancel();}catch(e){setError(e instanceof Error?e.message:'操作失败，请重试。');}finally{lock.current=false;setWorking(false);}}
   return <dialog ref={dialog} className="strip-approval-dialog" aria-label={title} onCancel={event=>{event.preventDefault();if(!lock.current)onCancel();}}>
     <h3>{title}</h3>{children}{error && <p role="alert" className="strip-approval-error">{error}</p>}
-    <div className="strip-approval-actions"><button type="button" autoFocus disabled={working} onClick={onCancel}>取消</button><button type="button" className="strip-approval-primary" disabled={working} onClick={()=>void submit()}>{working?'正在提交…':label}</button></div>
+    <div className="strip-approval-actions"><KitButton type="button" tone="secondary" autoFocus disabled={working} onClick={onCancel}>取消</KitButton><KitButton type="button" tone="primary" className="strip-approval-primary" loading={working} disabled={working} onClick={()=>void submit()}>{working?'正在提交…':label}</KitButton></div>
   </dialog>;
 }
 export function SessionApproval({mode,updating,disabled,workspace,onChange,docked=false}:{mode:ApprovalMode;updating:boolean;disabled:boolean;workspace:string;onChange:(mode:ApprovalMode)=>Promise<void>;docked?:boolean}){

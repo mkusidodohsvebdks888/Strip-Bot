@@ -26,7 +26,7 @@ export function ToolsHub({initialSection='local',onOpenSkills}:{initialSection?:
       {section==='github'&&<GithubToolsTool onOpenSkills={onOpenSkills}/>}
       {section==='mcp'&&<IntegrationsTool/>}
       {section==='astrbot'&&<AstrBotTool/>}
-      {section==='marketplace'&&<MarketplaceTool/>}
+      {section==='marketplace'&&<MarketplaceTool onOpenMcp={()=>setSection('mcp')}/>}
     </div>
   </div>;
 }

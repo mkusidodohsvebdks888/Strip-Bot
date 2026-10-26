@@ -75,3 +75,10 @@
 .strip-openui-demo-frame button{cursor:pointer;border:1px solid #aaa;border-radius:8px;padding:8px;background:#fff;color:#222}
 .strip-openui-validation{font-size:12px;color:var(--fg)}
 @media(max-width:650px){.strip-openui-demo-frame{grid-template-columns:90px minmax(0,1fr)}}
+
+.strip-openui-history{display:grid;gap:10px;padding:14px;border:1px solid var(--border-10);border-radius:13px}
+.strip-openui-history>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.strip-openui-history ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.strip-openui-history li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px;border:1px solid var(--border-10);border-radius:9px;min-width:0}
+.strip-openui-history li span{overflow-wrap:anywhere;font-size:12px}
+.strip-openui-history li small{display:block;color:var(--muted);margin-top:4px}

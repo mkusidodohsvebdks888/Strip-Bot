@@ -5,7 +5,7 @@ import './extension-workspace.css';
 
 type ToolRepo={id:string;label:string;key:string;url:string;sha:string;folder:string;runtime:'node'|'python'|'unknown';mcpLikely:boolean;launch:string[];scriptNames:string[];packageName:string;envNames:string[];requiresDependencies:boolean;readmeSummary:string};
 type McpIntegration={id:string;enabled:boolean;command?:string[]};
-export function GithubToolsTool({onOpenSkills}:{onOpenSkills:()=>void}){
+export function GithubToolsTool(){
   const [repos,setRepos]=useState<ToolRepo[]>([]);
   const [integrations,setIntegrations]=useState<McpIntegration[]>([]);
   const [commands,setCommands]=useState<Record<string,string>>({});
@@ -63,7 +63,6 @@ export function GithubToolsTool({onOpenSkills}:{onOpenSkills:()=>void}){
       <input id="strip-gh-url" value={url} onChange={e=>setUrl(e.target.value)} required spellCheck={false} placeholder="https://github.com/owner/mcp-server"/>
       <button className="strip-tool-action" type="submit" disabled={busy}><Icon name="download"/> 下载并分析</button>
     </form>
-    <p className="strip-ext-sub">如果仓库提供的是 SKILL.md 指令而非 MCP 服务，请使用 <button type="button" className="strip-ext-text-button" onClick={onOpenSkills}>Skills 加入页面 <Icon name="arrow-up-right"/></button>。</p>
     <div className="strip-tool-separator"/>
     <h3 className="strip-tool-section-heading">已导入仓库</h3>
     {!repos.length&&<div className="strip-tool-empty">还没有导入 GitHub 工具。导入后先审查，再授权启动。</div>}

@@ -66,6 +66,26 @@ function createIntegrationRegistry({root}) {
   }
   return {
     list: () => pending.then(read),
+    async inspect({id}) {
+      const items=await pending.then(read);
+      const item=items.find(entry=>entry.id===id);
+      if(!item)throw httpError(404,'MCP 服务器不存在。');
+      const checks=[];
+      if(item.type==='local'){
+        const executable=item.command[0];
+        checks.push({name:'启动命令',ok:true,message:`已配置 ${item.command.length} 个命令参数`});
+        if(item.cwd){
+          try{const stat=await fs.stat(item.cwd);checks.push({name:'工作目录',ok:stat.isDirectory(),message:stat.isDirectory()?'目录存在':'路径不是目录'});}
+          catch{checks.push({name:'工作目录',ok:false,message:'工作目录不存在或不可访问'});}
+        }
+        checks.push({name:'进程启动',ok:null,message:`尚未启动 ${path.basename(executable)}；需要独立的 MCP 握手测试`});
+      }else{
+        const target=new URL(item.url);
+        checks.push({name:'URL 格式',ok:true,message:`${target.protocol}//${target.host}`});
+        checks.push({name:'协议握手',ok:null,message:'尚未发起网络连接；此处仅验证已保存配置'});
+      }
+      return {id:item.id,type:item.type,configured:true,connected:null,checks};
+    },
     upsert: raw => transaction(items => {
       const existing = items.findIndex(item=>item.id===raw?.id);
       if (existing<0 && items.length >= MAX_INTEGRATIONS) throw httpError(400, '最多连接 30 个项目。');

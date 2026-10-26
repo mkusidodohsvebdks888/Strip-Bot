@@ -96,10 +96,14 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         if(uiRoute[2]==='history')return uiGeneration.listHistory({workspace});
         return uiRoute[2]==='propose'?uiGeneration.propose({workspace,filename:body?.filename,source:body?.source}):uiRoute[2]==='rollback'?uiGeneration.rollback({workspace,undo:body?.undo,confirmed:body?.confirmed}):uiGeneration.apply({workspace,id:body?.id,hash:body?.hash,confirmed:body?.confirmed});
       }
-      const connectorRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project-connector\/discover$/.exec(route);
-      if(connectorRoute&&method==='GET'){
+      const connectorRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project-connector\/(discover|list|read)$/.exec(route);
+      if(connectorRoute){
         const id=await session(connectorRoute[1]);
-        return projectConnector.discover(owned[id].workspace);
+        const workspace=owned[id].workspace;
+        if(connectorRoute[2]==='discover'&&method==='GET')return projectConnector.discover(workspace);
+        if(connectorRoute[2]==='list'&&method==='POST')return projectConnector.list(workspace,body?.path);
+        if(connectorRoute[2]==='read'&&method==='POST')return projectConnector.read(workspace,body?.path);
+        throw httpError(405,'只读连接器不支持此操作');
       }
       const projectRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project\/(index|search|content-search|refresh)$/.exec(route);
       if(projectRoute){

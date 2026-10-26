@@ -39,6 +39,8 @@ export function IntegrationsTool(){
   const [discoveredTools,setDiscoveredTools]=useState<Record<string,{name:string;description:string}[]>>({});
   const [toolListIncomplete,setToolListIncomplete]=useState<Record<string,boolean>>({});
   const [toolPermissions,setToolPermissions]=useState<Record<string,Record<string,string>>>({});
+  const [approvalDialog,setApprovalDialog]=useState<{requestId:string;server:string;tool:string;expiresAt:number}|null>(null);
+  const [approvalBusy,setApprovalBusy]=useState(false);
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -71,6 +73,26 @@ export function IntegrationsTool(){
   const changePermission=async(item:Integration,tool:string,mode:string)=>{
     try{await request('/api/integrations/permission',{id:item.id,tool,mode});setToolPermissions(current=>({...current,[item.id]:{...(current[item.id]||{}),[tool]:mode}}));setInfo('工具权限已保存；执行器接入前不会自动调用工具。');setError('');}
     catch(e){setError(e instanceof Error?e.message:'权限保存失败');}
+  };
+  const previewApproval=async(item:Integration,tool:string)=>{
+    if(approvalBusy||approvalDialog)return;
+    setApprovalBusy(true);setError('');
+    try{
+      const result=await request<{requestId:string|null;reason:string;expiresAt?:number}>('/api/integrations/approval/request',{id:item.id,tool});
+      if(result.requestId&&result.expiresAt)setApprovalDialog({requestId:result.requestId,server:item.label,tool,expiresAt:result.expiresAt});
+      else setInfo(result.reason==='permitted'?'该工具已设置为允许，无需批准。':'当前策略不允许发起批准请求。');
+    }catch(e){setError(e instanceof Error?e.message:'创建批准请求失败');}
+    finally{setApprovalBusy(false);}
+  };
+  const decidePreview=async(allow:boolean)=>{
+    if(!approvalDialog||approvalBusy)return;
+    setApprovalBusy(true);setError('');
+    try{
+      const result=await request<{allowed:boolean;reason:string}>('/api/integrations/approval/decide',{requestId:approvalDialog.requestId,allow});
+      setInfo(result.allowed?'已记录一次允许决定（演示，不执行工具）':'已记录拒绝决定（演示，不执行工具）');
+      setApprovalDialog(null);
+    }catch(e){setError(e instanceof Error?e.message:'提交批准决定失败');setApprovalDialog(null);}
+    finally{setApprovalBusy(false);}
   };
   const copyConfig=async(item:Integration)=>{
     if(!window.confirm(`复制「${item.label}」的连接配置？配置可能包含访问令牌、私有路径或认证参数，请勿分享给不可信的人。`))return;
@@ -139,6 +161,7 @@ export function IntegrationsTool(){
   const search=query.trim().toLocaleLowerCase();
   const visibleItems=items.filter(item=>(filter==='all'||(filter==='enabled'?item.enabled:!item.enabled))&&(!search||[item.id,item.label,item.type,item.type==='local'?item.command?.join(' '):item.url].some(value=>value?.toLocaleLowerCase().includes(search))));
   return <section className="strip-tool-content strip-integrations" aria-label="项目工具连接">
+    {approvalDialog&&<div className="strip-integrations__approval-backdrop"><div className="strip-integrations__approval-dialog" role="dialog" aria-modal="true" aria-labelledby="strip-mcp-approval-title"><h3 id="strip-mcp-approval-title">MCP 工具批准预览</h3><p>服务器：{approvalDialog.server}</p><p>工具：<code>{approvalDialog.tool}</code></p><p>有效期至：{new Date(approvalDialog.expiresAt).toLocaleTimeString()}</p><p className="strip-tool-note">这是独立的批准流程演示，不会执行 MCP 工具，也不会授权后续调用。</p><div className="strip-integrations__approval-actions"><StripButton variant="secondary" disabled={approvalBusy} onClick={()=>void decidePreview(false)}>拒绝</StripButton><StripButton variant="primary" disabled={approvalBusy} onClick={()=>void decidePreview(true)}>允许一次（演示）</StripButton></div></div></div>}
     <div className="strip-integrations__intro"><div><span className="strip-integrations__eyebrow">MODEL CONTEXT PROTOCOL</span><h3>MCP 服务器</h3><p className="strip-tool-description">连接本地或远程工具服务，授权 Agent 使用。</p></div><StripButton size="sm" variant="primary" aria-expanded={showForm} aria-controls="strip-mcp-create" onClick={()=>setShowForm(value=>!value)}>{showForm?'收起表单':'+ 添加服务器'}</StripButton></div>
     <div className="strip-integrations__summary"><div className="strip-integrations__metric"><strong>{items.length}</strong><span>服务器总数</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>x.enabled).length}</strong><span>已启用</span></div><div className="strip-integrations__metric"><strong>{items.filter(x=>!x.enabled).length}</strong><span>未启用</span></div></div>
     <div className="strip-integrations__filters" role="group" aria-label="筛选 MCP 服务器">{([["all","全部"],["enabled","已启用"],["disabled","未启用"]] as const).map(([value,label])=><button key={value} type="button" aria-pressed={filter===value} onClick={()=>setFilter(value)}>{label}</button>)}</div>
@@ -152,7 +175,7 @@ export function IntegrationsTool(){
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail"><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{showSensitiveConfig?(item.type==='local'?item.command?.join(' '):item.url):redact(item.type==='local'?item.command?.join(' ')||'':item.url||'')}</code></div>
       <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="secondary" disabled={inspecting!==null} onClick={()=>void probe(item)}>{item.type==='local'?'测试本地 MCP':'测试握手（仅本机）'}</StripButton><StripButton size="sm" variant="ghost" disabled={inspecting!==null} onClick={()=>void inspect(item)}>{inspecting===item.id?'诊断中…':'检查配置'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
-      {discoveredTools[item.id]&&<div className="strip-integrations__diagnostic"><strong>发现的工具（{discoveredTools[item.id].length}{toolListIncomplete[item.id]?'，还有更多':''}）</strong>{discoveredTools[item.id].map((tool,index)=><div key={tool.name+index}><span>{tool.name}</span><small>{tool.description}</small><label className="strip-integrations__permission">权限<select value={toolPermissions[item.id]?.[tool.name]||'ask'} onChange={event=>void changePermission(item,tool.name,event.target.value)}><option value="ask">每次询问</option><option value="allow">允许</option><option value="deny">禁止</option></select></label></div>)}</div>}
+      {discoveredTools[item.id]&&<div className="strip-integrations__diagnostic"><strong>发现的工具（{discoveredTools[item.id].length}{toolListIncomplete[item.id]?'，还有更多':''}）</strong>{discoveredTools[item.id].map((tool,index)=><div key={tool.name+index}><span>{tool.name}</span><small>{tool.description}</small>{item.enabled&&(toolPermissions[item.id]?.[tool.name]||'ask')==='ask'&&<StripButton size="sm" variant="ghost" disabled={approvalBusy} onClick={()=>void previewApproval(item,tool.name)}>预览批准</StripButton>}<label className="strip-integrations__permission">权限<select value={toolPermissions[item.id]?.[tool.name]||'ask'} onChange={event=>void changePermission(item,tool.name,event.target.value)}><option value="ask">每次询问</option><option value="allow">允许</option><option value="deny">禁止</option></select></label></div>)}</div>}
       {probeResults[item.id]&&<p className="strip-integrations__feedback" role="status">{probeResults[item.id]}</p>}
       {diagnostics[item.id]&&<div className="strip-integrations__diagnostic" role="status"><strong>配置诊断（不执行连接）</strong>{diagnostics[item.id].checks.map(check=><div key={check.name}><span>{check.ok===true?'✓':check.ok===false?'!':'·'} {check.name}</span><small>{check.message}</small></div>)}</div>}
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}

@@ -6,6 +6,7 @@ const {createTaskScheduler} = require('../scheduler/index.cjs');
 const {gitPreflight} = require('../safety/git-preflight.cjs');
 const {snapshot} = require('../safety/worktree-snapshot.cjs');
 const {compareSnapshot} = require('../safety/worktree-diff.cjs');
+const {restoreSnapshotFile} = require('../safety/worktree-restore.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -118,6 +119,17 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         if(!task)throw httpError(404,'任务不存在或不属于当前会话。');
         if(!task.preflight?.snapshot?.available)throw httpError(409,'该任务没有可用的执行前快照。');
         return compareSnapshot({root,workspace:owned[id].workspace,taskID:task.id});
+      }
+      const restoreTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/restore$/.exec(route);
+      if(restoreTask && method==='POST'){
+        const id=await session(restoreTask[1]);
+        const state=await scheduler.state(id);
+        const task=state.tasks.find(entry=>entry.id===restoreTask[2]);
+        if(!task)throw httpError(404,'任务不存在或不属于当前会话');
+        if(!['done','failed','cancelled'].includes(task.status))throw httpError(409,'任务尚未结束，禁止恢复');
+        if(await scheduler.hasOutstanding())throw httpError(409,'仍有任务正在执行或等待，请先处理队列');
+        if(!task.preflight?.snapshot?.available)throw httpError(409,'该任务没有可用快照');
+        return restoreSnapshotFile({root,workspace:owned[id].workspace,taskID:task.id,filePath:body.filePath,expectedHash:body.expectedHash,confirmed:body.confirmed});
       }
       const cancelTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/cancel$/.exec(route);
       if(cancelTask && method==='POST'){await session(cancelTask[1]);return scheduler.cancel(cancelTask[1],cancelTask[2]);}

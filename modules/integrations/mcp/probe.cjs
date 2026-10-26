@@ -47,7 +47,7 @@ async function probeRemote(item,{timeoutMs=6000}={}){
     const follow=async(payload)=>{
       const next=await fetch(target.href,{method:'POST',redirect:'manual',signal:controller.signal,headers,body:JSON.stringify(payload)});
       if(next.status>=300&&next.status<400)throw httpError(502,'MCP 服务重定向已被拒绝');
-      const text=await readLimited(next);
+      const text=next.status===202?'':await readLimited(next);
       if(!next.ok)throw httpError(502,'MCP 后续请求失败：HTTP '+next.status);
       return {text,contentType:next.headers.get('content-type')||''};
     };
@@ -58,7 +58,9 @@ async function probeRemote(item,{timeoutMs=6000}={}){
     for(const line of lines){try{const obj=JSON.parse(line);if(obj.id===2&&obj.jsonrpc==='2.0'){toolsReply=obj;break;}}catch{}}
     if(!toolsReply||!Array.isArray(toolsReply.result?.tools))throw httpError(502,'MCP 工具列表响应无效');
     const tools=toolsReply.result.tools.slice(0,100).map(tool=>({name:String(tool.name||'').slice(0,128),description:String(tool.description||'').slice(0,500)}));
-    return {connected:true,protocolVersion:parsed.result.protocolVersion,serverInfo:parsed.result.serverInfo||null,tools,message:'MCP 握手成功，已读取首批工具（不执行工具）'};
+    const hasMore=typeof toolsReply.result.nextCursor==='string'&&toolsReply.result.nextCursor.length>0;
+    const truncated=toolsReply.result.tools.length>100;
+    return {connected:true,protocolVersion:parsed.result.protocolVersion,serverInfo:parsed.result.serverInfo||null,tools,hasMore:hasMore||truncated,message:'MCP 握手成功，已读取首批工具（不执行工具）'};
   }catch(error){
     if(controller.signal.aborted)throw httpError(504,'MCP 连接超时');
     throw error;

@@ -9,6 +9,7 @@ const {compareSnapshot} = require('../safety/worktree-diff.cjs');
 const {restoreSnapshotFile} = require('../safety/worktree-restore.cjs');
 const {listSnapshots,removeSnapshot} = require('../safety/snapshot-inventory.cjs');
 const {appendRestoreAudit,readRestoreAudit} = require('../safety/restore-audit.cjs');
+const {projectContext,contextPrompt} = require('../safety/project-context.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -23,6 +24,7 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     const preflight=await gitPreflight(task.workspace);
     const captured=await snapshot({workspace:task.workspace,root,taskID:task.id});
     preflight.snapshot=captured;
+    task.contextPrompt=contextPrompt(await projectContext(task.workspace));
     // Fail closed when a Git project cannot be snapshotted. Non-Git workspaces remain supported.
     if(preflight.git && !captured.available){
       const error=new Error('执行前快照不可用：'+(captured.reason||'unknown')+'。为保护现有修改，已阻止任务启动。');

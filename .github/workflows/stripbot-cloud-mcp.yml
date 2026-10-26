@@ -1,0 +1,44 @@
+name: StripBot Cloud MCP checks
+on:
+  push:
+    paths:
+      - 'modules/integrations/mcp/**'
+      - 'backend/gateway.cjs'
+      - 'test/mcp-cloud-*.test.js'
+      - 'codex-ui/src/components/Sidebar/IntegrationsTool.tsx'
+      - 'codex-ui/src/components/Sidebar/integrations-tool.css'
+      - '.github/workflows/stripbot-cloud-mcp.yml'
+  pull_request:
+    paths:
+      - 'modules/integrations/mcp/**'
+      - 'backend/gateway.cjs'
+      - 'test/mcp-cloud-*.test.js'
+      - 'codex-ui/src/components/Sidebar/IntegrationsTool.tsx'
+      - 'codex-ui/src/components/Sidebar/integrations-tool.css'
+  workflow_dispatch:
+jobs:
+  cloud-mcp-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test cloud MCP server and client
+        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js
+  cloud-ui-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: codex-ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: codex-ui/package-lock.json
+      - name: Install UI dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck UI
+        run: npm run typecheck

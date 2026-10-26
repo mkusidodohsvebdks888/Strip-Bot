@@ -437,8 +437,15 @@ export default function LiquidGlass({
     }
 
     updateGlassSize()
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(updateGlassSize)
+      : null
+    if (glassRef.current) observer?.observe(glassRef.current)
     window.addEventListener("resize", updateGlassSize)
-    return () => window.removeEventListener("resize", updateGlassSize)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener("resize", updateGlassSize)
+    }
   }, [])
 
   const transformStyle = `translate(calc(-50% + ${calculateElasticTranslation().x}px), calc(-50% + ${calculateElasticTranslation().y}px)) ${isActive && Boolean(onClick) ? "scale(0.96)" : calculateDirectionalScale()}`

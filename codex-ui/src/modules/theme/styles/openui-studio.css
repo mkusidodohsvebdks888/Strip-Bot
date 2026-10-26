@@ -57,3 +57,9 @@
 
 .strip-openui-proposal{display:grid;gap:10px;padding:12px;border:1px solid var(--accent);border-radius:12px}
 .strip-openui-proposal pre{max-height:300px;overflow:auto;white-space:pre;font:12px/1.6 var(--font-code,monospace);padding:12px;background:var(--surface-search);border-radius:9px}
+
+.strip-openui-workflow{display:grid;gap:9px;padding:14px;border:1px solid var(--border-10);border-radius:14px;background:var(--surface-2)}
+.strip-openui-workflow>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.strip-openui-workflow span{display:block;padding:11px 9px;border:1px solid var(--border-10);border-radius:10px;background:var(--card-bg);color:var(--muted);font-size:12px;text-align:center}
+.strip-openui-workflow span[data-active=true]{color:var(--fg);border-color:var(--accent);font-weight:700}
+@media(max-width:650px){.strip-openui-workflow>div{grid-template-columns:1fr}}

@@ -35,6 +35,7 @@ export function IntegrationsTool(){
   const [selectedImport,setSelectedImport]=useState('');
   const [diagnostics,setDiagnostics]=useState<Record<string,Diagnostic>>({});
   const [inspecting,setInspecting]=useState<string|null>(null);
+  const [probeResults,setProbeResults]=useState<Record<string,string>>({});
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -53,6 +54,14 @@ export function IntegrationsTool(){
     setInspecting(item.id);setError('');
     try{const result=await request<Diagnostic>('/api/integrations/inspect',{id:item.id});setDiagnostics(previous=>({...previous,[item.id]:result}));}
     catch(e){setError(e instanceof Error?e.message:'诊断失败');}
+    finally{setInspecting(null);}
+  };
+  const probe=async(item:Integration)=>{
+    if(item.type!=='remote'||inspecting)return;
+    if(!window.confirm('将向本机 MCP 服务发送初始化请求，是否继续？'))return;
+    setInspecting(item.id);setError('');
+    try{const result=await request<{connected:boolean;protocolVersion:string}>('/api/integrations/probe',{id:item.id,confirmed:true});setProbeResults(current=>({...current,[item.id]:result.connected?'握手成功 · 协议 '+result.protocolVersion:'连接失败'}));}
+    catch(e){setProbeResults(current=>({...current,[item.id]:'连接失败'}));setError(e instanceof Error?e.message:'连接失败');}
     finally{setInspecting(null);}
   };
   const copyConfig=async(item:Integration)=>{
@@ -134,7 +143,8 @@ export function IntegrationsTool(){
     {visibleItems.map(item=><div key={item.id} className="strip-integrations__item">
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail"><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{showSensitiveConfig?(item.type==='local'?item.command?.join(' '):item.url):redact(item.type==='local'?item.command?.join(' ')||'':item.url||'')}</code></div>
-      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="ghost" disabled={inspecting!==null} onClick={()=>void inspect(item)}>{inspecting===item.id?'诊断中…':'检查配置'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton>{item.type==='remote'&&<StripButton size="sm" variant="secondary" disabled={inspecting!==null} onClick={()=>void probe(item)}>测试握手（仅本机）</StripButton>}<StripButton size="sm" variant="ghost" disabled={inspecting!==null} onClick={()=>void inspect(item)}>{inspecting===item.id?'诊断中…':'检查配置'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      {probeResults[item.id]&&<p className="strip-integrations__feedback" role="status">{probeResults[item.id]}</p>}
       {diagnostics[item.id]&&<div className="strip-integrations__diagnostic" role="status"><strong>配置诊断（不执行连接）</strong>{diagnostics[item.id].checks.map(check=><div key={check.name}><span>{check.ok===true?'✓':check.ok===false?'!':'·'} {check.name}</span><small>{check.message}</small></div>)}</div>}
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}
     </div>)}

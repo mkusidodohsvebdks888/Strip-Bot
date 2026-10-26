@@ -31,6 +31,7 @@ export function ChatHistory({entries,search='',active,busy,workspace='',projects
   triggerRef.current=openMenu?.trigger || null;
   const menuPosition=useAnchoredPopup(Boolean(openMenu),triggerRef,menuRef,{width:170});
   const [recentLimit,setRecentLimit]=useState(24);
+  const [showAllProjects,setShowAllProjects]=useState(false);
   useEffect(()=>{try{localStorage.setItem(pinnedKey,JSON.stringify(pinned));}catch{}},[pinned]);
   useEffect(()=>{if(workspace.trim())setVisitedProjects(values=>values[0]===workspace?values:[workspace,...values.filter(value=>value!==workspace)].slice(0,30));},[workspace]);
   useEffect(()=>{try{localStorage.setItem(projectsKey,JSON.stringify(visitedProjects));}catch{}},[visitedProjects]);
@@ -65,7 +66,7 @@ export function ChatHistory({entries,search='',active,busy,workspace='',projects
     {/* No tab/group labels: project folders first, then one chronological list. */}
     {(filteredProjects.length>0 || onProjectSettings) && <section className="strip-cx-section strip-cx-section--projects" aria-label="项目目录">
       <div className="strip-cx-project-list">
-        {filteredProjects.map(path=><div className="strip-cx-project" key={path}>
+        {filteredProjects.slice(0,showAllProjects?filteredProjects.length:5).map(path=><div className="strip-cx-project" key={path}>
           <div className="strip-cx-project__row">
             <button type="button" className={'strip-cx-project__open'+(activeProject===path?' is-current':'')}
               title={path} disabled={busy || !onOpenProject}
@@ -75,6 +76,7 @@ export function ChatHistory({entries,search='',active,busy,workspace='',projects
             </button>
           </div>
         </div>)}
+        {filteredProjects.length>5 && <button type="button" className="strip-cx-show-more strip-cx-project-more" onClick={()=>setShowAllProjects(value=>!value)}>{showAllProjects?'收起项目':`展开更多项目 (${filteredProjects.length-5})`}</button>}
         {onProjectSettings && <button type="button" className="strip-cx-add-project" aria-label="管理项目目录" title="管理项目目录" onClick={onProjectSettings}><ControlIcon name="plus" size={15}/></button>}
       </div>
     </section>}

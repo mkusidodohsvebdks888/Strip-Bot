@@ -87,11 +87,12 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     close:() => engine.close(),
     async handle(method,route,body = {}) {
       if (route === '/tasks' && method === 'GET') return scheduler.overview();
-      const uiRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/ui-generation\/(propose|apply|rollback)$/.exec(route);
-      if(uiRoute&&method==='POST'){
+      const uiRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/ui-generation\/(propose|apply|rollback|history)$/.exec(route);
+      if(uiRoute&&(method==='POST'||(method==='GET'&&uiRoute[2]==='history'))){
         const id=await session(uiRoute[1]);
-        if(await scheduler.hasOutstanding())throw httpError(409,'Agent 仍有任务执行或排队，请先结束任务。');
+        if(uiRoute[2]!=='history'&&await scheduler.hasOutstanding())throw httpError(409,'Agent 仍有任务执行或排队，请先结束任务。');
         const workspace=owned[id].workspace;
+        if(uiRoute[2]==='history')return uiGeneration.listHistory({workspace});
         return uiRoute[2]==='propose'?uiGeneration.propose({workspace,filename:body?.filename,source:body?.source}):uiRoute[2]==='rollback'?uiGeneration.rollback({workspace,undo:body?.undo,confirmed:body?.confirmed}):uiGeneration.apply({workspace,id:body?.id,hash:body?.hash,confirmed:body?.confirmed});
       }
       const projectRoute=/^\/sessions\/(ses_[a-zA-Z0-9]+)\/project\/(index|search|content-search|refresh)$/.exec(route);

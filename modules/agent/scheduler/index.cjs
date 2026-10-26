@@ -61,7 +61,7 @@ function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bo
     });
   }
   function makePrompt(task){
-    if(!task.interrupted)return task.text+(task.contextPrompt||'');
+    if(!task.interrupted)return task.text+'\n\n执行要求：先列出简短实施步骤，再逐步修改；完成后汇总改动文件、执行结果、未验证事项。遇到失败先诊断原因，不得自动执行危险的删除或重置操作。'+(task.contextPrompt||'');
     return `请继续之前被暂停、尚未完成的任务。\n原始任务：\n${task.text}\n\n重要：先检查当前工作区和测试状态，识别前一次已经完成的步骤。不要机械地重复已执行过的命令或破坏性操作；只完成剩余工作。`+(task.contextPrompt||''); 
   }
   function finish(task,kind,error){

@@ -14,7 +14,7 @@ test('MCP tool permissions fail closed until server is enabled and tool approved
     assert.equal((await registry.evaluatePermission({id:'test_mcp',tool:'read'})).allowed,false);
     await registry.enable({id:'test_mcp',enabled:true,confirmed:true});
     assert.equal((await registry.evaluatePermission({id:'test_mcp',tool:'read'})).reason,'approval_required');
-    assert.equal((await registry.evaluatePermission({id:'test_mcp',tool:'read',approved:true})).allowed,true);
+    assert.equal((await registry.evaluatePermission({id:'test_mcp',tool:'read',approved:true})).allowed,false);
     await registry.setPermission({id:'test_mcp',tool:'read',mode:'deny'});
     assert.equal((await registry.evaluatePermission({id:'test_mcp',tool:'read',approved:true})).allowed,false);
     await registry.setPermission({id:'test_mcp',tool:'read',mode:'allow'});

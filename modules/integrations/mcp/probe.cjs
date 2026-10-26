@@ -68,13 +68,14 @@ async function probeRemote(item,{timeoutMs=6000}={}){
       }
       if(!reply||!Array.isArray(reply.result?.tools))throw httpError(502,'MCP 工具列表响应无效');
       const entries=reply.result.tools;
+      const remaining=100-tools.length;
       for(const tool of entries){
         if(tools.length>=100)break;
         if(!tool||typeof tool.name!=='string'||!tool.name.trim())continue;
         tools.push({name:tool.name.slice(0,128),description:typeof tool.description==='string'?tool.description.slice(0,500):''});
       }
       const next=reply.result.nextCursor;
-      if(typeof next!=='string'||!next.length){hasMore=entries.length>100-tools.length;break;}
+      if(typeof next!=='string'||!next.length){hasMore=entries.length>remaining;break;}
       hasMore=true;
       if(tools.length>=100||seen.has(next)||next.length>2048)break;
       seen.add(next);

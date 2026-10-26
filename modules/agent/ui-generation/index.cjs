@@ -5,6 +5,7 @@ const crypto=require('node:crypto');
 const DRAFTS=new Map();
 const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 const allowed=/^codex-ui\/src\/generated-ui\/[A-Za-z][A-Za-z0-9]{0,75}Preview\.tsx$/;
+const HISTORY=new Map();
 function validate(filename,source){
  if(typeof filename!=='string'||!allowed.test(filename))throw Object.assign(new Error('仅允许写入 generated-ui 下的独立预览组件'),{status:400});
  if(typeof source!=='string'||!source.trim()||source.length>100000)throw Object.assign(new Error('生成代码不能为空或超过 100 KB'),{status:400});
@@ -27,11 +28,13 @@ async function propose({workspace,filename,source}){
  }
  if(!parent.startsWith(expectedParent+path.sep))throw Object.assign(new Error('目标目录不允许写入'),{status:403});
  const existing=await fs.lstat(target).catch(e=>{if(e.code==='ENOENT')return null;throw e;});
- if(existing)throw Object.assign(new Error('目标文件已存在，不允许覆盖'),{status:409});
+ if(existing&&!existing.isFile())throw Object.assign(new Error('目标不是普通文件'),{status:409});
+ const previous=existing?await fs.readFile(target,'utf8'):null;
+ if(previous!==null&&previous.length>100000)throw Object.assign(new Error('现有文件过大'),{status:409});
  const id='uig_'+crypto.randomBytes(12).toString('hex');
- const item={id,workspace:base,filename,source,hash:sha(source),at:Date.now()};
+ const item={id,workspace:base,filename,source,hash:sha(source),previous,previousHash:previous===null?null:sha(previous),at:Date.now()};
  DRAFTS.set(id,item);
- return {id,filename,hash:item.hash,expiresAt:item.at+30*60*1000,diff:source.split(/\r?\n/).map(line=>'+'+line).join('\n'),kind:'add'};
+ return {id,filename,hash:item.hash,expiresAt:item.at+30*60*1000,diff:(previous===null?'':previous.split(/\r?\n/).map(line=>'-'+line).join('\n')+'\n')+source.split(/\r?\n/).map(line=>'+'+line).join('\n'),kind:previous===null?'add':'replace'};
 }
 async function apply({workspace,id,hash,confirmed}){
  if(confirmed!==true)throw Object.assign(new Error('需要明确批准'),{status:400});
@@ -47,9 +50,28 @@ async function apply({workspace,id,hash,confirmed}){
    if(stat&&!stat.isDirectory())throw Object.assign(new Error('目标目录不安全'),{status:409});
    if(!stat)await fs.mkdir(current);
  }
- const handle=await fs.open(target,'wx',0o600);
- try{await handle.writeFile(item.source,'utf8');}finally{await handle.close();}
+ const existing=await fs.lstat(target).catch(e=>{if(e.code==='ENOENT')return null;throw e;});
+ if(existing&&!existing.isFile())throw Object.assign(new Error('目标不是普通文件'),{status:409});
+ const actual=existing?await fs.readFile(target,'utf8'):null;
+ if((actual===null?null:sha(actual))!==item.previousHash)throw Object.assign(new Error('目标文件在审核后发生变化，请重新生成草案'),{status:409});
+ if(actual===null){const handle=await fs.open(target,'wx',0o600);try{await handle.writeFile(item.source,'utf8');}finally{await handle.close();}}
+ else{const temporary=target+'.'+crypto.randomBytes(8).toString('hex')+'.tmp';const handle=await fs.open(temporary,'wx',0o600);try{await handle.writeFile(item.source,'utf8');}finally{await handle.close();}try{await fs.rename(temporary,target);}catch(error){await fs.unlink(temporary).catch(()=>{});throw error;}}
+ const undo='uir_'+crypto.randomBytes(12).toString('hex');
+ HISTORY.set(undo,{workspace:item.workspace,filename:item.filename,previous:item.previous,appliedHash:item.hash,at:Date.now()});
  DRAFTS.delete(id);
- return {ok:true,filename:item.filename,hash:item.hash};
+ return {ok:true,filename:item.filename,hash:item.hash,undo};
 }
-module.exports={propose,apply};
+async function rollback({workspace,undo,confirmed}){
+ if(confirmed!==true)throw Object.assign(new Error('需要明确确认恢复'),{status:400});
+ const entry=HISTORY.get(undo);
+ if(!entry||entry.workspace!==await fs.realpath(workspace))throw Object.assign(new Error('恢复记录不存在或已失效'),{status:404});
+ const target=path.resolve(entry.workspace,...entry.filename.split('/'));
+ let current=entry.workspace;
+ for(const segment of entry.filename.split('/').slice(0,-1)){current=path.join(current,segment);const stat=await fs.lstat(current);if(!stat.isDirectory())throw Object.assign(new Error('路径已发生变化'),{status:409});}
+ const stat=await fs.lstat(target);
+ if(!stat.isFile()||sha(await fs.readFile(target,'utf8'))!==entry.appliedHash)throw Object.assign(new Error('文件已经被其他操作修改，拒绝恢复'),{status:409});
+ if(entry.previous===null)await fs.unlink(target);
+ else await fs.writeFile(target,entry.previous,{flag:'w'});
+ HISTORY.delete(undo);return {ok:true,filename:entry.filename};
+}
+module.exports={propose,apply,rollback};

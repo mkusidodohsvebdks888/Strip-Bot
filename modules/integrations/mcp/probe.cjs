@@ -52,15 +52,35 @@ async function probeRemote(item,{timeoutMs=6000}={}){
       return {text,contentType:next.headers.get('content-type')||''};
     };
     await follow({jsonrpc:'2.0',method:'notifications/initialized'});
-    const listing=await follow({jsonrpc:'2.0',id:2,method:'tools/list',params:{}});
-    const lines=listing.contentType.includes('text/event-stream')?listing.text.split(/\r?\n/).filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trim()):[listing.text];
-    let toolsReply;
-    for(const line of lines){try{const obj=JSON.parse(line);if(obj.id===2&&obj.jsonrpc==='2.0'){toolsReply=obj;break;}}catch{}}
-    if(!toolsReply||!Array.isArray(toolsReply.result?.tools))throw httpError(502,'MCP 工具列表响应无效');
-    const tools=toolsReply.result.tools.slice(0,100).map(tool=>({name:String(tool.name||'').slice(0,128),description:String(tool.description||'').slice(0,500)}));
-    const hasMore=typeof toolsReply.result.nextCursor==='string'&&toolsReply.result.nextCursor.length>0;
-    const truncated=toolsReply.result.tools.length>100;
-    return {connected:true,protocolVersion:parsed.result.protocolVersion,serverInfo:parsed.result.serverInfo||null,tools,hasMore:hasMore||truncated,message:'MCP 握手成功，已读取首批工具（不执行工具）'};
+    const tools=[];
+    const seen=new Set();
+    let cursor;
+    let hasMore=false;
+    for(let page=0;page<5;page++){
+      const id=page+2;
+      const listing=await follow({jsonrpc:'2.0',id,method:'tools/list',params:cursor?{cursor}:{}});
+      const lines=listing.contentType.includes('text/event-stream')
+        ? listing.text.split(/\r?\n/).filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trim())
+        : [listing.text];
+      let reply;
+      for(const line of lines){
+        try{const obj=JSON.parse(line);if(obj.id===id&&obj.jsonrpc==='2.0'){reply=obj;break;}}catch{}
+      }
+      if(!reply||!Array.isArray(reply.result?.tools))throw httpError(502,'MCP 工具列表响应无效');
+      const entries=reply.result.tools;
+      for(const tool of entries){
+        if(tools.length>=100)break;
+        if(!tool||typeof tool.name!=='string'||!tool.name.trim())continue;
+        tools.push({name:tool.name.slice(0,128),description:typeof tool.description==='string'?tool.description.slice(0,500):''});
+      }
+      const next=reply.result.nextCursor;
+      if(typeof next!=='string'||!next.length){hasMore=entries.length>100-tools.length;break;}
+      hasMore=true;
+      if(tools.length>=100||seen.has(next)||next.length>2048)break;
+      seen.add(next);
+      cursor=next;
+    }
+    return {connected:true,protocolVersion:parsed.result.protocolVersion,serverInfo:parsed.result.serverInfo||null,tools,hasMore,message:'MCP 握手成功，已读取工具列表（不执行工具）'};
   }catch(error){
     if(controller.signal.aborted)throw httpError(504,'MCP 连接超时');
     throw error;

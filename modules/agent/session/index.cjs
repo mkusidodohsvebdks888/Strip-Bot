@@ -21,6 +21,12 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
     const preflight=await gitPreflight(task.workspace);
     const captured=await snapshot({workspace:task.workspace,root,taskID:task.id});
     preflight.snapshot=captured;
+    // Fail closed when a Git project cannot be snapshotted. Non-Git workspaces remain supported.
+    if(preflight.git && !captured.available){
+      const error=new Error('执行前快照不可用：'+(captured.reason||'unknown')+'。为保护现有修改，已阻止任务启动。');
+      error.status=409;
+      throw error;
+    }
     await ensure();metrics.begin(task.sessionID,owned?.[task.sessionID]?.model?.id,({codex:'Codex CLI · ChatGPT',ccswitch:'CC Switch',direct:'API 连接'})[connection] || 'Codex CLI');
     return preflight;
   }});

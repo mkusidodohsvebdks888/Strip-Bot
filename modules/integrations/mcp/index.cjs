@@ -4,6 +4,7 @@ const path = require('node:path');
 const {httpError} = require('../../core/providers/index.cjs');
 const {probeRemote}=require('./probe.cjs');
 const {probeStdio}=require('./stdio-probe.cjs');
+const serviceControl=require('./service-control.cjs');
 
 const ID_PATTERN = /^[a-z][a-z0-9_-]{1,39}$/;
 const MAX_INTEGRATIONS = 30;

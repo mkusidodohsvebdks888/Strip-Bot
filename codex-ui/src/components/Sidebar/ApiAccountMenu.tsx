@@ -12,6 +12,8 @@ interface ApiConnectionStatus {
   configured:boolean;
 }
 type AccountPage = 'main'|'usage'|'help'|'confirm';
+// Static DiceBear Bottts asset: never transmit API credentials to avatar services.
+const API_AVATAR_SRC='/avatars/dicebear-bottts-api.svg';
 
 type Props = {
   mode:ConnectionMode;
@@ -90,12 +92,12 @@ export function ApiAccountMenu({mode,model,busy,appearance,onWorkspace,onSetting
 
   return <div className="strip-account-anchor" ref={rootRef}>
     <button type="button" ref={triggerRef} className={'strip-tool-btn strip-account-trigger'+(opened?' is-active':'')} aria-label="账户与授权" title="账户与授权" aria-haspopup="dialog" aria-expanded={opened} aria-controls="strip-account-menu" onClick={show}>
-      <span className="strip-account-avatar" aria-hidden="true">{mode==='direct'?'API':mode==='ccswitch'?'CC':'AI'}</span>
+      <span className={'strip-account-avatar'+(mode==='direct'?' strip-account-avatar--dicebear':'')} aria-hidden="true">{mode==='direct'?<img src={API_AVATAR_SRC} alt="" draggable={false}/>:mode==='ccswitch'?'CC':'AI'}</span>
     </button>
     {opened && createPortal(<div style={position} onKeyDown={event=>{if(event.key!=='Tab')return;const nodes=panelRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');if(!nodes?.length)return;const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey && (document.activeElement===first || document.activeElement===panelRef.current)){event.preventDefault();last.focus();}else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}}} id="strip-account-menu" className="strip-account-menu" role="dialog" aria-label="账户与连接菜单" tabIndex={-1} ref={panelRef}>
       {page==='main' ? <>
         <div className="strip-account-profile">
-          <span className="strip-account-profile__avatar" aria-hidden="true"><Icon name="user"/></span>
+          <span className={'strip-account-profile__avatar'+(mode==='direct'?' strip-account-profile__avatar--dicebear':'')} aria-hidden="true">{mode==='direct'?<img src={API_AVATAR_SRC} alt="" draggable={false}/>:<Icon name="user"/>}</span>
           <div className="strip-account-profile__identity"><strong>{connectionLabel}</strong><span>{subLabel}</span></div>
           <span className={'strip-account-profile__status'+(status?.hasKey?' has-key':'')} aria-hidden="true"/>
         </div>

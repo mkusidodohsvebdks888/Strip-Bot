@@ -12,6 +12,8 @@ import {StripCodexComposer} from './components/StripCodexComposer';
 import type {StripCodexComposerHandle} from './components/StripCodexComposer';
 import {SessionApproval} from './components/Activity/SessionApproval';
 import {UnifiedConversationStream} from './components/Activity/UnifiedConversationStream';
+import {AgentMessage as KitAgentMessage} from './vendor/codex-ui-kit/AgentMessage';
+import {ComposerDock} from './vendor/codex-ui-kit/ComposerDock';
 import {activityEvents} from './components/Activity/activity-events';
 import type {ResponseOption} from './components/ModelSwitcher/response-mode.mjs';
 import {ModelSwitcher} from './components/ModelSwitcher/ModelSwitcher';
@@ -76,6 +78,7 @@ import './modules/theme/styles/unified-modules.css';
 import './modules/theme/styles/window-frame.css';
 // Global Codex-inspired control polish; rate sliders remain untouched.
 import './styles/codex-global-controls.css';
+import './vendor/codex-ui-kit/kit-theme.css';
 
 // OpenCode may return the same reply both on the message and in text parts.
 // Prefer parts when available to avoid displaying an entire reply twice.
@@ -284,7 +287,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
       <div className="strip-thread strip-unified-thread" ref={scroll}>
         {!messages.length && !legacyContext?.messages.length && !conversation.loading && <HomeWelcome inputActivity={homeInputActivity}/>}
         <div className="strip-messages strip-chat--codex strip-stream">
-          {legacyContext?.messages.map(m=><article className={'strip-message strip-chat__message strip-chat__message--'+m.role+' '+m.role} data-message-role={m.role} aria-label={m.role==='user'?'用户消息':'助手回复'} key={'legacy-'+m.id}><div className="strip-message-content strip-chat__body">{m.role==='assistant' ? <MarkdownReply text={m.content} onError={showNotice}/> : <span>{m.content}</span>}</div></article>)}
+          {legacyContext?.messages.map(m=><KitAgentMessage role={m.role==='user'?'user':'assistant'} className={'strip-message strip-chat__message strip-chat__message--'+m.role+' '+m.role} data-message-role={m.role} aria-label={m.role==='user'?'用户消息':'助手回复'} key={'legacy-'+m.id}><div className="strip-message-content strip-chat__body">{m.role==='assistant' ? <MarkdownReply text={m.content} onError={showNotice}/> : <span>{m.content}</span>}</div></KitAgentMessage>)}
           {legacyContext && !active.startsWith('ses_') && <p className="strip-muted">继续发送会将以上文本上下文带入统一会话。</p>}
           <UnifiedConversationStream key={active} snapshot={snapshot} busy={busy} loading={conversation.loading}
             deciding={conversation.deciding || (conversation.modeUpdating?'mode':'')}
@@ -293,16 +296,16 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
             renderMessage={message=>{
               const aborted=message.type==='assistant' && abortedMessages.has(message.id);
               if(!['user','assistant'].includes(message.type) || (!messageOutput(message) && !message.error && !aborted))return null;
-              return <article className={'strip-message strip-chat__message strip-chat__message--'+(message.type==='user' ? 'user':'assistant')+' '+(message.type==='user' ? 'user':'assistant')} data-message-role={message.type==='user'?'user':'assistant'} aria-label={message.type==='user'?'用户消息':'助手回复'} key={message.id}>
+              return <KitAgentMessage role={message.type==='user'?'user':'assistant'} status={message.type==='assistant'&&Boolean(snapshot?.running)&&message.id===lastAssistantId&&!aborted?'running':'completed'} className={'strip-message strip-chat__message strip-chat__message--'+(message.type==='user' ? 'user':'assistant')+' '+(message.type==='user' ? 'user':'assistant')} data-message-role={message.type==='user'?'user':'assistant'} aria-label={message.type==='user'?'用户消息':'助手回复'} key={message.id}>
             <div className="strip-message-content strip-chat__body">{message.type==='user' ? <span>{messageOutput(message)}</span> : <PacedMessage text={messageOutput(message)} rate={displayRate.rate} animate={!!displayRun.current && !displayRun.current.has(message.id)} drain={!aborted}>{visible=><MarkdownReply text={visible} copySource={messageOutput(message)} streaming={Boolean(snapshot?.running && message.id===lastAssistantId && !aborted)} onError={showNotice}/>}</PacedMessage>}
             </div>
             {aborted && <p className="strip-aborted-note" role="status">已停止生成</p>}
-          </article>;
+          </KitAgentMessage>;
             }}/><WorkspaceActions snapshot={snapshot} session={active} onError={showNotice}/>
 
         </div>
       </div>
-      <div className={box.wrapper+' strip-claude-composer-wrap strip-composer-region'}><CommandPalette open={commands.open} session={active} workspace={snapshot?.workspace || workspace || ''} executing={commands.running} agentRunning={busy || commands.anyRunning || !!snapshot?.manualRunning || conversation.loading || waiting} disabledReason={commands.disabledReason || undefined} results={commands.results} onClose={commands.close} onRun={commands.run} onError={showNotice}/><StripCodexComposer ref={composerRef} key={active} toolsInSidebar value={draft} onValueChange={conversation.setDraft} onInputActivity={active=>{if(!messages.length && !legacyContext?.messages.length && !conversation.loading)setHomeInputActivity(previous=>({serial:previous.serial+1,active}));}} busy={busy} queueWhileBusy onStop={stopResponse} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model} modelReadOnly permissionControl={<SessionApproval mode={conversation.approvalMode} updating={conversation.modeUpdating} disabled={conversation.approvalMode==='ask' && (modelChanged || conversation.loading || conversation.sending)} workspace={snapshot?.workspace || workspace} onChange={conversation.setApprovalMode}/>} modelControl={<ModelSwitcher effort={effort} presetId={responsePreset} onResponseMode={applyResponseMode} mode={connection.mode} model={routeModel} busy={busy || conversation.loading} onApply={applyModel}/>} environments={[{value:'local',label:'项目'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>showNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{displayRun.current=new Set(messages.map(message=>message.id));stopTarget.current=null;await conversation.send(text,files);if(window.innerWidth<=900)setPanelOpen(false);}}/>
+      <div className={box.wrapper+' strip-claude-composer-wrap strip-composer-region'}><CommandPalette open={commands.open} session={active} workspace={snapshot?.workspace || workspace || ''} executing={commands.running} agentRunning={busy || commands.anyRunning || !!snapshot?.manualRunning || conversation.loading || waiting} disabledReason={commands.disabledReason || undefined} results={commands.results} onClose={commands.close} onRun={commands.run} onError={showNotice}/><ComposerDock className="strip-kit-composer-dock" label="AI 任务输入区" composer={<StripCodexComposer ref={composerRef} key={active} toolsInSidebar value={draft} onValueChange={conversation.setDraft} onInputActivity={active=>{if(!messages.length && !legacyContext?.messages.length && !conversation.loading)setHomeInputActivity(previous=>({serial:previous.serial+1,active}));}} busy={busy} queueWhileBusy onStop={stopResponse} sendDisabled={blocked} sendDisabledReason={blockedReason} models={models} selectedModel={model} modelReadOnly permissionControl={<SessionApproval mode={conversation.approvalMode} updating={conversation.modeUpdating} disabled={conversation.approvalMode==='ask' && (modelChanged || conversation.loading || conversation.sending)} workspace={snapshot?.workspace || workspace} onChange={conversation.setApprovalMode}/>} modelControl={<ModelSwitcher effort={effort} presetId={responsePreset} onResponseMode={applyResponseMode} mode={connection.mode} model={routeModel} busy={busy || conversation.loading} onApply={applyModel}/>} environments={[{value:'local',label:'项目'}]} placeholder="提问、阅读代码、修改文件，或描述要完成的任务…" onError={e=>showNotice(e instanceof Error ? e.message:'发送失败')} onSend={async ({text,files})=>{displayRun.current=new Set(messages.map(message=>message.id));stopTarget.current=null;await conversation.send(text,files);if(window.innerWidth<=900)setPanelOpen(false);}}/>}/>
       </div>
     </>}</main>
     <NotificationHost items={notifications} scope={active}/>

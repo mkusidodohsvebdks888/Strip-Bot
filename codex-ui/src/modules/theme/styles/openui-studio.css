@@ -20,3 +20,20 @@
 .strip-theme-legacy>summary{cursor:pointer;background:var(--surface-2);color:var(--fg);padding:12px 15px;font-weight:550}
 .strip-theme-legacy>.strip-wallpaper-settings{border:0;border-radius:0}
 @media(max-width:650px){.strip-openui-studio__header{flex-direction:column}.strip-openui-frame{min-height:320px}}
+
+.strip-openui-presets,.strip-openui-instructions{display:grid;gap:10px}
+.strip-openui-presets h3{font-size:15px;margin:0}
+.strip-openui-preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.strip-openui-preset-grid button{display:flex;flex-direction:column;gap:7px;text-align:left;min-width:0;border:1px solid var(--border-10);border-radius:13px;background:var(--surface-2);color:var(--fg);padding:10px;cursor:pointer}
+.strip-openui-preset-grid button:hover,.strip-openui-preset-grid button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.strip-openui-preset-grid small{color:var(--muted);font-size:11px;line-height:1.4}
+.strip-openui-preset-swatch{display:flex;align-items:center;justify-content:space-between;border:1px solid;border-radius:9px;padding:12px;font-size:18px;font-weight:600}
+.strip-openui-preset-swatch span{width:25px;height:12px;border-radius:20px}
+.strip-openui-instructions label{font-weight:600;font-size:13px}
+.strip-openui-instructions textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--border-10);border-radius:10px;background:var(--surface-search);color:var(--fg);font:inherit;resize:vertical}
+.strip-openui-live-preview{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:12px;border:1px solid var(--border-10);border-radius:14px;min-height:140px}
+.strip-openui-live-preview aside{border-radius:9px;padding:12px;font-size:12px;line-height:2.3}
+.strip-openui-live-preview>div{display:grid;align-content:start;gap:9px}
+.strip-openui-live-preview p{font-size:12px;margin:0}
+.strip-openui-live-preview>div>div{padding:12px;border-radius:9px;font-size:12px}
+@media(max-width:650px){.strip-openui-preset-grid{grid-template-columns:1fr}}

@@ -128,7 +128,7 @@ export function BuiltinPluginsTool(){
   return <section className="strip-tool-content strip-plugin-manager" aria-label="本地工具与插件" aria-busy={loading||busyId!==null}>
     <div className="spm-overview">
       <div className="spm-overview__heading">
-        <div><strong>本地工具与插件</strong><span>桌宠、文件压缩与文档转换，统一管理</span></div>
+        <div><strong>本地工具与插件</strong></div>
         <button className="spm-icon-button" type="button" title="刷新插件" aria-label="刷新插件状态" onClick={()=>void refresh()} disabled={loading||busyId!==null}><Icon name="refresh"/></button>
       </div>
       <div className="spm-overview__stats"><span><strong>{countEnabled}</strong> 已启用</span><i aria-hidden="true"/><span><strong>{items.length}</strong> 个插件</span></div>
@@ -151,7 +151,7 @@ export function BuiltinPluginsTool(){
     {!loading&&visible.length===0&&<div className="spm-empty">
       <Icon name="search"/>
       <strong>{items.length===0?'没有找到插件':'没有匹配的插件'}</strong>
-      <span>可以清除搜索词或切换筛选条件。</span>
+      
       {(query||filter!=='all')&&<button type="button" onClick={()=>{setQuery('');setFilter('all');}}>清除筛选</button>}
     </div>}
 
@@ -192,7 +192,7 @@ export function BuiltinPluginsTool(){
                     {plugin.detail.dependency&&<div><span>运行依赖</span><strong>{plugin.detail.dependency}</strong></div>}
                     {plugin.detail.command&&<div><span>本地入口</span><code title={plugin.detail.command}>{plugin.detail.command}</code></div>}
                   </div>}
-                  {plugin.category==='desktop-pet'&&<p className="spm-detail__hint">开启即显示桌宠，关闭即隐藏，无需再次确认。</p>}
+                  
                   {plugin.enabled&&plugin.available&&FILE_PLUGINS.has(plugin.id)&&
                     <div className="spm-form">
                       <label htmlFor={'spm-action-'+plugin.id}>执行操作</label>
@@ -205,7 +205,7 @@ export function BuiltinPluginsTool(){
                       <input id={'spm-output-'+plugin.id} value={form.output} placeholder={form.action==='compress'?'C:/Files/example.7z':'C:/Files/output'} onChange={event=>updateForm(plugin.id,'output',event.target.value)} disabled={isBusy}/>
                       <button type="button" className="spm-primary" disabled={isBusy} onClick={()=>void execute(plugin)}><Icon name="play"/>确认并执行</button>
                     </div>}
-                  {!plugin.enabled&&plugin.available&&<p className="spm-detail__hint">启用插件后才能使用相关操作。执行文件操作前仍需确认。</p>}
+                  
                 </div>}
               </article>;
             })}
@@ -213,6 +213,6 @@ export function BuiltinPluginsTool(){
         </section>;
       })}
     </div>
-    <p className="spm-footnote">插件默认独立管理。桌宠、7-Zip、LibreOffice 等外部程序需在本机安装；启用不等于授权 AI 自动执行。</p>
+    <p className="spm-footnote">文件插件需要本地依赖；执行前需确认。</p>
   </section>;
 }

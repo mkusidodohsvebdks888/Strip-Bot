@@ -9,7 +9,7 @@ async function probeStdio(item,{timeoutMs=8000}={}){
       cwd:item.cwd||undefined,stdio:['pipe','pipe','pipe'],shell:false,windowsHide:true,
       env:process.env
     });
-    let settled=false,buffer='',sequence=0;
+    let settled=false,buffer='',sequence=0,initialized=false,stdoutBytes=0,stderrBytes=0;
     const tools=[],seen=new Set();
     let cursor,hasMore=false;
     const timer=setTimeout(()=>fail(httpError(504,'本地 MCP 握手或工具发现超时')),timeoutMs);
@@ -17,6 +17,8 @@ async function probeStdio(item,{timeoutMs=8000}={}){
       if(settled)return;
       settled=true;clearTimeout(timer);
       child.stdout.removeAllListeners('data');
+      child.stderr.removeAllListeners('data');
+      child.stdin.on('error',()=>{});
       child.removeAllListeners('error');
       child.removeAllListeners('exit');
       child.kill();
@@ -25,7 +27,7 @@ async function probeStdio(item,{timeoutMs=8000}={}){
     function fail(error){finish(error);}
     function send(message){
       if(settled)return;
-      try{child.stdin.write(JSON.stringify({jsonrpc:'2.0',...message})+'\n');}
+      try{child.stdin.write(JSON.stringify({jsonrpc:'2.0',...message})+'\n',error=>{if(error)fail(httpError(502,'无法写入 MCP 进程'));});}
       catch{fail(httpError(502,'无法写入 MCP 进程'));}
     }
     function list(){
@@ -35,13 +37,14 @@ async function probeStdio(item,{timeoutMs=8000}={}){
     function handle(message){
       if(!message||message.jsonrpc!=='2.0'||typeof message.id!=='number')return;
       if(message.error)return fail(httpError(502,'MCP 服务返回协议错误'));
-      if(message.id===1){
+      if(message.id===1&&!initialized){
+        initialized=true;
         if(typeof message.result?.protocolVersion!=='string')return fail(httpError(502,'MCP 初始化响应无效'));
         send({method:'notifications/initialized'});
         sequence=1;list();
         return;
       }
-      if(message.id!==sequence||!Array.isArray(message.result?.tools))return fail(httpError(502,'MCP 工具列表响应无效'));
+      if(!initialized||message.id!==sequence||!Array.isArray(message.result?.tools))return fail(httpError(502,'MCP 工具列表响应无效'));
       const entries=message.result.tools,remaining=100-tools.length;
       for(const tool of entries){
         if(tools.length>=100)break;
@@ -63,8 +66,9 @@ async function probeStdio(item,{timeoutMs=8000}={}){
       handle(message);
     }
     child.stdout.on('data',chunk=>{
+      stdoutBytes+=chunk.length;
       buffer+=chunk.toString('utf8');
-      if(buffer.length>262144)return fail(httpError(413,'MCP stdout 超出限制'));
+      if(stdoutBytes>1048576||buffer.length>262144)return fail(httpError(413,'MCP stdout 超出限制'));
       let end;
       while((end=buffer.indexOf('\n'))>=0){
         const line=buffer.slice(0,end);buffer=buffer.slice(end+1);
@@ -72,6 +76,8 @@ async function probeStdio(item,{timeoutMs=8000}={}){
         if(settled)return;
       }
     });
+    child.stderr.on('data',chunk=>{stderrBytes+=chunk.length;if(stderrBytes>1048576)fail(httpError(413,'MCP stderr 超出限制'));});
+    child.stdin.on('error',()=>fail(httpError(502,'MCP 进程输入管道已关闭')));
     child.on('error',()=>fail(httpError(502,'MCP 进程启动失败')));
     child.on('exit',()=>fail(httpError(502,'MCP 进程提前退出')));
     send({id:1,method:'initialize',params:{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'StripBot',version:'1.0'}}});

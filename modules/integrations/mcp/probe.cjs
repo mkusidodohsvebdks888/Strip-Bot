@@ -41,7 +41,24 @@ async function probeRemote(item,{timeoutMs=6000}={}){
     let parsed;
     try{parsed=JSON.parse(candidate||'');}catch{throw httpError(502,'MCP 初始化响应不是有效 JSON-RPC');}
     if(parsed.jsonrpc!=='2.0'||parsed.id!==1||!parsed.result||typeof parsed.result.protocolVersion!=='string')throw httpError(502,'MCP 初始化响应缺少协议版本');
-    return {connected:true,protocolVersion:String(parsed.result.protocolVersion),serverInfo:parsed.result.serverInfo||null,tools:null,message:'MCP 初始化握手成功；尚未执行工具发现'};
+    const sessionId=response.headers.get('mcp-session-id');
+    const headers={'Content-Type':'application/json','Accept':'application/json, text/event-stream','MCP-Protocol-Version':parsed.result.protocolVersion};
+    if(sessionId)headers['Mcp-Session-Id']=sessionId;
+    const follow=async(payload)=>{
+      const next=await fetch(target.href,{method:'POST',redirect:'manual',signal:controller.signal,headers,body:JSON.stringify(payload)});
+      if(next.status>=300&&next.status<400)throw httpError(502,'MCP 服务重定向已被拒绝');
+      const text=await readLimited(next);
+      if(!next.ok)throw httpError(502,'MCP 后续请求失败：HTTP '+next.status);
+      return {text,contentType:next.headers.get('content-type')||''};
+    };
+    await follow({jsonrpc:'2.0',method:'notifications/initialized'});
+    const listing=await follow({jsonrpc:'2.0',id:2,method:'tools/list',params:{}});
+    const lines=listing.contentType.includes('text/event-stream')?listing.text.split(/\r?\n/).filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trim()):[listing.text];
+    let toolsReply;
+    for(const line of lines){try{const obj=JSON.parse(line);if(obj.id===2&&obj.jsonrpc==='2.0'){toolsReply=obj;break;}}catch{}}
+    if(!toolsReply||!Array.isArray(toolsReply.result?.tools))throw httpError(502,'MCP 工具列表响应无效');
+    const tools=toolsReply.result.tools.slice(0,100).map(tool=>({name:String(tool.name||'').slice(0,128),description:String(tool.description||'').slice(0,500)}));
+    return {connected:true,protocolVersion:parsed.result.protocolVersion,serverInfo:parsed.result.serverInfo||null,tools,message:'MCP 握手成功，已读取首批工具（不执行工具）'};
   }catch(error){
     if(controller.signal.aborted)throw httpError(504,'MCP 连接超时');
     throw error;

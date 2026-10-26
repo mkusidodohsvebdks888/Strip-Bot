@@ -1,5 +1,5 @@
-import {useEffect,useState,type ReactNode} from 'react';
-import LiquidGlass from '../../../vendor/liquid-glass-react';
+import {lazy,Suspense,useEffect,useState,type ReactNode} from 'react';
+const LiquidGlass=lazy(()=>import('../../../vendor/liquid-glass-react'));
 import '../styles/liquid-glass-surface.css';
 
 /**
@@ -28,6 +28,7 @@ export function GlassComposerSurface({enabled,children}:{
   if(!effectsAllowed)return <div className="strip-liquid-composer strip-liquid-composer--fallback"><div className="strip-liquid-composer__content">{children}</div></div>;
   return <div className="strip-liquid-composer" data-liquid-glass-surface="rdev">
     <div className="strip-liquid-composer__lens" aria-hidden="true">
+      <Suspense fallback={null}>
       <LiquidGlass
         mode="standard"
         displacementScale={24}
@@ -41,6 +42,7 @@ export function GlassComposerSurface({enabled,children}:{
       >
         <span className="strip-liquid-composer__fill"/>
       </LiquidGlass>
+      </Suspense>
     </div>
     <div className="strip-liquid-composer__content">{children}</div>
   </div>;

@@ -7,6 +7,7 @@ const {gitPreflight} = require('../safety/git-preflight.cjs');
 const {snapshot} = require('../safety/worktree-snapshot.cjs');
 const {compareSnapshot} = require('../safety/worktree-diff.cjs');
 const {restoreSnapshotFile} = require('../safety/worktree-restore.cjs');
+const {listSnapshots,removeSnapshot} = require('../safety/snapshot-inventory.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -116,6 +117,18 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         await load();owned[result.data.id] = {workspace:directory,createdAt:Date.now(),configuration:currentConfig(),model:body.model,followCurrent:body.followCurrent === true};await save();
         if(body.approvalMode==='allow-all')autoApprovalSessions.add(result.data.id);
         return {session:{...result.data,model:body.model}};
+      }
+      if(route==='/snapshots' && method==='GET')return listSnapshots({root});
+      const deleteSnapshot = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/snapshot\/delete$/.exec(route);
+      if(deleteSnapshot && method==='POST'){
+        const id=await session(deleteSnapshot[1]);
+        const state=await scheduler.state(id);
+        const task=state.tasks.find(entry=>entry.id===deleteSnapshot[2]);
+        if(!task)throw httpError(404,'任务不存在');
+        if(!['done','failed','cancelled'].includes(task.status))throw httpError(409,'任务未结束');
+        if(await scheduler.hasOutstanding())throw httpError(409,'任务队列仍在运行');
+        if(body?.confirmed!==true)throw httpError(400,'需要确认删除快照');
+        return removeSnapshot({root,taskID:task.id});
       }
       const diffTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/diff$/.exec(route);
       if(diffTask && method==='GET'){

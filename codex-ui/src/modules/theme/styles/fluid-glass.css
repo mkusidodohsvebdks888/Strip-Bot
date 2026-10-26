@@ -1,0 +1,20 @@
+/* Fluid glass is a background-only, opt-in appearance mode. */
+.strip-app[data-fluid-glass=true]{position:relative;isolation:isolate}
+.strip-fluid-glass-layer{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:linear-gradient(125deg,color-mix(in srgb,var(--bg) 78%,#d8e5ed),color-mix(in srgb,var(--bg) 80%,#f3e1e5) 55%,color-mix(in srgb,var(--bg) 80%,#e2e7df))}
+.strip-fluid-glass-layer span{position:absolute;width:55vmax;height:55vmax;border-radius:45%;filter:blur(65px);opacity:.36;will-change:transform;animation:strip-fluid-drift 22s ease-in-out infinite alternate}
+.strip-fluid-glass-layer span:nth-child(1){top:-25%;left:-16%;background:radial-gradient(circle,#b8d5e4,transparent 68%)}
+.strip-fluid-glass-layer span:nth-child(2){right:-22%;top:8%;background:radial-gradient(circle,#e9c8d5,transparent 67%);animation-duration:28s;animation-delay:-8s}
+.strip-fluid-glass-layer span:nth-child(3){bottom:-40%;left:22%;background:radial-gradient(circle,#c5ddcc,transparent 68%);animation-duration:32s;animation-delay:-14s}
+.strip-app[data-fluid-glass=true]>.strip-wallpaper-main{background:transparent!important}
+.strip-app[data-fluid-glass=true] :is(.strip-tool-rail,.strip-tool-panel){background:color-mix(in srgb,var(--sidebar-bg) 74%,transparent)!important;backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15)}
+.strip-app[data-fluid-glass=true] :is(.strip-connection-card,.strip-codex-composer__panel){background:color-mix(in srgb,var(--card-bg) 78%,transparent)!important;backdrop-filter:blur(18px) saturate(1.12);-webkit-backdrop-filter:blur(18px) saturate(1.12);border:1px solid color-mix(in srgb,var(--border-10) 68%,#fff3);box-shadow:0 8px 30px #0000000a}
+.strip-app[data-fluid-glass=true] :is(.strip-composer-region,.strip-codex-composer,.strip-connection-settings,.strip-tool-panel__header){background:transparent!important}
+.strip-app[data-fluid-glass=true] .strip-chat__message--assistant .strip-chat__body{background:color-mix(in srgb,var(--bg) 72%,transparent);border-radius:14px;padding:12px}
+.strip-fluid-glass-option{margin:12px 0}
+.strip-fluid-glass-option__button{display:flex;align-items:center;gap:14px;width:100%;padding:12px;border:1px solid var(--border-10);border-radius:14px;background:var(--card-bg);color:var(--fg);text-align:left;cursor:pointer}
+.strip-fluid-glass-option__button[aria-pressed=true]{outline:2px solid var(--border-focus);outline-offset:1px}
+.strip-fluid-glass-option__button>span:nth-child(2){display:grid;gap:4px;flex:1}
+.strip-fluid-glass-option__button small{color:var(--muted)}
+.strip-fluid-glass-option__preview{width:70px;height:48px;flex:none;border-radius:12px;background:radial-gradient(circle at 25% 25%,#c1dfea,transparent 55%),radial-gradient(circle at 80% 70%,#ebc6d6,transparent 65%),#e8ece9;box-shadow:inset 0 1px 1px #ffffffb0,0 3px 12px #00000012}
+@keyframes strip-fluid-drift{from{transform:translate3d(-3%,1%,0) rotate(-8deg)}to{transform:translate3d(9%,-7%,0) rotate(12deg)}}
+@media(prefers-reduced-motion:reduce){.strip-fluid-glass-layer span{animation:none;will-change:auto}}

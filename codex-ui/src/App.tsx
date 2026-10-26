@@ -1,6 +1,5 @@
 import {ToolsHub} from './components/Sidebar/ToolsHub';
 import {DesktopUpdates} from './components/DesktopUpdates';
-import {SkillsTool} from './components/Sidebar/SkillsTool';
 import {WorkspaceActions,CommandPalette} from './components/Workspace/WorkspaceActions';
 import {useManualCommands} from './state/useManualCommands';
 import {ApiAccountMenu} from './components/Sidebar/ApiAccountMenu';
@@ -255,8 +254,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
       onTool={openTool} onNew={newChat} searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending || !!conversation.removing} onSelect={selectConversation}/>} onAttach={addAttachment} onToggle={()=>{if(settingsView){setSettingsView(false);setPanelOpen(true);}else setPanelOpen(value=>!value);}} onSettings={openSettings} accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy || waiting || conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
     <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)}>
-      {activeTool==='skills' && <SkillsTool/>}
-      {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool) && <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'} onOpenSkills={()=>setActiveTool('skills')}/>}
+      {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool) && <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'}/>}
       {activeTool==='history' && <>
         <ChatHistory entries={entries} search="" active={active} busy={conversation.sending || !!conversation.removing || conversation.loading} workspace={workspace} onOpenProject={openProject} onProjectSettings={openProjectSettings} onSelect={selectConversation} onRemove={id=>{if(window.confirm('确定永久删除这条会话及其后端记录？此操作无法撤销。'))void conversation.remove(id);}}/>
       </>}

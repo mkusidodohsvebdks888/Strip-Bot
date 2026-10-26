@@ -4,6 +4,7 @@ import {StripButton} from '../ui/StripButton';
 
 type Integration = {id:string;label:string;type:'local'|'remote';enabled:boolean;command?:string[];cwd?:string;url?:string};
 type RequestResult = {ok?:boolean;error?:string;message?:string};
+type Diagnostic = {id:string;configured:boolean;connected:boolean|null;checks:{name:string;ok:boolean|null;message:string}[]};
 async function request<T>(url:string, data?:unknown):Promise<T>{
   const response=await fetch(url,{method:data===undefined?'GET':'POST',headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});
   const result=await response.json();
@@ -32,6 +33,8 @@ export function IntegrationsTool(){
   const [importText,setImportText]=useState('');
   const [showImport,setShowImport]=useState(false);
   const [selectedImport,setSelectedImport]=useState('');
+  const [diagnostics,setDiagnostics]=useState<Record<string,Diagnostic>>({});
+  const [inspecting,setInspecting]=useState<string|null>(null);
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -45,6 +48,13 @@ export function IntegrationsTool(){
     catch(e){setError(e instanceof Error ? e.message:'操作失败');}
     finally{setBusy(false);}
   }
+  const inspect=async(item:Integration)=>{
+    if(inspecting)return;
+    setInspecting(item.id);setError('');
+    try{const result=await request<Diagnostic>('/api/integrations/inspect',{id:item.id});setDiagnostics(previous=>({...previous,[item.id]:result}));}
+    catch(e){setError(e instanceof Error?e.message:'诊断失败');}
+    finally{setInspecting(null);}
+  };
   const copyConfig=async(item:Integration)=>{
     if(!window.confirm(`复制「${item.label}」的连接配置？配置可能包含访问令牌、私有路径或认证参数，请勿分享给不可信的人。`))return;
     const config=item.type==='local'?{command:item.command,cwd:item.cwd}:{url:item.url};
@@ -124,7 +134,8 @@ export function IntegrationsTool(){
     {visibleItems.map(item=><div key={item.id} className="strip-integrations__item">
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail"><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{showSensitiveConfig?(item.type==='local'?item.command?.join(' '):item.url):redact(item.type==='local'?item.command?.join(' ')||'':item.url||'')}</code></div>
-      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="ghost" disabled={inspecting!==null} onClick={()=>void inspect(item)}>{inspecting===item.id?'诊断中…':'检查配置'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
+      {diagnostics[item.id]&&<div className="strip-integrations__diagnostic" role="status"><strong>配置诊断（不执行连接）</strong>{diagnostics[item.id].checks.map(check=><div key={check.name}><span>{check.ok===true?'✓':check.ok===false?'!':'·'} {check.name}</span><small>{check.message}</small></div>)}</div>}
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}
     </div>)}
     <StripButton variant="primary" className="strip-integrations__apply" disabled={busy || loading} onClick={()=>void reload()}>应用到 Agent {dirty?'· 待更新':''}</StripButton>

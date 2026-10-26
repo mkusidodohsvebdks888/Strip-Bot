@@ -302,6 +302,8 @@ const app = http.createServer(async (req, res) => {
         if(pathname==='/api/marketplace/uninstall'&&req.method==='POST')return respondJson(res,200,await marketplace.uninstall(await readJsonBody(req)));
       }
       if(pathname.startsWith('/api/integrations')) {
+        if (pathname === '/api/integrations/cloud/status' && req.method === 'GET') return respondJson(res,200,await integrations.cloudStatus());
+        if (pathname === '/api/integrations/cloud/connect' && req.method === 'POST') return respondJson(res,200,await integrations.connectCloud(await readJsonBody(req,2048)));
         if (pathname === '/api/integrations' && req.method === 'GET') return respondJson(res,200,{items:await integrations.list()});
         if (pathname === '/api/integrations' && req.method === 'POST') return respondJson(res,200,await integrations.upsert(await readJsonBody(req)));
         if (pathname === '/api/integrations/enable' && req.method === 'POST') return respondJson(res,200,await integrations.enable(await readJsonBody(req)));

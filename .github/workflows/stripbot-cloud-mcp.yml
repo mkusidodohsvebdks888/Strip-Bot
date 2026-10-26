@@ -19,6 +19,10 @@ on:
       - 'codex-ui/src/components/Sidebar/tools-hub.css'
       - 'codex-ui/src/vendor/codex-ui-kit/**'
       - 'codex-ui/src/modules/theme/**'
+      - 'codex-ui/src/components/Sidebar/ApiAccountMenu.tsx'
+      - 'codex-ui/src/styles/account-popover.css'
+      - 'codex-ui/public/avatars/**'
+      - 'test/api-avatar-dicebear.test.js'
       - 'codex-ui/src/vendor/liquid-glass-react/**'
       - 'test/liquid-glass-theme.test.js'
       - 'codex-ui/src/components/ConnectionSettings.tsx'
@@ -44,6 +48,10 @@ on:
       - 'codex-ui/src/components/Sidebar/tools-hub.css'
       - 'codex-ui/src/vendor/codex-ui-kit/**'
       - 'codex-ui/src/modules/theme/**'
+      - 'codex-ui/src/components/Sidebar/ApiAccountMenu.tsx'
+      - 'codex-ui/src/styles/account-popover.css'
+      - 'codex-ui/public/avatars/**'
+      - 'test/api-avatar-dicebear.test.js'
       - 'codex-ui/src/vendor/liquid-glass-react/**'
       - 'test/liquid-glass-theme.test.js'
       - 'codex-ui/src/components/ConnectionSettings.tsx'
@@ -59,7 +67,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test cloud MCP server and client
-        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js
+        run: node --test test/mcp-cloud-server.test.js test/mcp-cloud-connector.test.js test/integrations.test.js test/theme-background-presets.test.js test/liquid-glass-theme.test.js test/api-avatar-dicebear.test.js
   cloud-ui-typecheck:
     runs-on: ubuntu-latest
     defaults:

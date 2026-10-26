@@ -15,6 +15,7 @@ The upstream project is an independent Codex-style UI component library, **not t
 | StripBot element | UI Kit component | Kept StripBot behavior |
 |---|---|---|
 | Shared action controls in MCP and project pages | `Button` through `StripButton` adapter | onClick, onSubmit, disabled, loading, existing CSS hook classes |
+| Sidebar rail and shared icon controls | `IconButton` through `StripIconButton` adapter | DOM refs for popovers, active state, keyboard navigation and shortcuts |
 | Tools sidebar category buttons | `Button` with `pressed` | switch between local tools, GitHub, MCP, AstrBot and marketplace |
 | Plugin refresh / filtered views / execute action | `IconButton`, `Button` | fetch status, filter plugins, confirm and execute actions |
 | Plugin marketplace | `Button` | subscribe, unsubscribe and open MCP settings |
@@ -28,7 +29,7 @@ The customized `StripCodexComposer` editor is intentionally retained **inside** 
 
 ## Integration boundaries
 
-The adapter preserves `StripButton`'s old API, so feature pages do not need to know which UI library renders it. Styles in `kit-theme.css` read StripBot's existing light/dark/transparent theme variables; no font download or runtime external assets.
+The adapters preserve `StripButton` and `StripIconButton` APIs, so feature pages do not need to know which UI library renders it. Styles in `kit-theme.css` read StripBot's existing light/dark/transparent theme variables; no font download or runtime external assets.
 
 Changes are frontend-only. No agent tool approvals, command execution, plugin isolation, MCP credentials, filesystem permissions, server endpoints or billing rules are modified.
 

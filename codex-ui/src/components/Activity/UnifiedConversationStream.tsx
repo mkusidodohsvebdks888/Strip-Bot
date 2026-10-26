@@ -1,8 +1,9 @@
-import {Fragment,useEffect,useId,useMemo,useRef,useState} from 'react';
+import {Fragment,useEffect,useMemo,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
 import type {Snapshot} from '../AgentPanel';
 import {QuestionForm} from '../AgentPanel';
-import {ControlIcon} from '../ControlIcon';
+import {AgentActivity as KitAgentActivity} from '../../vendor/codex-ui-kit/AgentActivity';
+import {AgentPlan as KitAgentPlan} from '../../vendor/codex-ui-kit/AgentPlan';
 import {Icon} from '../../Icons';
 import {ApprovalPanel,type Decide} from './ApprovalPanel';
 import {activityStatus,linearActivity,type ActivityEvent} from './activity-events';
@@ -55,24 +56,32 @@ function Detail({event,onError}:{event:ActivityEvent;onError:(message:string)=>v
       )}</div>}
     </div>;
   }
-  if(kind==='plan')return <div className="strip-stream-detail"><ol className="strip-stream-plan">{lines(detail.steps).map((item,i)=>{
-    const step=asObject(item);return <li key={i} data-step={str(step.status)||'todo'}><span aria-hidden="true">{step.status==='done'?'✓':step.status==='active'?'◉':'○'}</span>{str(step.title)}</li>;
-  })}</ol></div>;
+  if(kind==='plan'){
+    const steps=lines(detail.steps).map((item,i)=>{
+      const step=asObject(item);
+      return {id:'step-'+i,status:step.status==='done'?'completed' as const:step.status==='active'?'in_progress' as const:'pending' as const,step:str(step.title)};
+    });
+    return <div className="strip-stream-detail strip-kit-plan"><KitAgentPlan steps={steps} summary={`计划 · ${steps.filter(step=>step.status==='completed').length}/${steps.length} 已完成`} defaultOpen/></div>;
+  }
   if(kind==='summary')return <div className="strip-stream-detail"><p>{str(detail.message)}</p>{!!lines(detail.stats).length && <p className="strip-stream-detail-stats">{lines(detail.stats).map(String).join(' · ')}</p>}</div>;
   return <div className={'strip-stream-detail'+(kind==='error'?' strip-stream-detail--error':'')}><pre>{str(detail.message)||'暂无更多详情'}</pre>{detail.code!==undefined && <code>{str(detail.code)}</code>}</div>;
 }
 
 function Step({event,opened,toggle,onError,children}:{event:ActivityEvent;opened:boolean;toggle:()=>void;onError:(message:string)=>void;children?:ReactNode}){
-  const hasDetail=Boolean(event.detail || children),id='strip-stream-'+useId();
-  return <article className="strip-stream-step" data-status={event.status} data-type={event.type} data-event-id={event.id}>
+  const hasDetail=Boolean(event.detail || children);
+  const status=event.status==='error'?'failed':event.status==='success'?'completed':event.status==='pending'?'pending':event.status==='running'?'running':'completed';
+  const kind=event.type==='edit'?'file-change':event.type==='command'?'command':event.type==='search'?'search':event.type==='thinking'?'reasoning':'tool';
+  const subtitle=event.subtitle && !['已完成','执行失败','等待执行','执行中','已停止或状态未知'].includes(event.subtitle)?event.subtitle:null;
+  return <article className="strip-stream-step strip-kit-step" data-status={event.status} data-type={event.type} data-event-id={event.id}>
     <span className="strip-stream-rail" aria-hidden="true"><Icon name={ICON_NAME[event.type]||'file'}/></span>
     <div className="strip-stream-step-main">
-      <button type="button" className="strip-stream-step-heading" onClick={toggle} aria-expanded={hasDetail?opened:undefined} aria-controls={hasDetail?id:undefined} disabled={!hasDetail}>
-        <span className="strip-stream-step-label"><strong>{event.title}</strong>{event.path && <code title={event.path}>{event.path}</code>}{(event.add!==undefined || event.del!==undefined) && <span className="strip-stream-change">{event.add!==undefined && <span>+{event.add}</span>}{event.del!==undefined && <span>-{event.del}</span>}</span>}</span>
-        <span className="strip-stream-step-end"><small>{STATE_LABEL[event.status]||event.status}</small>{hasDetail && <ControlIcon name="down" size={14} className={opened?'is-open':''}/>}</span>
-      </button>
-      {event.subtitle && !['已完成','执行失败','等待执行','执行中','已停止或状态未知'].includes(event.subtitle) && <p className="strip-stream-step-hint">{event.subtitle}</p>}
-      {hasDetail && opened && <div className="strip-stream-step-content" id={id}>{children || <Detail event={event} onError={onError}/>}</div>}
+      <KitAgentActivity status={status} kind={kind} disclosureMode="button"
+        open={hasDetail?opened:undefined} onOpenChange={hasDetail?toggle:undefined}
+        summary={<span className="strip-stream-step-label"><strong>{event.title}</strong>{event.path&&<code title={event.path}>{event.path}</code>}{(event.add!==undefined||event.del!==undefined)&&<span className="strip-stream-change">{event.add!==undefined&&<span>+{event.add}</span>}{event.del!==undefined&&<span>-{event.del}</span>}</span>}</span>}
+        detail={<span className="strip-stream-step-end"><small>{STATE_LABEL[event.status]||event.status}</small></span>}
+        description={subtitle?<p className="strip-stream-step-hint">{subtitle}</p>:undefined}>
+        {hasDetail?<div className="strip-stream-step-content">{children||<Detail event={event} onError={onError}/>}</div>:undefined}
+      </KitAgentActivity>
     </div>
   </article>;
 }

@@ -5,6 +5,7 @@ const {createEngine} = require('../engine/codex-engine.cjs');
 const {createTaskScheduler} = require('../scheduler/index.cjs');
 const {gitPreflight} = require('../safety/git-preflight.cjs');
 const {snapshot} = require('../safety/worktree-snapshot.cjs');
+const {compareSnapshot} = require('../safety/worktree-diff.cjs');
 const {createModelMetrics}=require('../metrics/index.cjs');
 const {httpError,requireLocalUrl} = require('../../core/providers/index.cjs');
 const {readChangedFile,runManualCommand,MAX_PROMPT_CHARS,MAX_FILE_BYTES} = require('../workspace/index.cjs');
@@ -108,6 +109,15 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         await load();owned[result.data.id] = {workspace:directory,createdAt:Date.now(),configuration:currentConfig(),model:body.model,followCurrent:body.followCurrent === true};await save();
         if(body.approvalMode==='allow-all')autoApprovalSessions.add(result.data.id);
         return {session:{...result.data,model:body.model}};
+      }
+      const diffTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/diff$/.exec(route);
+      if(diffTask && method==='GET'){
+        const id=await session(diffTask[1]);
+        const state=await scheduler.state(id);
+        const task=state.tasks.find(entry=>entry.id===diffTask[2]);
+        if(!task)throw httpError(404,'任务不存在或不属于当前会话。');
+        if(!task.preflight?.snapshot?.available)throw httpError(409,'该任务没有可用的执行前快照。');
+        return compareSnapshot({root,workspace:owned[id].workspace,taskID:task.id});
       }
       const cancelTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/cancel$/.exec(route);
       if(cancelTask && method==='POST'){await session(cancelTask[1]);return scheduler.cancel(cancelTask[1],cancelTask[2]);}

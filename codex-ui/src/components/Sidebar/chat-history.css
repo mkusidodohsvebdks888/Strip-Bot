@@ -53,3 +53,20 @@
 
 .strip-app .strip-cx-thread__main,.strip-app .strip-cx-project__open{font-size:calc(14px * var(--strip-type-scale,1));min-height:40px;}
 .strip-app .strip-cx-hint{font-size:13px;}
+
+/* Compact conversation list: no group tabs, no duplicated thread rows. */
+.strip-app .strip-cx-section--projects{
+  padding-bottom:9px;
+  border-bottom:1px solid var(--border-07);
+}
+.strip-app .strip-cx-section--projects .strip-cx-project-list{margin:0;gap:1px}
+.strip-app .strip-cx-section--projects .strip-cx-add-project{
+  margin:2px 0 0 8px;
+  width:32px;
+  height:32px;
+  opacity:.8;
+}
+.strip-app .strip-cx-section--conversations .strip-cx-section__list{margin:0;gap:2px}
+.strip-app .strip-cx-thread.is-pinned{border-left:2px solid color-mix(in srgb,var(--accent,var(--muted)) 46%,transparent)}
+.strip-app .strip-cx-thread.is-pinned .strip-cx-thread__main{padding-left:9px}
+.strip-app .strip-cx-thread__main{white-space:nowrap;text-overflow:ellipsis}

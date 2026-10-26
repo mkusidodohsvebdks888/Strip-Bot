@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Button as KitButton} from '../../vendor/codex-ui-kit/Button';
 import {BuiltinPluginsTool} from './BuiltinPluginsTool';
 import {GithubToolsTool} from './GithubToolsTool';
 import {IntegrationsTool} from './IntegrationsTool';
@@ -19,7 +20,7 @@ export function ToolsHub({initialSection='local',onOpenSkills}:{initialSection?:
   const [section,setSection]=useState<ToolsSection>(initialSection);
   return <div className="strip-tools-hub">
     <div className="strip-tools-hub__categories" role="group" aria-label="工具与插件分类">
-      {sections.map(item=><button key={item.id} type="button" aria-pressed={section===item.id} onClick={()=>setSection(item.id)}>{item.label}</button>)}
+      {sections.map(item=><KitButton key={item.id} type="button" tone="ghost" size="small" pressed={section===item.id} onClick={()=>setSection(item.id)}>{item.label}</KitButton>)}
     </div>
     <div className="strip-tools-hub__content">
       {section==='local'&&<BuiltinPluginsTool/>}

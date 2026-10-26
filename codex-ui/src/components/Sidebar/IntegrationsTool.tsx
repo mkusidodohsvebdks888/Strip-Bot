@@ -38,6 +38,7 @@ export function IntegrationsTool(){
   const [probeResults,setProbeResults]=useState<Record<string,string>>({});
   const [discoveredTools,setDiscoveredTools]=useState<Record<string,{name:string;description:string}[]>>({});
   const [toolListIncomplete,setToolListIncomplete]=useState<Record<string,boolean>>({});
+  const [toolPermissions,setToolPermissions]=useState<Record<string,Record<string,string>>>({});
   const [showSensitiveConfig,setShowSensitiveConfig]=useState(false);
   const refresh=useCallback(async()=>{
     const data=await request<{items:Integration[]}>('/api/integrations');
@@ -62,9 +63,14 @@ export function IntegrationsTool(){
     if(inspecting)return;
     if(!window.confirm(item.type==='local'?'将启动本地 MCP 程序并读取工具列表，可能运行外部代码。请仅测试可信项目。是否继续？':'将向本机 MCP 服务发送初始化请求，是否继续？'))return;
     setInspecting(item.id);setError('');
-    try{const result=await request<{connected:boolean;protocolVersion:string;tools:{name:string;description:string}[];hasMore?:boolean}>('/api/integrations/probe',{id:item.id,confirmed:true});setProbeResults(current=>({...current,[item.id]:result.connected?'握手成功 · 协议 '+result.protocolVersion:'连接失败'}));setDiscoveredTools(current=>({...current,[item.id]:result.tools||[]}));setToolListIncomplete(current=>({...current,[item.id]:result.hasMore===true}));}
+    try{const result=await request<{connected:boolean;protocolVersion:string;tools:{name:string;description:string}[];hasMore?:boolean}>('/api/integrations/probe',{id:item.id,confirmed:true});setProbeResults(current=>({...current,[item.id]:result.connected?'握手成功 · 协议 '+result.protocolVersion:'连接失败'}));setDiscoveredTools(current=>({...current,[item.id]:result.tools||[]}));
+      const policies=await request<{tools:Record<string,string>}>('/api/integrations/permissions',{id:item.id});setToolPermissions(current=>({...current,[item.id]:policies.tools}));setToolListIncomplete(current=>({...current,[item.id]:result.hasMore===true}));}
     catch(e){setProbeResults(current=>({...current,[item.id]:'连接失败'}));setError(e instanceof Error?e.message:'连接失败');}
     finally{setInspecting(null);}
+  };
+  const changePermission=async(item:Integration,tool:string,mode:string)=>{
+    try{await request('/api/integrations/permission',{id:item.id,tool,mode});setToolPermissions(current=>({...current,[item.id]:{...(current[item.id]||{}),[tool]:mode}}));setInfo('工具权限已保存；执行器接入前不会自动调用工具。');setError('');}
+    catch(e){setError(e instanceof Error?e.message:'权限保存失败');}
   };
   const copyConfig=async(item:Integration)=>{
     if(!window.confirm(`复制「${item.label}」的连接配置？配置可能包含访问令牌、私有路径或认证参数，请勿分享给不可信的人。`))return;
@@ -146,7 +152,7 @@ export function IntegrationsTool(){
       <div className="strip-integrations__item-head"><strong>{item.label}</strong><span className={'strip-integrations__badge'+(item.enabled?' is-enabled':'')}>{item.enabled?'已启用':'未启用'}</span></div>
       <div className="strip-integrations__detail"><span className="strip-integrations__protocol">{item.type==='local'?'STDIO':'HTTP'}</span><code>{showSensitiveConfig?(item.type==='local'?item.command?.join(' '):item.url):redact(item.type==='local'?item.command?.join(' ')||'':item.url||'')}</code></div>
       <div className="strip-integrations__item-buttons"><StripButton size="sm" variant="ghost" aria-expanded={expanded.includes(item.id)} aria-controls={`strip-mcp-detail-${item.id}`} onClick={()=>setExpanded(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])}>{expanded.includes(item.id)?'收起详情':'查看详情'}</StripButton><StripButton size="sm" variant={item.enabled?'secondary':'primary'} disabled={busy} onClick={()=>toggle(item)}>{item.enabled?'停用':'启用'}</StripButton><StripButton size="sm" variant="secondary" disabled={inspecting!==null} onClick={()=>void probe(item)}>{item.type==='local'?'测试本地 MCP':'测试握手（仅本机）'}</StripButton><StripButton size="sm" variant="ghost" disabled={inspecting!==null} onClick={()=>void inspect(item)}>{inspecting===item.id?'诊断中…':'检查配置'}</StripButton><StripButton size="sm" variant="ghost" onClick={()=>void copyConfig(item)}>{copied===item.id?'已复制':'复制配置'}</StripButton><StripButton size="sm" variant="danger" disabled={busy} onClick={()=>remove(item)}>移除</StripButton></div>
-      {discoveredTools[item.id]&&<div className="strip-integrations__diagnostic"><strong>发现的工具（{discoveredTools[item.id].length}{toolListIncomplete[item.id]?'，还有更多':''}）</strong>{discoveredTools[item.id].map((tool,index)=><div key={tool.name+index}><span>{tool.name}</span><small>{tool.description}</small></div>)}</div>}
+      {discoveredTools[item.id]&&<div className="strip-integrations__diagnostic"><strong>发现的工具（{discoveredTools[item.id].length}{toolListIncomplete[item.id]?'，还有更多':''}）</strong>{discoveredTools[item.id].map((tool,index)=><div key={tool.name+index}><span>{tool.name}</span><small>{tool.description}</small><label className="strip-integrations__permission">权限<select value={toolPermissions[item.id]?.[tool.name]||'ask'} onChange={event=>void changePermission(item,tool.name,event.target.value)}><option value="ask">每次询问</option><option value="allow">允许</option><option value="deny">禁止</option></select></label></div>)}</div>}
       {probeResults[item.id]&&<p className="strip-integrations__feedback" role="status">{probeResults[item.id]}</p>}
       {diagnostics[item.id]&&<div className="strip-integrations__diagnostic" role="status"><strong>配置诊断（不执行连接）</strong>{diagnostics[item.id].checks.map(check=><div key={check.name}><span>{check.ok===true?'✓':check.ok===false?'!':'·'} {check.name}</span><small>{check.message}</small></div>)}</div>}
       {expanded.includes(item.id)&&<div id={`strip-mcp-detail-${item.id}`} className="strip-integrations__expanded"><div><span>服务器标识</span><code>{item.id}</code></div><div><span>传输协议</span><code>{item.type==='local'?'stdio':'Streamable HTTP'}</code></div>{item.cwd&&<div><span>工作目录</span><code>{item.cwd}</code></div>}</div>}

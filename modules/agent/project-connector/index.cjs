@@ -68,4 +68,39 @@ async function discover(workspace){
   database:{executionEnabled:false}
  },note:'只读发现：不会执行 MCP Server、项目脚本、HTTP 请求或数据库命令。'};
 }
-module.exports={discover};
+
+const DENIED=new Set(['.git','.env','.ssh','.aws','.npmrc','.pypirc','node_modules','.stripbot','dist','build','coverage','vendor','__pycache__']);
+const PRIVATE=/(^|[._-])(secret|token|password|credential|private|keypair|id_rsa|id_ed25519)([._-]|$)|\.(pem|p12|pfx|key|sqlite|db)$/i;
+function segments(relative){
+ if(typeof relative!=='string'||relative.length>500||relative.includes('\\')||relative.includes('\\0'))throw Object.assign(new Error('无效的相对路径'),{status:400});
+ const parts=relative.split('/');
+ if(parts.some(x=>x===''||x==='.'||x==='..'||DENIED.has(x.toLowerCase())||x.toLowerCase().startsWith('.env')||PRIVATE.test(x)))throw Object.assign(new Error('此路径不可读取'),{status:403});
+ return parts;
+}
+async function resolveReadOnly(workspace,relative,folder=false){
+ const base=await fs.realpath(workspace);
+ const parts=segments(relative);
+ let current=base;
+ for(const part of parts){
+  current=path.join(current,part);
+  const stat=await fs.lstat(current);
+  if(stat.isSymbolicLink())throw Object.assign(new Error('禁止访问符号链接'),{status:403});
+ }
+ const stat=await fs.lstat(current);
+ if(folder?!stat.isDirectory():!stat.isFile())throw Object.assign(new Error('路径类型不匹配'),{status:400});
+ return {current,stat};
+}
+async function list(workspace,relative){
+ const {current}=await resolveReadOnly(workspace,relative,true);
+ const entries=await fs.readdir(current,{withFileTypes:true});
+ return {path:relative,entries:entries.filter(x=>!DENIED.has(x.name.toLowerCase())&&!x.name.toLowerCase().startsWith('.env')&&!PRIVATE.test(x.name)&&!x.isSymbolicLink()).slice(0,200).map(x=>({name:x.name,type:x.isDirectory()?'directory':x.isFile()?'file':'other'}))};
+}
+async function read(workspace,relative){
+ const {current,stat}=await resolveReadOnly(workspace,relative);
+ if(stat.size>MAX_BYTES)throw Object.assign(new Error('文件超过 1MB 限制'),{status:413});
+ const data=await fs.readFile(current);
+ if(data.includes(0))throw Object.assign(new Error('不允许读取二进制文件'),{status:415});
+ return {path:relative,content:data.toString('utf8'),size:data.length};
+}
+
+module.exports={discover,list,read};

@@ -10,6 +10,9 @@ function validate(filename,source){
  if(typeof filename!=='string'||!allowed.test(filename))throw Object.assign(new Error('仅允许写入 generated-ui 下的独立预览组件'),{status:400});
  if(typeof source!=='string'||!source.trim()||source.length>100000)throw Object.assign(new Error('生成代码不能为空或超过 100 KB'),{status:400});
  if(/\b(?:eval\s*\(|new\s+Function\s*\(|child_process|node:fs|process\.env|dangerouslySetInnerHTML)\b/.test(source))throw Object.assign(new Error('生成代码包含不允许的高风险调用'),{status:400});
+ if(/\b(?:import\s*\(|require\s*\(|fetch\s*\(|XMLHttpRequest|WebSocket|window\.|document\.|localStorage|sessionStorage|iframe|script|onerror\s*=)\b/i.test(source))throw Object.assign(new Error('预览组件不得调用网络、浏览器存储或动态执行接口'),{status:400});
+ const imports=[...source.matchAll(/(?:^|\n)\s*import\s+[^;\n]+?\s+from\s+['\"]([^'\"]+)['\"]/g)];
+ if(imports.some(match=>match[1]!=='react'))throw Object.assign(new Error('独立预览组件只允许从 react 导入'),{status:400});
 }
 function expire(){for(const [id,item] of DRAFTS)if(Date.now()-item.at>30*60*1000)DRAFTS.delete(id);}
 async function propose({workspace,filename,source}){

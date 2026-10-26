@@ -296,6 +296,7 @@ const app = http.createServer(async (req, res) => {
         if (pathname === '/api/integrations' && req.method === 'POST') return respondJson(res,200,await integrations.upsert(await readJsonBody(req)));
         if (pathname === '/api/integrations/enable' && req.method === 'POST') return respondJson(res,200,await integrations.enable(await readJsonBody(req)));
         if (pathname === '/api/integrations/remove' && req.method === 'POST') return respondJson(res,200,await integrations.remove(await readJsonBody(req)));
+        if (pathname === '/api/integrations/probe' && req.method === 'POST') return respondJson(res,200,await integrations.probe(await readJsonBody(req)));
         if (pathname === '/api/integrations/inspect' && req.method === 'POST') return respondJson(res,200,await integrations.inspect(await readJsonBody(req)));
         if (pathname === '/api/integrations/reload' && req.method === 'POST') return respondJson(res,200,await agent.reloadIntegrations());
         throw httpError(404,'项目集成接口不存在。');

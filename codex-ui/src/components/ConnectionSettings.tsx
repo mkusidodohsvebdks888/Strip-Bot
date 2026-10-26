@@ -9,7 +9,12 @@ import {discoverModels} from './api-models';
 import {NonoPluginSettings} from './NonoPluginSettings';
 import {SettingsDiagnostics} from './SettingsDiagnostics';
 import type {DiscoveredModel} from './api-models';
-const settingsPages=[{id:'model',label:'模型设置'},{id:'api',label:'API 连接'},{id:'models',label:'可用模型'},{id:'performance',label:'显示与性能'},{id:'project',label:'项目设置'},{id:'diagnostics',label:'运行诊断'},{id:'appearance',label:'AI 生成式 UI'},{id:'nono',label:'桌面宠物'}] as const;
+const settingsGroups=[
+  {label:'AI 与模型',pages:[{id:'model',label:'模型与厂商'},{id:'api',label:'API 连接'},{id:'models',label:'模型列表'}]},
+  {label:'工作区与运行',pages:[{id:'project',label:'项目与目录'},{id:'diagnostics',label:'运行诊断'}]},
+  {label:'外观与扩展',pages:[{id:'performance',label:'显示与性能'},{id:'appearance',label:'主题与生成式 UI'},{id:'nono',label:'桌面宠物'}]}
+] as const;
+const settingsPages=settingsGroups.flatMap(group=>group.pages);
 type SettingsPage=typeof settingsPages[number]['id'];
 const pageKey='strip_settings_page_v1';
 function storedPage():SettingsPage {try{const value=localStorage.getItem(pageKey);return settingsPages.find(item=>item.id===value)?.id || 'model';}catch{return 'model';}}
@@ -60,12 +65,18 @@ export function ConnectionSettings({pageRequest,appearanceSettings,displayRate,m
   return <div className="strip-connection-settings">
     <button className="strip-btn strip-btn--ghost strip-btn--sm" onClick={safeBack}><ControlIcon name="left"/> 返回对话</button>
     <h1>设置</h1>
-    <nav className="strip-settings-tabs" role="tablist" aria-label="设置分类">
-      {settingsPages.map((item,index)=><button key={item.id} type="button" role="tab" id={pageId+'-tab-'+item.id} aria-controls={pageId+'-'+item.id} aria-selected={page===item.id} tabIndex={page===item.id?0:-1} onClick={()=>changePage(item.id)} onKeyDown={event=>{
-        const next=event.key==='Home'?0:event.key==='End'?settingsPages.length-1:event.key==='ArrowRight'?(index+1)%settingsPages.length:event.key==='ArrowLeft'?(index+settingsPages.length-1)%settingsPages.length:-1;
-        if(next<0)return;event.preventDefault();changePage(settingsPages[next].id);
-        document.getElementById(pageId+'-tab-'+settingsPages[next].id)?.focus();
-      }}>{item.label}</button>)}
+    <nav className="strip-settings-tabs strip-settings-tabs--grouped" aria-label="设置分类">
+      {settingsGroups.map(group=><div className="strip-settings-tab-group" key={group.label}>
+        <span className="strip-settings-tab-group-title">{group.label}</span>
+        <div role="tablist" aria-label={group.label}>
+          {group.pages.map(item=><button key={item.id} type="button" role="tab" id={pageId+'-tab-'+item.id} aria-controls={pageId+'-'+item.id} aria-selected={page===item.id} tabIndex={page===item.id?0:-1} onClick={()=>changePage(item.id)} onKeyDown={event=>{
+            const index=settingsPages.findIndex(entry=>entry.id===item.id);
+            const next=event.key==='Home'?0:event.key==='End'?settingsPages.length-1:event.key==='ArrowRight'||event.key==='ArrowDown'?(index+1)%settingsPages.length:event.key==='ArrowLeft'||event.key==='ArrowUp'?(index+settingsPages.length-1)%settingsPages.length:-1;
+            if(next<0)return;event.preventDefault();changePage(settingsPages[next].id);
+            document.getElementById(pageId+'-tab-'+settingsPages[next].id)?.focus();
+          }}>{item.label}</button>)}
+        </div>
+      </div>)}
     </nav>
     <section className="strip-settings-page" {...panelProps('model')}>
 <h2 className="strip-settings-section-title">模型设置</h2><p className="strip-muted">管理模型连接、账号授权及聊天与编程使用的模型。</p>

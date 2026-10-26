@@ -101,3 +101,16 @@
 .strip-integrations__service-call{display:grid;gap:8px;margin:9px 0;padding:10px;border:1px solid var(--border-color,#dce1e7);border-radius:12px;min-width:0}
 .strip-integrations__service-call textarea{width:100%;box-sizing:border-box;resize:vertical;border-radius:8px;border:1px solid var(--border-color,#dce1e7);padding:9px;background:transparent;color:inherit;font:12px/1.5 monospace}
 .strip-integrations__service-call pre{max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}
+
+/* StripBot Cloud connector: local-only credential entry and read-only remote status. */
+.strip-integrations__cloud{display:grid;gap:10px;padding:14px;margin:12px 0;border:1px solid var(--border-subtle,rgba(127,127,127,.22));border-radius:14px;background:var(--surface-soft,rgba(127,127,127,.04))}
+.strip-integrations__cloud-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.strip-integrations__cloud-heading strong{font-size:14px}
+.strip-integrations__cloud-heading p{margin:4px 0 0;font-size:12px;color:var(--muted,var(--text-secondary,#888))}
+.strip-integrations__cloud-status{flex-shrink:0;border-radius:999px;padding:4px 8px;font-size:11px;background:rgba(127,127,127,.1)}
+.strip-integrations__cloud>code{display:block;overflow-wrap:anywhere;font-size:12px;color:var(--text-secondary,inherit)}
+.strip-integrations__cloud-form{display:grid;gap:7px}
+.strip-integrations__cloud-form label{font-size:12px}
+.strip-integrations__cloud-input{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.strip-integrations__cloud-input input{flex:1;min-width:170px;min-height:35px;box-sizing:border-box;background:var(--surface-base,transparent);color:inherit;padding:8px;border:1px solid var(--border-subtle,rgba(127,127,127,.25));border-radius:9px;font:inherit;font-size:12px}
+.strip-integrations__cloud .strip-tool-note{margin:0;font-size:11px}

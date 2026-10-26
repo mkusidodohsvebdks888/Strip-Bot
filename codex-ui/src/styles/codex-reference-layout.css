@@ -9,6 +9,12 @@ html[data-strip-desktop="true"] .strip-app .strip-window-topbar{
   background:var(--sidebar-bg);
   color:var(--fg);
 }
+/* Preserve an accessible title while keeping the screenshot's compact menu bar. */
+.strip-app .strip-window-topbar__title.strip-sr-only{
+  position:absolute!important;
+  width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+}
 /* The rail follows the OS caption rather than replacing its hit targets. */
 .strip-app .strip-tool-rail{
   flex:0 0 54px;

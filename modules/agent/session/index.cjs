@@ -7,6 +7,7 @@ const {gitPreflight} = require('../safety/git-preflight.cjs');
 const {snapshot} = require('../safety/worktree-snapshot.cjs');
 const {compareSnapshot} = require('../safety/worktree-diff.cjs');
 const {restoreSnapshotFile} = require('../safety/worktree-restore.cjs');
+const {batchRestore} = require('../safety/worktree-batch-restore.cjs');
 const {listSnapshots,removeSnapshot} = require('../safety/snapshot-inventory.cjs');
 const {appendRestoreAudit,readRestoreAudit} = require('../safety/restore-audit.cjs');
 const {projectContext,contextPrompt} = require('../safety/project-context.cjs');
@@ -148,6 +149,18 @@ function createAgentService({root,allowNative = true,directApiKey=()=>'',apiKey,
         if(!task)throw httpError(404,'任务不存在或不属于当前会话。');
         if(!task.preflight?.snapshot?.available)throw httpError(409,'该任务没有可用的执行前快照。');
         return compareSnapshot({root,workspace:owned[id].workspace,taskID:task.id});
+      }
+      const batchTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/restore-batch$/.exec(route);
+      if(batchTask && method==='POST'){
+        const id=await session(batchTask[1]);
+        const state=await scheduler.state(id);
+        const task=state.tasks.find(item=>item.id===batchTask[2]);
+        if(!task)throw httpError(404,'任务不存在或不属于当前会话');
+        if(!['done','failed','cancelled'].includes(task.status))throw httpError(409,'任务尚未结束');
+        if(await scheduler.hasOutstanding())throw httpError(409,'队列尚有未完成任务');
+        if(!task.preflight?.snapshot?.available)throw httpError(409,'快照不可用');
+        return batchRestore({root,workspace:owned[id].workspace,taskID:task.id,files:body?.files,confirmed:body?.confirmed,
+          onResult:entry=>appendRestoreAudit({root,sessionID:id,taskID:task.id,...entry})});
       }
       const restoreTask = /^\/sessions\/(ses_[a-zA-Z0-9]+)\/tasks\/(tsk_[a-f0-9]{20})\/restore$/.exec(route);
       if(restoreTask && method==='POST'){

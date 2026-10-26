@@ -7,11 +7,12 @@ if(!token||token.length<24)throw new Error('Set MCP_ACCESS_TOKEN (at least 24 ch
 const tools=[{name:'service_status',description:'Read-only service status',inputSchema:{type:'object',properties:{},additionalProperties:false}}];
 function reply(res,status,data){res.writeHead(status,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(data));}
 http.createServer(async(req,res)=>{
- if(req.url==='/health'&&req.method==='GET')return reply(res,200,{ok:true});
+ const pathname=new URL(req.url,'http://localhost').pathname;
+ if(pathname==='/health'&&req.method==='GET')return reply(res,200,{ok:true});
  const auth=req.headers.authorization||'';
  const expected='Bearer '+token;
  if(Buffer.byteLength(auth)!==Buffer.byteLength(expected)||!crypto.timingSafeEqual(Buffer.from(auth),Buffer.from(expected)))return reply(res,401,{error:'Unauthorized'});
- if(req.url!=='/mcp'||req.method!=='POST')return reply(res,404,{error:'Not found'});
+ if(pathname!=='/mcp'||req.method!=='POST')return reply(res,404,{error:'Not found'});
  let data='';for await(const part of req){data+=part;if(data.length>32768)return reply(res,413,{error:'Too large'});}
  let body;try{body=JSON.parse(data);}catch{return reply(res,400,{error:'Invalid JSON'});}
  if(body.jsonrpc!=='2.0')return reply(res,400,{error:'Invalid JSON-RPC'});

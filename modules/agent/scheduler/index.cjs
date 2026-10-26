@@ -17,7 +17,7 @@ function overlaps(a,b){
   const inside=x=>x==='' || (!x.startsWith('..'+path.sep) && x!=='..' && !path.isAbsolute(x));
   return inside(relative)||inside(inverse);
 }
-const safeTask=task=>({id:task.id,sessionID:task.sessionID,preview:task.text.slice(0,120),status:task.status,createdAt:task.createdAt,startedAt:task.startedAt||null,endedAt:task.endedAt||null,attempts:task.attempts||0,error:task.error||null,preflight:task.preflight||null});
+const safeTask=task=>({id:task.id,sessionID:task.sessionID,preview:task.text.slice(0,120),status:task.status,createdAt:task.createdAt,startedAt:task.startedAt||null,endedAt:task.endedAt||null,attempts:task.attempts||0,error:task.error||null,review:task.review||null,preflight:task.preflight||null});
 function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bounded(process.env.STRIPBOT_MAX_PARALLEL_TASKS,3,4),maxPending=100,logger=()=>{}}){
   if(!root||typeof getEngine!=='function')throw new TypeError('root and getEngine are required');
   const filename=path.join(root,'.runtime','agent-tasks.json');
@@ -71,6 +71,7 @@ function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bo
     active.delete(task.sessionID);
     const interruption=task.interruption;
     task.interruption=null;task.endedAt=Date.now();
+    task.review={phase:kind==='completed'?'awaiting_manual_verification':'requires_attention',finishedAt:task.endedAt,automaticallyVerified:false};
     if(interruption==='pause' && kind!=='completed'){
       task.status='paused';task.interrupted=true;task.error='已中断当前轮次；继续时将检查进度并开启新轮次。';
     }else if(interruption==='cancel'){

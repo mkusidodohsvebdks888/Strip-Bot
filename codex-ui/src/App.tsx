@@ -55,6 +55,7 @@ import './styles/composer-layout-fix.css';
 import './styles/agent-buttons.css';
 import './styles/claude-codex-composer.css';
 import './modules/theme/styles/wallpaper.css';
+import './modules/theme/styles/fluid-glass.css';
 import './styles/api-entry-merged.css';
 import './styles/home-motion.css';
 
@@ -253,8 +254,9 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
   if(modelChanged) notifications.push({id:'model-changed',title:'模型已变化',message:'此会话保留原模型，请新建对话继续。',action:<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>conversation.newConversation(draft)}>保留输入并新建对话</button>});
   if(blockedReason && !modelError && !modelChanged && !modelsLoading && !conversation.loading && !waiting) notifications.push({id:'blocked',title:'消息提示',message:blockedReason,action:!selectedModel?<button className="strip-btn strip-btn--secondary strip-btn--sm" disabled={busy} onClick={()=>void refreshModels()}>重新加载模型</button>:<button className="strip-btn strip-btn--secondary strip-btn--sm" onClick={openSettings}>打开设置</button>});
   if(notice) notifications.push({id:'composer-'+noticeRevision,title:'消息提示',message:notice});
-  return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-wallpaper={showWallpaper} style={wallpaperStyle}>
+  return <div className={shell.app+' strip-app strip-ui'} data-theme={theme} data-appearance={baseAppearance(appearance)} data-wallpaper={showWallpaper} data-fluid-glass={wallpaper.fluidGlassEnabled} style={wallpaperStyle}>
     <div className="strip-window-topbar" aria-hidden="true"><span className="strip-window-topbar__title">Strip Bot</span></div>
+    {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
     {showWallpaper && <div className="strip-wallpaper-layer" data-fit={wallpaper.fit} aria-hidden="true"><img src={wallpaper.wallpaper!.url} alt="" draggable={false}/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}

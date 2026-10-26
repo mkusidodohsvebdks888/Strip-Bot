@@ -9,6 +9,8 @@ const css=read('codex-ui/src/modules/theme/styles/window-frame.css');
 const app=read('codex-ui/src/App.tsx');
 const entry=read('codex-ui/src/components/ApiEntry.tsx');
 const electron=read('desktop-app/main.cjs');
+const reference=read('codex-ui/src/styles/codex-reference-layout.css');
+const commandBar=read('codex-ui/src/components/Window/TopCommandBar.tsx');
 
 test('window frame has a responsive rounded rectangle and theme-aware border',()=>{
   assert.match(css,/--strip-window-radius:\s*18px/);
@@ -26,7 +28,9 @@ test('workbench and API onboarding expose the same desktop caption strip',()=>{
   }
   assert.match(css,/html\[data-strip-desktop="true"\] \.strip-window-topbar/);
   assert.match(css,/-webkit-app-region:\s*drag/);
-  assert.match(css,/padding:\s*0 160px 0 18px/);
+  assert.match(reference,/padding:\s*0 154px 0 14px/);
+  assert.match(commandBar,/className="strip-top-commandbar"/);
+  assert.match(commandBar,/onToggleSidebar/);
   assert.match(css,/padding-top:\s*var\(--strip-native-titlebar-height\)/);
 });
 
@@ -37,10 +41,15 @@ test('native titlebar overlay matches the CSS caption height and stays themed',(
   assert.match(electron,/window\.setTitleBarOverlay\(\{color:palette\.color,symbolColor:palette\.symbolColor,height:STRIP_TITLEBAR_HEIGHT\}\)/);
 });
 
-test('frame stylesheet is loaded last without overriding component theme tokens',()=>{
-  const cssImport="import './modules/theme/styles/window-frame.css';";
+test('frame stylesheet precedes final screenshot layout without losing theme tokens',()=>{
+  const frameImport="import './modules/theme/styles/window-frame.css';";
+  const referenceImport="import './styles/codex-reference-layout.css';";
   const items=[...app.matchAll(/^import .+;$/gm)].map(x=>x[0]);
-  assert.equal(items.at(-1),cssImport);
+  assert.ok(items.includes(frameImport));
+  assert.equal(items.at(-1),referenceImport);
+  assert.ok(items.indexOf(referenceImport)>items.indexOf(frameImport));
   assert.match(css,/background:\s*var\(--bg\)/);
   assert.match(css,/border-color:\s*var\(--border-09\)/);
+  assert.match(reference,/var\(--sidebar-bg\)/);
+  assert.match(reference,/var\(--border-10\)/);
 });

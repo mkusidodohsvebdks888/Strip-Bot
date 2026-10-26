@@ -134,3 +134,21 @@
 /* Plugin center gets a little more space without changing other workspaces. */
 @media(min-width:901px){.strip-app .strip-tool-panel.strip-tool-panel--plugins{flex:0 0 352px;width:352px}}
 @media(max-width:900px){.strip-app > .strip-tool-panel.strip-tool-panel--plugins{width:min(352px,calc(100vw - 64px))}}
+
+/* Streamlined left panel: no duplicate heading or eyebrow text. */
+.strip-app .strip-tool-panel__header{
+  min-height:42px;
+  padding:5px 10px;
+  justify-content:flex-end;
+}
+.strip-tool-panel__sr-title{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}

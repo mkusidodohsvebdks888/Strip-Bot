@@ -2,6 +2,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const {httpError} = require('../../core/providers/index.cjs');
+const {probeRemote}=require('./probe.cjs');
 
 const ID_PATTERN = /^[a-z][a-z0-9_-]{1,39}$/;
 const MAX_INTEGRATIONS = 30;
@@ -66,6 +67,13 @@ function createIntegrationRegistry({root}) {
   }
   return {
     list: () => pending.then(read),
+    async probe({id,confirmed}){
+      if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');
+      const items=await pending.then(read);
+      const item=items.find(entry=>entry.id===id);
+      if(!item)throw httpError(404,'MCP 服务器不存在');
+      return probeRemote(item);
+    },
     async inspect({id}) {
       const items=await pending.then(read);
       const item=items.find(entry=>entry.id===id);

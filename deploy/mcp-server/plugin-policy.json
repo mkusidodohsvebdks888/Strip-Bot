@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "default": "deny",
+  "cloudEligible": [
+    "stateless-api",
+    "remote-data-read",
+    "file-conversion-without-local-paths",
+    "scheduled-jobs-with-external-storage"
+  ],
+  "localOnly": [
+    "desktop-control",
+    "local-file-management",
+    "desktop-pet",
+    "os-integration",
+    "local-executable"
+  ],
+  "notes": "No local plugin is copied to the cloud automatically. Every plugin must be reviewed for secrets, filesystem access, network access and license."
+}

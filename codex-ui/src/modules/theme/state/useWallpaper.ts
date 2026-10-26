@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from 'react';
 /** All appearance data stays on this computer; background files never reach the API. */
 export type WallpaperFit = 'contain' | 'cover';
 export interface WallpaperPreferences {
+  fluidGlassEnabled: boolean;
   wallpaperEnabled: boolean;
   fit: WallpaperFit;
   softness: number; // 0-100: how gradually the image fades into the theme color
@@ -23,6 +24,8 @@ export interface WallpaperController extends WallpaperPreferences {
   error: string;
   disableWallpaper: () => void;
   enableWallpaper: () => void;
+  enableFluidGlass: () => void;
+  disableFluidGlass: () => void;
   uploadWallpaper: (file: File) => Promise<void>;
   removeWallpaper: () => Promise<void>;
   setFit: (fit: WallpaperFit) => void;
@@ -37,7 +40,7 @@ const DB_STORE = 'wallpapers';
 const DB_KEY = 'current';
 const MAX_IMAGE_BYTES = 30 * 1024 * 1024;
 const SUPPORTED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'image/bmp']);
-const defaults: WallpaperPreferences = {wallpaperEnabled: false, fit: 'contain', softness: 55, opacity: 95};
+const defaults: WallpaperPreferences = {fluidGlassEnabled: false, wallpaperEnabled: false, fit: 'contain', softness: 55, opacity: 95};
 
 interface StoredWallpaper {id: string; blob: Blob; name: string; width: number; height: number}
 
@@ -50,6 +53,7 @@ function readPreferences(): WallpaperPreferences {
     if (!saved || typeof saved !== 'object') return defaults;
     return {
       wallpaperEnabled: saved.wallpaperEnabled === true,
+      fluidGlassEnabled: saved.fluidGlassEnabled === true,
       fit: saved.fit === 'cover' ? 'cover' : 'contain',
       softness: safeNumber(saved.softness, defaults.softness, 0, 100),
       opacity: safeNumber(saved.opacity, defaults.opacity, 35, 100),
@@ -147,7 +151,7 @@ export function useWallpaper(): WallpaperController {
       const previous = activeUrl.current;
       activeUrl.current = url;
       setWallpaper({url, name: file.name, ...size});
-      patch({wallpaperEnabled: true});
+      patch({wallpaperEnabled: true,fluidGlassEnabled:false});
       if (previous) URL.revokeObjectURL(previous);
     } catch (reason) {if (mounted.current && operation === changeNumber.current) setError(reason instanceof Error ? reason.message : '无法保存这张图片。');}
     finally {if (mounted.current && operation === changeNumber.current) setBusy(false);}
@@ -168,7 +172,9 @@ export function useWallpaper(): WallpaperController {
   return {
     ...preferences, wallpaper, wallpaperLoading, busy, error,
     disableWallpaper: () => patch({wallpaperEnabled: false}),
-    enableWallpaper: () => {if (wallpaper) patch({wallpaperEnabled: true});},
+    enableFluidGlass: () => patch({fluidGlassEnabled:true,wallpaperEnabled:false}),
+    disableFluidGlass: () => patch({fluidGlassEnabled:false}),
+    enableWallpaper: () => {if (wallpaper) patch({wallpaperEnabled: true,fluidGlassEnabled:false});},
     uploadWallpaper, removeWallpaper,
     setFit: fit => patch({fit}),
     setSoftness: softness => patch({softness: safeNumber(softness, defaults.softness, 0, 100)}),

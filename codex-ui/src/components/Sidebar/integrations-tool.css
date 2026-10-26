@@ -83,3 +83,13 @@
 .strip-integrations__approval-dialog h3{margin:0 0 16px;font-size:16px}
 .strip-integrations__approval-dialog p{margin:9px 0;font-size:13px;overflow-wrap:anywhere}
 .strip-integrations__approval-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+/* Group MCP servers by the project they belong to. */
+.strip-integrations__project{border:1px solid var(--border-color,#dce1e7);border-radius:16px;padding:14px;margin:16px 0;background:var(--card-bg,rgba(128,128,128,.035));min-width:0}
+.strip-integrations__project-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:4px 4px 12px;border-bottom:1px solid var(--border-color,#dce1e7);margin-bottom:12px}
+.strip-integrations__project-head h4{margin:3px 0 5px;font-size:15px;overflow-wrap:anywhere}
+.strip-integrations__project-head p{margin:0;font-size:12px;opacity:.72}
+.strip-integrations__project-readonly{font-size:11px;line-height:1.5;opacity:.7;max-width:170px;text-align:right}
+.strip-integrations__project-servers{display:grid;gap:10px;min-width:0}
+.strip-integrations__project-servers .strip-integrations__item{margin:0;min-width:0}
+@media(max-width:650px){.strip-integrations__project-head{flex-direction:column}.strip-integrations__project-readonly{text-align:left;max-width:none}}

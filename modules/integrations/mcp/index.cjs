@@ -89,6 +89,17 @@ function createIntegrationRegistry({root}) {
         return {ok:true,id,tool,mode};
       });
     },
+    async evaluatePermission({id,tool,approved=false}){
+      if(typeof id!=='string'||!ID_PATTERN.test(id)||typeof tool!=='string'||!tool.trim()||tool.length>128)throw httpError(400,'MCP 工具标识无效');
+      const items=await pending.then(read);
+      const item=items.find(entry=>entry.id===id);
+      if(!item)return {id,tool,mode:'deny',allowed:false,reason:'server_missing'};
+      if(!item.enabled)return {id,tool,mode:'deny',allowed:false,reason:'server_disabled'};
+      const data=await readPermissions();
+      const configured=data[id]&&Object.hasOwn(data[id],tool)?data[id][tool]:'ask';
+      const mode=['allow','ask','deny'].includes(configured)?configured:'deny';
+      return {id,tool,mode,allowed:mode==='allow'||(mode==='ask'&&approved===true),reason:mode==='deny'?'denied':mode==='ask'&&approved!==true?'approval_required':'permitted'};
+    },
     async probe({id,confirmed}){
       if(confirmed!==true)throw httpError(400,'连接测试需要用户明确确认');
       const items=await pending.then(read);

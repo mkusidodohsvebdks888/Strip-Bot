@@ -52,7 +52,9 @@ function readPreferences(): WallpaperPreferences {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (!saved || typeof saved !== 'object') return defaults;
     return {
-      wallpaperEnabled: saved.wallpaperEnabled === true,
+      // Legacy custom photo backgrounds are no longer automatically shown.
+      // Keep their IndexedDB files untouched for future restoration.
+      wallpaperEnabled: false,
       fluidGlassEnabled: saved.fluidGlassEnabled === true,
       fit: saved.fit === 'cover' ? 'cover' : 'contain',
       softness: safeNumber(saved.softness, defaults.softness, 0, 100),

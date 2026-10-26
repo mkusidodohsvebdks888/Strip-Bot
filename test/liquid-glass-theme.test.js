@@ -23,6 +23,9 @@ test('real refraction layer is strictly opt-in behind the existing input editor'
   const app=read('codex-ui/src/App.tsx');
   assert.match(bridge,/lazy\(\(\)=>import\(['"]\.\.\/\.\.\/\.\.\/vendor\/liquid-glass-react['"]\)\)/);
   assert.match(bridge,/if\(!enabled\)return/);
+  assert.match(bridge,/mouseContainer=\{mouseContainer\}/);
+  assert.match(bridge,/ref=\{mouseContainer\}/);
+  assert.match(bridge,/Suspense fallback=\{null\}/);
   assert.match(bridge,/<LiquidGlass/);
   assert.match(bridge,/aria-hidden="true"/);
   assert.match(bridge,/pointerEvents:'none'/);

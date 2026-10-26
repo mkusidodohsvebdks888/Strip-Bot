@@ -17,7 +17,7 @@ function overlaps(a,b){
   const inside=x=>x==='' || (!x.startsWith('..'+path.sep) && x!=='..' && !path.isAbsolute(x));
   return inside(relative)||inside(inverse);
 }
-const safeTask=task=>({id:task.id,sessionID:task.sessionID,preview:task.text.slice(0,120),status:task.status,createdAt:task.createdAt,startedAt:task.startedAt||null,endedAt:task.endedAt||null,attempts:task.attempts||0,error:task.error||null,review:task.review||null,preflight:task.preflight||null});
+const safeTask=task=>({id:task.id,sessionID:task.sessionID,preview:task.text.slice(0,120),status:task.status,createdAt:task.createdAt,startedAt:task.startedAt||null,endedAt:task.endedAt||null,attempts:task.attempts||0,error:task.error||null,review:task.review||null,retryOf:task.retryOf||null,preflight:task.preflight||null});
 function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bounded(process.env.STRIPBOT_MAX_PARALLEL_TASKS,3,4),maxPending=100,logger=()=>{}}){
   if(!root||typeof getEngine!=='function')throw new TypeError('root and getEngine are required');
   const filename=path.join(root,'.runtime','agent-tasks.json');
@@ -138,6 +138,21 @@ function createTaskScheduler({root,getEngine,onBeforeStart=()=>{},maxParallel=bo
       await save();notify();return {accepted:true,task:safeTask(task),...state(sessionID)};
     },
     async state(sessionID){await load();return state(sessionID);},
+    async retryFailed(sessionID,id,{confirmed}={}){
+      await load();
+      if(confirmed!==true)throw problem(400,'重试需要用户明确确认');
+      const original=taskFor(sessionID,id);
+      if(original.status!=='failed')throw problem(409,'只能重试失败任务');
+      if(original.attempts>=3)throw problem(409,'该任务已达到最多三次尝试上限');
+      if(active.has(sessionID)||tasks.some(t=>t.sessionID===sessionID&&['queued','paused','running'].includes(t.status)))throw problem(409,'当前会话仍有未完成任务');
+      const followup={id:'tsk_'+randomBytes(10).toString('hex'),sessionID,workspace:original.workspace,
+        text:'请检查上一次失败任务的实际修改与现有工作区状态，仅完成尚未完成的工作；不要重复已执行的破坏性操作。\\n原始任务：\\n'+original.text,
+        status:'queued',createdAt:Date.now(),attempts:original.attempts,retryOf:original.id};
+      tasks.push(followup);
+      paused.delete(sessionID);
+      await save();notify();
+      return {accepted:true,task:safeTask(followup),...state(sessionID)};
+    },
     async markReviewed(sessionID,id,{verified,note}={}){
       await load();
       const task=taskFor(sessionID,id);

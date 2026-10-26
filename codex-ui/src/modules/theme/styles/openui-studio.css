@@ -54,3 +54,6 @@
 .strip-openui-generated details{min-width:0}
 .strip-openui-generated summary{cursor:pointer;font-weight:600}
 .strip-openui-generated pre{max-height:350px;overflow:auto;white-space:pre;font:12px/1.6 var(--font-code,monospace);background:var(--surface-search);padding:12px;border-radius:10px}
+
+.strip-openui-proposal{display:grid;gap:10px;padding:12px;border:1px solid var(--accent);border-radius:12px}
+.strip-openui-proposal pre{max-height:300px;overflow:auto;white-space:pre;font:12px/1.6 var(--font-code,monospace);padding:12px;background:var(--surface-search);border-radius:9px}

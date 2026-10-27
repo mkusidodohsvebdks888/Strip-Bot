@@ -37,7 +37,7 @@ test('workbench and API onboarding expose the same desktop caption strip',()=>{
 test('native titlebar overlay matches the CSS caption height and stays themed',()=>{
   assert.match(css,/--strip-native-titlebar-height:\s*48px/);
   assert.match(electron,/const STRIP_TITLEBAR_HEIGHT=48;/);
-  assert.match(electron,/titleBarOverlay: \{ color: '#faf9f6', symbolColor: '#4a4139', height: STRIP_TITLEBAR_HEIGHT \}/);
+  assert.match(electron,/titleBarOverlay: \{ color: '#eef2f6', symbolColor: '#52606d', height: STRIP_TITLEBAR_HEIGHT \}/);
   assert.match(electron,/window\.setTitleBarOverlay\(\{color:palette\.color,symbolColor:palette\.symbolColor,height:STRIP_TITLEBAR_HEIGHT\}\)/);
 });
 

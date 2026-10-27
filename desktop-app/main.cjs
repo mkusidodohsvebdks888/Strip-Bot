@@ -49,9 +49,9 @@ async function start() {
   });
   window = new BrowserWindow({
     title: 'Strip Bot', width: 1200, height: 850, minWidth: 420, minHeight: 700,
-    show: false, backgroundColor: '#faf9f6', autoHideMenuBar: true,
+    show: false, backgroundColor: '#eef2f6', autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#faf9f6', symbolColor: '#4a4139', height: STRIP_TITLEBAR_HEIGHT },
+    titleBarOverlay: { color: '#eef2f6', symbolColor: '#52606d', height: STRIP_TITLEBAR_HEIGHT },
     icon: path.join(resources, 'public', 'strip-bot.ico'),
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, partition: 'persist:stripbot', preload:path.join(__dirname,'preload.cjs') },
   });

@@ -19,8 +19,6 @@ html[data-strip-palette="graphite"] :is(.strip-app[data-appearance],.strip-api-e
  --quiet-line:#424a55;--quiet-white:#2d333a;--quiet-warm:#313841;--quiet-soft:#2d333af0;
  --send-disabled-bg:#515b67;--shadow-pop:0 18px 48px #0006;
 }
-html[data-strip-desktop="true"][data-strip-palette="mist"]::before{background:#f2f6fa}
-html[data-strip-desktop="true"][data-strip-palette="graphite"]::before{background:#22262b}
 .strip-app[data-appearance] .strip-appearance-settings{margin:20px 0 28px}
 .strip-app[data-appearance] .strip-appearance-settings>p{color:var(--muted)}
 .strip-app[data-appearance] .strip-theme-choice{color:var(--fg);background:var(--card-bg)}

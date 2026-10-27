@@ -163,7 +163,7 @@ export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: Sea
       role="dialog"
       aria-label="搜索聊天记录"
     >
-      <div className={styles.searchField}>
+      <div className={styles.searchField+" strip-search-field"}>
         <Icon name="search" />
         <input
           ref={inputRef}

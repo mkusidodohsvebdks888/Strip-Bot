@@ -280,7 +280,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
         onNewChat={newChat} onSearch={requestSearch}
         onFocusComposer={()=>{setSettingsView(false);requestAnimationFrame(()=>composerRef.current?.focus());}}
         onAttach={addAttachment} onOpenProject={openProjectSettings}
-        onOpenSettings={openSettings}
+        onOpenSettings={openSettings} settingsOpen={settingsView}
         onHistory={()=>showSidebarTool('history')} onPlugins={()=>showSidebarTool('plugins')}
       />
     </div>
@@ -288,7 +288,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <DesktopUpdates notice busy={conversation.sending||busy||!!snapshot?.manualRunning}/>
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
-      onTool={openTool} onAttach={addAttachment} onToggle={toggleSidebar} onSettings={openSettings}
+      onTool={openTool} onAttach={addAttachment} onToggle={toggleSidebar}
       accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy||waiting||conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
     <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)} onTool={showSidebarTool} onSettings={openSettings}
       searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing}

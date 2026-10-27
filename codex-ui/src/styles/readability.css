@@ -363,15 +363,11 @@ html[data-strip-desktop="true"] .strip-api-entry .strip-entry-controls { top: 56
 .strip-font-toggle:focus-visible{outline:2px solid var(--accent,#b65d40);outline-offset:2px}
 .strip-font-toggle:hover{filter:brightness(.97)}
 .strip-tool-theme{display:flex;gap:10px;flex-wrap:wrap}
-/* A separate caption strip prevents native window controls from covering content. */
-html[data-strip-desktop="true"]::before{content:"";position:fixed;inset:0 0 auto;height:44px;z-index:200;background:#faf9f6;-webkit-app-region:drag;app-region:drag}
-html[data-strip-desktop="true"][data-strip-appearance="white"]::before{background:#fff}
-html[data-strip-desktop="true"][data-strip-appearance="dark"]::before{background:#211f1d}
-html[data-strip-desktop="true"] .strip-app[data-appearance]{box-sizing:border-box;padding-top:44px}
-html[data-strip-desktop="true"] .strip-api-entry{box-sizing:border-box;padding-top:76px}
+/* The shared window-frame stylesheet owns the native caption and its inset.
+   A root pseudo-element here would cover the interactive command bar. */
 html[data-strip-desktop="true"] .strip-app[data-appearance] .strip-tool-panel__header{padding-top:16px}
 @media(max-width:900px){
- html[data-strip-desktop="true"] .strip-app[data-appearance] .strip-tool-panel{top:44px;height:calc(100% - 44px)}
+ html[data-strip-desktop="true"] .strip-app[data-appearance] .strip-tool-panel{top:var(--strip-native-titlebar-height);height:calc(100% - var(--strip-native-titlebar-height))}
  .strip-app[data-appearance] .strip-codex-composer__toolbar-group--end .smp-trigger{max-width:160px}
 }
 @media(max-width:560px){

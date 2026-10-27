@@ -269,3 +269,92 @@ html[data-strip-desktop="true"] .strip-app .strip-window-topbar{
 @media(prefers-reduced-motion:reduce){
   .strip-app .strip-cx-history button{transition:none}
 }
+
+/* Shared neutral window chrome; content palettes remain independent. */
+html[data-strip-palette]{--strip-chrome-bg:#eef2f6;--strip-chrome-fg:#52606d;--strip-chrome-hover:#e0e6ed}
+html[data-strip-palette] body{background:var(--strip-chrome-bg)}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app.strip-ui[data-appearance][data-theme]{background:var(--strip-chrome-bg);border:0;border-radius:0;box-shadow:none}
+html[data-strip-desktop="true"][data-strip-palette] :is(.strip-app,.strip-api-entry) .strip-window-topbar{
+ background:var(--strip-chrome-bg);color:var(--strip-chrome-fg);border:0;border-radius:0;
+ --muted:var(--strip-chrome-fg);--fg:#2d3945;--surface-2:var(--strip-chrome-hover);--border-focus:#6485a6;
+}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app .strip-tool-rail{
+ background:var(--strip-chrome-bg);border:0;color:var(--strip-chrome-fg);
+ --muted:var(--strip-chrome-fg);--fg:#2d3945;--surface-2:var(--strip-chrome-hover);
+}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app>.strip-tool-panel{
+ border-radius:16px 0 0 16px;margin-bottom:8px;overflow:clip;border:1px solid var(--border-07);border-right:0;
+}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app>main.strip-wallpaper-main{
+ border-radius:0 16px 16px 0;margin:0 8px 8px 0;border:1px solid var(--border-07);overflow:hidden;
+}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app>.strip-tool-panel[hidden]~main.strip-wallpaper-main{border-radius:16px}
+.strip-app .strip-tool-panel__workspace-trigger{width:30px;justify-content:center;padding:0}
+.strip-app .strip-tool-panel__workspace-trigger .strip-icon svg{width:16px;height:16px}
+/* One restrained control surface for settings, tools and onboarding. */
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="hidden"]),textarea,select){
+ box-sizing:border-box;max-width:100%;min-width:0;border:1px solid var(--border-10);border-radius:12px;
+ background:var(--card-bg);color:var(--fg);padding:10px 12px;font:inherit;line-height:1.5;box-shadow:none;
+}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(input,textarea,select):disabled{opacity:.5;cursor:not-allowed}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(input,textarea)::placeholder{color:var(--muted-3);opacity:1}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(input,textarea,select):focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is([role="listbox"],[role="menu"],.strip-dropdown__panel,.smp-popover){border-radius:14px;background:var(--card-bg);color:var(--fg)}
+/* Chromium customizable selects keep the option list rounded as well. */
+@supports(appearance:base-select){
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select,
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select::picker(select){appearance:base-select}
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select::picker(select){border:1px solid var(--border-10);border-radius:14px;padding:5px;background:var(--card-bg);color:var(--fg);box-shadow:var(--shadow-pop);max-height:320px;overflow:auto}
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select option{padding:8px 12px;border-radius:9px;min-height:34px}
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select option:checked,
+ html[data-strip-palette] :is(.strip-app,.strip-api-entry) select option:hover{background:var(--surface-2);color:var(--fg)}
+}
+/* Composite search/key fields own one outline; their inner editors stay flat. */
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(.strip-api-secret,.strip-api-key-field,.strip-search-field,.strip-search-popup__input-wrap,.strip-workflow-command-row):has(>input){border:1px solid var(--border-10);border-radius:12px;background:var(--card-bg)}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(.strip-api-secret,.strip-api-key-field,.strip-search-field,.strip-search-popup__input-wrap,.strip-workflow-command-row)>input{border:0;background:transparent;box-shadow:none}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) :is(.strip-api-secret,.strip-api-key-field,.strip-search-field,.strip-search-popup__input-wrap,.strip-workflow-command-row):focus-within{outline:2px solid var(--border-focus);outline-offset:2px}
+/* Chat editor: one rounded shell, never an input box inside another box. */
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__panel{border:1px solid var(--border-10);border-radius:22px;background:var(--card-bg);box-shadow:0 2px 8px color-mix(in srgb,var(--fg) 3%,transparent)}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__panel:focus-within{border-color:var(--border-focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 9%,transparent)}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__editor{border:0;background:transparent;box-shadow:none;padding:16px 18px 4px}
+html[data-strip-palette] .strip-app[data-appearance] textarea.strip-codex-composer__textarea{
+ min-height:58px;max-height:220px;padding:0;border:0;border-radius:0;background:transparent;outline:none;box-shadow:none;resize:none;font-size:15px;line-height:1.65;
+}
+html[data-strip-palette] .strip-app[data-appearance] textarea.strip-codex-composer__textarea:focus-visible{outline:none;box-shadow:none}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__toolbar{border:0;background:transparent;padding:8px 12px 12px;gap:8px}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__toolbar :is(.smp-trigger,.strip-dropdown__trigger,.strip-codex-composer__model-shortcut){border:0;border-radius:10px;background:transparent;box-shadow:none}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__toolbar :is(.smp-trigger,.strip-dropdown__trigger,.strip-codex-composer__model-shortcut):hover{background:var(--surface-2)}
+.strip-app .strip-workflow-input-metrics{font-size:11px;opacity:.75;padding:6px 12px 0}
+/* Codex-style dialogue: right-aligned user bubble, unboxed assistant prose. */
+html[data-strip-palette] .strip-app[data-appearance] .strip-unified-thread .strip-messages.strip-stream{max-width:860px;padding:24px clamp(18px,3vw,36px) 36px;margin:0 auto}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message{font-size:14px;line-height:1.8;margin:0 0 24px;min-width:0}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--user{display:flex;justify-content:flex-end;border:0;background:transparent;padding:8px 0}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--user>.codex-ui-agent-message__content{flex:0 1 auto;max-width:85%;padding:11px 16px;border:0;border-radius:18px;background:color-mix(in srgb,var(--accent) 12%,var(--bg));color:var(--fg);white-space:pre-wrap;overflow-wrap:anywhere}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--assistant{display:block;border:0;border-radius:0;background:transparent;box-shadow:none;padding:0}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--assistant>.codex-ui-agent-message__content{padding:0;border:0;background:transparent;line-height:1.8;overflow-wrap:anywhere}
+.strip-app .strip-chat__message--assistant :is(p,ul,ol){margin-block:0 14px}
+.strip-app .strip-chat__message--assistant pre{border-radius:12px;max-width:100%;overflow:auto}
+.strip-app .strip-chat__message--assistant table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse}
+.strip-app .strip-thread,.strip-app .strip-tool-panel :is(.strip-cx-upper,.strip-cx-lower,.strip-cx-section){scrollbar-width:thin;scrollbar-color:var(--border-10) transparent}
+@media(max-width:900px){
+ html[data-strip-desktop="true"][data-strip-palette] .strip-app>main.strip-wallpaper-main{border-radius:16px}
+ html[data-strip-desktop="true"][data-strip-palette] .strip-app>.strip-tool-panel{border-radius:16px;box-shadow:var(--shadow-pop)}
+}
+@media(forced-colors:active){html[data-strip-palette] :is(.strip-app,.strip-api-entry) :is(input,textarea,select){border-color:CanvasText}}
+
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message .strip-chat__body{padding:0;border:0;background:transparent;box-shadow:none;max-width:100%}
+html[data-strip-palette] .strip-app[data-appearance] :is(.strip-kit-composer-dock,.codex-ui-composer-dock__surface){border:0;background:transparent;box-shadow:none;padding:0}
+
+
+html[data-strip-desktop="true"][data-strip-palette] .strip-app>main.strip-wallpaper-main{height:auto;min-height:0}
+html[data-strip-desktop="true"][data-strip-palette] .strip-app>.strip-tool-panel{height:auto;min-height:0}
+
+
+html[data-strip-desktop="true"][data-strip-palette] .strip-app[data-appearance] .strip-tool-rail{background:var(--strip-chrome-bg)!important}
+.strip-app .strip-workflow-input-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px}.strip-app .strip-workflow-input-metrics-note{margin-left:auto}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--assistant .strip-md-table-scroll{overflow-x:auto;border-radius:12px}
+html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--assistant table{display:table;width:100%}
+
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret{display:flex;align-items:center;gap:8px;padding:0 12px}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret>input{flex:1;width:0;min-width:0;padding-inline:0;border:0;background:transparent}
+html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret>button{flex:none;white-space:nowrap;border:0;border-radius:8px;background:transparent;color:var(--muted);padding:6px 8px}

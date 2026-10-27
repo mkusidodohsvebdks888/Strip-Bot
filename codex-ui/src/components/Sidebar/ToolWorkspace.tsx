@@ -16,10 +16,10 @@ const toolDefinitions:{id:ToolView;name:string;icon:string}[]=[
 ];
 export const toolTitle=(view:ToolView)=>toolDefinitions.find(item=>item.id===view)?.name||'工具';
 
-export function ToolRail({active,opened,settings,busy,onTool,onAttach,onToggle,onSettings,accountControl}:{
+export function ToolRail({active,opened,settings,busy,onTool,onAttach,onToggle,accountControl}:{
   active:ToolView;opened:boolean;settings:boolean;busy:boolean;
   onTool:(view:ToolView)=>void;onAttach:()=>void;onToggle:()=>void;
-  onSettings:()=>void;accountControl?:ReactNode;
+  accountControl?:ReactNode;
 }){
   return <nav className="strip-tool-rail strip-drag" aria-label="Strip Bot 工具栏">
     <div className="strip-tool-rail__group strip-tool-rail__group--top">
@@ -34,7 +34,7 @@ export function ToolRail({active,opened,settings,busy,onTool,onAttach,onToggle,o
     </div>
     <div className="strip-tool-rail__spacer"/>
     <div className="strip-tool-rail__group strip-tool-rail__group--bottom">
-      <StripIconButton className="strip-tool-btn" active={settings} label="设置与连接" icon="settings-soft" aria-pressed={settings} onClick={onSettings}/>
+
       <StripIconButton className="strip-tool-btn" title={(opened?'收起侧边栏':'展开侧边栏')+' (Ctrl+B)'}
         label={opened?'收起侧边栏':'展开侧边栏'} icon={opened?'panel-left':'panel-right'}
         aria-keyshortcuts="Control+B Meta+B" aria-controls="strip-tool-panel" aria-expanded={opened} onClick={onToggle}/>
@@ -72,7 +72,7 @@ export function ToolPanel({active,opened,onClose,children,onTool,onSettings,sear
         <button type="button" ref={triggerRef} className="strip-tool-panel__workspace-trigger"
           title="切换工作区" aria-label="切换工作区" aria-haspopup="menu" aria-expanded={menuOpen}
           onClick={()=>setMenuOpen(value=>!value)}>
-          <strong>StripBot</strong><Icon name="chevron-down"/>
+          <Icon name="chevron-down"/>
         </button>
         {menuOpen&&<div role="menu" className="strip-tool-panel__workspace-popup" aria-label="工作区菜单">
           <button type="button" role="menuitem" onClick={()=>selectTool('history')}><Icon name="chat-soft"/>聊天记录</button>

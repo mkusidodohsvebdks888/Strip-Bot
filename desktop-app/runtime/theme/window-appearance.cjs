@@ -8,6 +8,8 @@ const appearances = Object.freeze({
   dark: Object.freeze({color:'#211f1d',symbolColor:'#f2ece4',backgroundColor:'#211f1d',theme:'dark'}),
 });
 function getAppearance(value) {
-  return typeof value === 'string' && Object.hasOwn(appearances,value) ? appearances[value] : null;
+  if (typeof value !== 'string' || !Object.hasOwn(appearances,value)) return null;
+  // Window chrome stays neutral; the renderer owns the selected content palette.
+  return {color:'#eef2f6',symbolColor:'#52606d',backgroundColor:'#eef2f6',theme:'light'};
 }
 module.exports={getAppearance};

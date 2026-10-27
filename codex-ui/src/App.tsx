@@ -280,7 +280,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
         onNewChat={newChat} onSearch={requestSearch}
         onFocusComposer={()=>{setSettingsView(false);requestAnimationFrame(()=>composerRef.current?.focus());}}
         onAttach={addAttachment} onOpenProject={openProjectSettings}
-        onOpenSettings={openSettings} settingsOpen={settingsView}
+        onOpenSettings={openSettings}
         onHistory={()=>showSidebarTool('history')} onPlugins={()=>showSidebarTool('plugins')}
       />
     </div>
@@ -290,7 +290,7 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView}
       onTool={openTool}
       accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy||waiting||conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
-    <SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing} onSelect={selectConversation} anchorId="strip-top-search"/>
+    <SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing} onSelect={selectConversation} anchorId="strip-search-menu"/>
     <ToolPanel active={activeTool} opened={toolsVisible}>
       {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool)&&
         <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'}/>}
@@ -308,10 +308,6 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
       {!settingsView&&<header className="strip-workspace-heading strip-drag">
         <div className="strip-workspace-heading__name" title={activeTitle}>
           <Icon name="folder-soft"/><span>{activeTitle}</span>
-        </div>
-        <div className="strip-workspace-heading__actions">
-          <button type="button" title="项目与目录" aria-label="项目与目录" onClick={openProjectSettings}><Icon name="folder-open"/></button>
-          <button type="button" title="新建聊天" aria-label="新建聊天" disabled={conversation.sending||conversation.loading||!!conversation.removing} onClick={newChat}><Icon name="square-pen"/></button>
         </div>
       </header>}
       {settingsView ? <ConnectionSettings pageRequest={settingsPageRequest} appearanceSettings={<WallpaperSettings theme={appearance} onThemeChange={onThemeChange} wallpaper={wallpaper}/>} workspace={snapshot?.workspace || workspace} workspaceLocked={active.startsWith('ses_') || busy} onWorkspace={conversation.setWorkspace} mode={connection.mode} account={connection.account} nativeModel={connection.model} onNativeModel={connection.selectNativeModel} busy={busy} onMode={value=>{if(value!==connection.mode){connection.select(value);conversation.newConversation(draft);}}} onBack={()=>setSettingsView(false)} onSaved={()=>void refreshModels()}/> : <>

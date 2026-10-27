@@ -14,7 +14,7 @@ type Props={
   onFocusComposer:()=>void;
   onAttach:()=>void;
   onOpenProject:()=>void;
-  onOpenSettings:()=>void;settingsOpen:boolean;
+  onOpenSettings:()=>void;
   onHistory:()=>void;
   onPlugins:()=>void;
 };
@@ -25,7 +25,7 @@ type Props={
  */
 export function TopCommandBar({
   canPrevious,canNext,onPrevious,onNext,onToggleSidebar,sidebarOpen,
-  onNewChat,onSearch,onFocusComposer,onAttach,onOpenProject,onOpenSettings,settingsOpen,onHistory,onPlugins,
+  onNewChat,onSearch,onFocusComposer,onAttach,onOpenProject,onOpenSettings,onHistory,onPlugins,
 }:Props){
   const [open,setOpen]=useState<MenuName|null>(null);
   const [showShortcuts,setShowShortcuts]=useState(false);
@@ -81,7 +81,7 @@ export function TopCommandBar({
       </div>
       <nav className="strip-top-commandbar__menus" aria-label="文件与视图操作">
         {groups.map(group=><div key={group.id} className="strip-top-commandbar__menu">
-          <button type="button" ref={node=>{trigger.current[group.id]=node;}}
+          <button type="button" id={group.id==='edit'?'strip-search-menu':undefined} ref={node=>{trigger.current[group.id]=node;}}
             className="strip-top-commandbar__trigger" aria-expanded={open===group.id}
             aria-haspopup="menu" onClick={()=>setOpen(current=>current===group.id?null:group.id)}
             onKeyDown={event=>{if(event.key==='ArrowDown'){event.preventDefault();setOpen(group.id);requestAnimationFrame(()=>panel.current?.querySelector<HTMLButtonElement>('[role="menuitem"]')?.focus());}}}>
@@ -94,11 +94,6 @@ export function TopCommandBar({
         </div>)}
       </nav>
       <div className="strip-top-commandbar__drag-space" aria-hidden="true"/>
-      <div className="strip-top-commandbar__actions" role="group" aria-label="常用工具">
-        <button type="button" className="strip-top-commandbar__trigger strip-top-commandbar__action" title="新建聊天 (Ctrl+N)" aria-label="新建聊天" onClick={()=>run(onNewChat)}><Icon name="square-pen"/><span>新建聊天</span></button>
-        <button type="button" id="strip-top-search" className="strip-top-commandbar__trigger strip-top-commandbar__action" title="搜索会话 (Ctrl+K)" aria-label="搜索会话" onClick={()=>run(onSearch)}><Icon name="search"/><span>搜索</span></button>
-        <button type="button" className="strip-top-commandbar__trigger strip-top-commandbar__action strip-top-commandbar__settings" title="设置与连接" aria-label="设置与连接" aria-pressed={settingsOpen} onClick={()=>run(onOpenSettings)}><Icon name="settings-soft"/><span>设置</span></button>
-      </div>
     </div>
     {showShortcuts&&<div className="strip-top-shortcuts-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowShortcuts(false);}}>
       <section className="strip-top-shortcuts" role="dialog" aria-modal="true" aria-label="快捷键说明">

@@ -1,14 +1,14 @@
-{
-  "assets": [
-    "assets/body-BgBRRNqQ.png",
-    "assets/foot_left-CPIsa5sK.png",
-    "assets/foot_right-BtMaIXip.png",
-    "assets/hand_left-C7PF0koQ.png",
-    "assets/hand_right-DtC9mHSJ.png",
-    "assets/index-BT-WDFoO.js",
-    "assets/index-DbT4Ss0S.js",
-    "assets/index-DIsSEZly.css",
-    "assets/nono-brand-Q6cig3W1.png",
-    "assets/shadow-BpE-eiRi.png"
-  ]
+﻿{
+    "assets":  [
+                   "assets/body-BgBRRNqQ.png",
+                   "assets/foot_left-CPIsa5sK.png",
+                   "assets/foot_right-BtMaIXip.png",
+                   "assets/hand_left-C7PF0koQ.png",
+                   "assets/hand_right-DtC9mHSJ.png",
+                   "assets/index-BvzJ_h6X.css",
+                   "assets/index-C4FEvpJa.js",
+                   "assets/index-DT0o7S4v.js",
+                   "assets/nono-brand-Q6cig3W1.png",
+                   "assets/shadow-BpE-eiRi.png"
+               ]
 }

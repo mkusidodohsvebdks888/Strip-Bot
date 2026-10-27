@@ -30,9 +30,4 @@
 @media(prefers-reduced-motion:reduce){.strip-top-commandbar button{transition:none}}
 
 .strip-top-commandbar__drag-space{flex:1;min-width:16px;height:100%;-webkit-app-region:drag}
-.strip-top-commandbar__actions{display:flex;align-items:center;gap:3px;flex:none;-webkit-app-region:no-drag}
-.strip-top-commandbar__action{display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.strip-top-commandbar__action .strip-icon svg{width:16px;height:16px}
-.strip-top-commandbar__settings[aria-pressed=true]{background:var(--surface-2);color:var(--fg)}
-@media(max-width:800px){.strip-top-commandbar__action>span:not(.strip-icon){display:none}.strip-top-commandbar__action{width:29px;padding:0}}
-@media(max-width:640px){.strip-top-commandbar__menu:nth-child(2),.strip-top-commandbar__menu:nth-child(4){display:none}.strip-top-commandbar__actions{gap:0}.strip-top-commandbar__action{width:25px}.strip-top-commandbar__drag-space{min-width:12px}}
+@media(max-width:640px){.strip-top-commandbar__menu:nth-child(2),.strip-top-commandbar__menu:nth-child(4){display:none}.strip-top-commandbar__drag-space{min-width:12px}}

@@ -358,3 +358,34 @@ html[data-strip-palette] .strip-app[data-appearance] .strip-chat__message--assis
 html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret{display:flex;align-items:center;gap:8px;padding:0 12px}
 html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret>input{flex:1;width:0;min-width:0;padding-inline:0;border:0;background:transparent}
 html[data-strip-palette] :is(.strip-app[data-appearance],.strip-api-entry[data-appearance]) .strip-api-secret>button{flex:none;white-space:nowrap;border:0;border-radius:8px;background:transparent;color:var(--muted);padding:6px 8px}
+
+/* Compact workspace: keep each action in one predictable place. */
+.strip-app .strip-tool-panel{flex-basis:280px;width:280px}
+.strip-app .strip-tool-panel__header{height:40px;min-height:40px;padding:0 16px;display:flex;align-items:center;font-size:13px}
+.strip-app .strip-cx-upper{flex:0 1 auto;min-height:0;max-height:48%;padding:4px 10px}
+.strip-app .strip-cx-new-chat{min-height:34px;padding-block:5px}
+.strip-app .strip-cx-thread{min-height:32px}
+.strip-app .strip-cx-thread__main{min-height:32px;padding-block:5px}
+.strip-app[data-appearance] .strip-connection-settings{padding:18px clamp(16px,3vw,32px);max-width:900px}
+.strip-settings-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.strip-app[data-appearance] .strip-settings-header h1{font-size:20px;margin:0}
+.strip-app[data-appearance] .strip-settings-tabs{gap:20px;margin:12px 0 16px;flex-wrap:nowrap;overflow-x:auto}
+.strip-app[data-appearance] .strip-settings-tabs [role=tab]{min-height:36px;padding:6px 1px 8px}
+.strip-app[data-appearance] .strip-connection-card{padding:16px;margin-top:12px}
+.strip-app[data-appearance] .strip-connection-card h2{margin-bottom:12px;font-size:15px}
+.strip-app[data-appearance] .strip-connection-card label{gap:5px;margin-bottom:12px}
+.strip-app[data-appearance] .strip-vendor-first{margin-top:10px}
+.strip-app[data-appearance] .strip-vendor-first p{margin:6px 0}
+.strip-app[data-appearance] .strip-settings-step{margin:12px 0 0}
+.strip-app[data-appearance] .strip-connection-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}
+.strip-app[data-appearance] .strip-connection-choices button{padding:10px 12px}
+.strip-app[data-appearance] .strip-connection-choices strong{font-size:13px;margin-bottom:2px}
+.strip-app[data-appearance] .strip-api-discovery-bar{margin:0 0 10px}
+.strip-app[data-appearance] .strip-connection-card .strip-api-reasoning-note{margin:0 0 12px}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__editor{padding:12px 16px 2px}
+html[data-strip-palette] .strip-app[data-appearance] textarea.strip-codex-composer__textarea{min-height:40px}
+html[data-strip-palette] .strip-app[data-appearance] .strip-codex-composer__toolbar{padding:6px 10px 10px;gap:6px}
+.strip-app .strip-workflow-input-metrics{padding-top:4px}
+@media(min-width:901px){.strip-app .strip-tool-panel.strip-tool-panel--plugins{flex-basis:320px;width:320px}}
+@media(max-width:900px){.strip-app>.strip-tool-panel{width:min(280px,calc(100vw - 64px))}.strip-app>.strip-tool-panel.strip-tool-panel--plugins{width:min(320px,calc(100vw - 64px))}}
+@media(max-width:600px){.strip-app[data-appearance] .strip-connection-choices{grid-template-columns:1fr}.strip-app[data-appearance] .strip-connection-settings{padding:14px}.strip-app[data-appearance] .strip-settings-tabs{gap:16px}}

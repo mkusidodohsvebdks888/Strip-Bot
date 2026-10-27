@@ -11,8 +11,8 @@ test('Codex-style left rail links to live modules without duplicating the search
   for(const id of ['history','backend','skills','plugins','integrations','github-tools','astrbot']){
     assert.ok(s.includes("id:'"+id+"'"),id+' must remain an accessible tool view');
   }
-  assert.ok(s.includes('strip-tool-panel__workspace-trigger'),'workspace selector exists');
-  assert.ok(s.includes('strip-tool-panel__header-actions'),'search and hide are in panel header');
+  assert.ok(!s.includes('strip-tool-panel__workspace-trigger'),'duplicate workspace menu removed');
+  assert.ok(!s.includes('strip-tool-panel__header-actions'),'search and sidebar toggle remain in top bar');
   assert.ok(!s.includes('STRIP BOT / 工作区'),'avoid redundant explanatory labels');
 });
 

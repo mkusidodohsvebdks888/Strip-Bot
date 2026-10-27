@@ -18,6 +18,7 @@ type SearchPopupProps = {
   onSelect: (id: string) => void;
   /** Open the history panel before measuring the search anchor. */
   onBeforeOpen?: () => void;
+  anchorId?: string;
 };
 
 const RECENT_LIMIT = 8;
@@ -31,7 +32,7 @@ function formatDate(timestamp: number) {
 }
 
 /** A compact, anchored search palette. The sidebar history remains untouched. */
-export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: SearchPopupProps) {
+export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen, anchorId}: SearchPopupProps) {
   const uid=useId();
   const popupId=uid+'-search-popover',resultsId=uid+'-search-results';
   const [open, setOpen] = useState(false);
@@ -50,14 +51,14 @@ export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: Sea
   const selectedIndex = matched.length ? Math.min(highlighted, matched.length - 1) : -1;
 
   const updatePosition = useCallback(() => {
-    const trigger = triggerRef.current;
+    const trigger = anchorId ? document.getElementById(anchorId) : triggerRef.current;
     if (!trigger) return;
     const rect = trigger.getBoundingClientRect();
     const width = Math.min(POPUP_WIDTH, window.innerWidth - SCREEN_GAP * 2);
     const left = Math.max(SCREEN_GAP, Math.min(rect.left - 8, window.innerWidth - width - SCREEN_GAP));
     const top = Math.max(document.documentElement.dataset.stripDesktop==='true'?52:SCREEN_GAP, Math.min(rect.bottom + 9, window.innerHeight - 170));
     setPosition({left, top});
-  }, []);
+  }, [anchorId]);
 
   const openSearch = useCallback(() => {
     onBeforeOpen?.();
@@ -71,8 +72,8 @@ export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: Sea
 
   const closeSearch = useCallback((restoreFocus = false) => {
     setOpen(false);
-    if (restoreFocus) triggerRef.current?.focus();
-  }, []);
+    if (restoreFocus) (anchorId ? document.getElementById(anchorId) : triggerRef.current)?.focus();
+  }, [anchorId]);
 
   useEffect(() => {
     function onShortcut(event: KeyboardEvent) {
@@ -143,7 +144,7 @@ export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: Sea
   }
 
   return <div className={styles.root} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))closeSearch();}}>
-    <StripIconButton
+    {!anchorId&&<StripIconButton
       ref={triggerRef}
       icon="search"
       label="搜索聊天记录"
@@ -154,7 +155,7 @@ export function SearchPopup({entries, active, busy, onSelect, onBeforeOpen}: Sea
       aria-expanded={open}
       aria-controls={open ? popupId : undefined}
       onClick={() => open ? closeSearch(true) : openSearch()}
-    />
+    />}
     {open && <div
       id={popupId}
       ref={popupRef}

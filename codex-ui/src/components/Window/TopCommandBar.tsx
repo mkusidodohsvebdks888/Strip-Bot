@@ -96,7 +96,7 @@ export function TopCommandBar({
       <div className="strip-top-commandbar__drag-space" aria-hidden="true"/>
       <div className="strip-top-commandbar__actions" role="group" aria-label="常用工具">
         <button type="button" className="strip-top-commandbar__trigger strip-top-commandbar__action" title="新建聊天 (Ctrl+N)" aria-label="新建聊天" onClick={()=>run(onNewChat)}><Icon name="square-pen"/><span>新建聊天</span></button>
-        <button type="button" className="strip-top-commandbar__trigger strip-top-commandbar__action" title="搜索会话 (Ctrl+K)" aria-label="搜索会话" onClick={()=>run(onSearch)}><Icon name="search"/><span>搜索</span></button>
+        <button type="button" id="strip-top-search" className="strip-top-commandbar__trigger strip-top-commandbar__action" title="搜索会话 (Ctrl+K)" aria-label="搜索会话" onClick={()=>run(onSearch)}><Icon name="search"/><span>搜索</span></button>
         <button type="button" className="strip-top-commandbar__trigger strip-top-commandbar__action strip-top-commandbar__settings" title="设置与连接" aria-label="设置与连接" aria-pressed={settingsOpen} onClick={()=>run(onOpenSettings)}><Icon name="settings-soft"/><span>设置</span></button>
       </div>
     </div>

@@ -287,12 +287,11 @@ function WorkspaceApp({onDisconnected,theme,onThemeChange,initialSettings,appear
     {wallpaper.fluidGlassEnabled && <div className="strip-fluid-glass-layer" aria-hidden="true"><span/><span/><span/></div>}
     {toolsVisible && <button type="button" className="strip-overlay" aria-label="关闭工具面板" onClick={()=>setPanelOpen(false)}/>}
     <DesktopUpdates notice busy={conversation.sending||busy||!!snapshot?.manualRunning}/>
-    <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView} busy={conversation.sending}
-      onTool={openTool} onAttach={addAttachment} onToggle={toggleSidebar}
+    <ToolRail active={activeTool} opened={toolsVisible} settings={settingsView}
+      onTool={openTool}
       accountControl={<ApiAccountMenu mode={connection.mode} model={routeModel} busy={busy||waiting||conversation.loading} appearance={appearance} onWorkspace={openProjectSettings} onSettings={openSettings} onToggleTheme={openSettings} onDisconnected={onDisconnected}/>}/>
-    <ToolPanel active={activeTool} opened={toolsVisible} onClose={()=>setPanelOpen(false)} onTool={showSidebarTool} onSettings={openSettings}
-      searchControl={<SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing}
-        onSelect={selectConversation} onBeforeOpen={()=>showSidebarTool('history')}/>}>
+    <SearchPopup entries={entries} active={active} busy={conversation.sending||!!conversation.removing} onSelect={selectConversation} anchorId="strip-top-search"/>
+    <ToolPanel active={activeTool} opened={toolsVisible}>
       {(['plugins','github-tools','integrations','astrbot'] as ToolView[]).includes(activeTool)&&
         <ToolsHub key={activeTool} initialSection={activeTool==='github-tools'?'github':activeTool==='integrations'?'mcp':activeTool==='astrbot'?'astrbot':'local'}/>}
       {activeTool==='backend'&&<BackendProjectsTool modelName={model} disabled={busy||!!snapshot?.manualRunning||conversation.loading||conversation.sending}

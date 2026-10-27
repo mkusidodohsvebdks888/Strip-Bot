@@ -6,9 +6,9 @@ function harness(storage=new Map(),mode='direct'){
  const localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)};
  const fetch=async(url,options)=>{requests.push({url,options});return {ok:true,json:async()=>({baseUrl:'https://api.example.com/v1',model:'actual-model',protocol:'responses',hasKey:false,configured:false,reasoningEnabled:false,reasoningEffort:''})};};
  const file=path.resolve(__dirname,'../codex-ui/src/components/ConnectionSettings.tsx');const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
- const m={exports:{}};new Function('require','module','exports','localStorage','fetch','document',code)(id=>{
-  if(id==='react')return hooks;if(id.endsWith('.css'))return {};if(id==='./ControlIcon')return {ControlIcon:()=>null};if(id==='./ChatGPTAccount')return {ChatGPTAccount:()=>null};if(id==='./api-models')return {discoverModels:async()=>({models:[]})};if(id==='./model-vendors')return {modelVendor:()=> 'openai',modelVendors:[{id:'openai',name:'OpenAI'},{id:'deepseek',name:'DeepSeek'}]};return req(id);
- },m,m.exports,localStorage,fetch,{getElementById:id=>({focus:()=>focus.push(id)})});
+ const m={exports:{}};new Function('require','module','exports','localStorage','fetch','document','window',code)(id=>{
+  if(id==='react')return hooks;if(id.endsWith('.css'))return {};if(id==='./DesktopUpdates')return {DesktopUpdates:()=>null};if(id==='./SettingsDiagnostics')return {SettingsDiagnostics:()=>null};if(id==='./ControlIcon')return {ControlIcon:()=>null};if(id==='./ChatGPTAccount')return {ChatGPTAccount:()=>null};if(id==='./api-models')return {discoverModels:async()=>({models:[]})};if(id==='./model-vendors')return {modelVendor:()=> 'openai',modelVendors:[{id:'openai',name:'OpenAI'},{id:'deepseek',name:'DeepSeek'}]};return req(id);
+ },m,m.exports,localStorage,fetch,{getElementById:id=>({focus:()=>focus.push(id)})},{addEventListener(){},removeEventListener(){},confirm:()=>true});
  function walk(n,fn){if(Array.isArray(n))return n.forEach(v=>walk(v,fn));if(!n?.props)return;fn(n);walk(n.props.children,fn);}
  function nodes(predicate){const out=[];walk(tree,n=>{if(predicate(n))out.push(n);});return out;}
  const props={appearanceSettings:'FIVE_THEMES',displayRate:{rate:null,commit(){},error:''},mode,onMode(){},onBack(){},onSaved(){},busy:false,account:{connected:true,models:[{id:'native-model',name:'Native'}]},nativeModel:'native-model',onNativeModel(){},workspace:'G:/p/fixture',workspaceLocked:false,onWorkspace(){}};
@@ -17,33 +17,47 @@ function harness(storage=new Map(),mode='direct'){
  visible(){return nodes(n=>n.props.role==='tabpanel'&&!n.props.hidden);},
  input(name){return nodes(n=>n.type==='input'&&(n.props['aria-label']===name||n.props.type===name))[0];}};
 }
-test('six settings pages show one panel at a time and preserve unsaved API fields without saving',async()=>{
+test('consolidated settings preserve unsaved connection and model fields across pages',async()=>{
  const h=harness();h.render();await new Promise(r=>setImmediate(r));h.render();
- assert.equal(h.nodes(n=>n.props.role==='tab').length,6);assert.equal(h.visible().length,1);
- h.tab('API 连接').props.onClick();h.render();
+ assert.equal(h.nodes(n=>n.props.role==='tab').length,5);assert.equal(h.visible().length,1);
+ h.tab('连接与模型').props.onClick();h.render();
  h.input('url').props.onChange({target:{value:'https://edited.example.com/v1'}});h.render();h.input('password').props.onChange({target:{value:'fixture-only'}});h.render();
- h.tab('可用模型').props.onClick();h.render();h.input('API 模型 ID').props.onChange({target:{value:'edited-model'}});h.render();
- for(const label of ['显示与性能','项目设置','外观主题','模型设置','API 连接']){h.tab(label).props.onClick();h.render();assert.equal(h.visible().length,1);}
+ h.input('API 模型 ID').props.onChange({target:{value:'edited-model'}});h.render();
+ for(const label of ['运行诊断','项目与目录','页面背景','连接与模型']){h.tab(label).props.onClick();h.render();assert.equal(h.visible().length,1);}
  assert.equal(h.input('url').props.value,'https://edited.example.com/v1');assert.equal(h.input('password').props.value,'fixture-only');assert.equal(h.input('API 模型 ID').props.value,'edited-model');
  assert.deepEqual(h.requests.map(r=>r.url),['/api/connection/status']);
 });
 test('settings remember the last page and keyboard navigation moves selection and focus',()=>{
- const store=new Map(),h=harness(store);h.render();h.tab('外观主题').props.onClick();h.render();
- const reopened=harness(store);reopened.render();assert.equal(reopened.tab('外观主题').props['aria-selected'],true);
- let prevented=false;reopened.tab('外观主题').props.onKeyDown({key:'ArrowRight',preventDefault(){prevented=true;}});reopened.render();assert.equal(prevented,true);assert.equal(reopened.tab('模型设置').props['aria-selected'],true);assert.ok(reopened.focus[0].endsWith('-model'));
- reopened.tab('模型设置').props.onKeyDown({key:'End',preventDefault(){}});reopened.render();assert.equal(reopened.tab('外观主题').props['aria-selected'],true);
- const corrupt=harness(new Map([['strip_settings_page_v1','bad']]));corrupt.render();assert.equal(corrupt.tab('模型设置').props['aria-selected'],true);
- const blocked=harness({get(){throw Error('blocked');},set(){throw Error('blocked');}});blocked.render();blocked.tab('项目设置').props.onClick();blocked.render();assert.equal(blocked.tab('项目设置').props['aria-selected'],true);
+ const store=new Map(),h=harness(store);h.render();h.tab('页面背景').props.onClick();h.render();
+ const reopened=harness(store);reopened.render();assert.equal(reopened.tab('页面背景').props['aria-selected'],true);
+ let prevented=false;reopened.tab('页面背景').props.onKeyDown({key:'ArrowRight',preventDefault(){prevented=true;}});reopened.render();assert.equal(prevented,true);assert.equal(reopened.tab('软件更新').props['aria-selected'],true);assert.ok(reopened.focus[0].endsWith('-updates'));
+ reopened.tab('软件更新').props.onKeyDown({key:'Home',preventDefault(){}});reopened.render();assert.equal(reopened.tab('连接与模型').props['aria-selected'],true);
+ const corrupt=harness(new Map([['strip_settings_page_v1','bad']]));corrupt.render();assert.equal(corrupt.tab('连接与模型').props['aria-selected'],true);
+ const blocked=harness({get(){throw Error('blocked');},set(){throw Error('blocked');}});blocked.render();blocked.tab('项目与目录').props.onClick();blocked.render();assert.equal(blocked.tab('项目与目录').props['aria-selected'],true);
 });
-test('native and CC Switch settings retain separate connection and model pages',()=>{
- for(const mode of ['opencode','ccswitch']){const h=harness(new Map(),mode);h.render();h.tab('API 连接').props.onClick();h.render();assert.equal(h.visible().length,1);h.tab('可用模型').props.onClick();h.render();assert.equal(h.visible().length,1);assert.equal(h.nodes(n=>n.props.role==='tab').length,6);}
+test('native and CC Switch settings share one connection page without duplicate model editors',()=>{
+ for(const mode of ['opencode','ccswitch']){const h=harness(new Map(),mode);h.render();h.tab('连接与模型').props.onClick();h.render();assert.equal(h.visible().length,1);assert.equal(h.visible().length,1);assert.equal(h.nodes(n=>n.props.role==='tab').length,5);}
 });
 
 test('project shortcuts open project settings without clearing API drafts or forcing the tab on later renders',async()=>{
  const h=harness();h.render();await new Promise(r=>setImmediate(r));h.render();
- h.tab('API 连接').props.onClick();h.render();h.input('password').props.onChange({target:{value:'fixture-draft'}});h.render();
- h.props.pageRequest={page:'project'};h.render();h.render();assert.equal(h.tab('项目设置').props['aria-selected'],true);
- h.tab('API 连接').props.onClick();h.render();assert.equal(h.input('password').props.value,'fixture-draft');
- assert.equal(h.tab('API 连接').props['aria-selected'],true);
+ h.tab('连接与模型').props.onClick();h.render();h.input('password').props.onChange({target:{value:'fixture-draft'}});h.render();
+ h.props.pageRequest={page:'project'};h.render();h.render();assert.equal(h.tab('项目与目录').props['aria-selected'],true);
+ h.tab('连接与模型').props.onClick();h.render();assert.equal(h.input('password').props.value,'fixture-draft');
+ assert.equal(h.tab('连接与模型').props['aria-selected'],true);
+ assert.deepEqual(h.requests.map(r=>r.url),['/api/connection/status']);
+});
+
+
+test('legacy API and model tabs reopen on the unified connection page',()=>{
+ for(const page of ['api','models']){const h=harness(new Map([['strip_settings_page_v1',page]]));h.render();assert.equal(h.tab('连接与模型').props['aria-selected'],true);assert.equal(h.visible().length,1);}
+});
+test('model ID has one editable field and validation does not save invalid connections',async()=>{
+ const h=harness();h.render();await new Promise(r=>setImmediate(r));h.render();
+ assert.equal(h.nodes(n=>n.type==='input'&&n.props['aria-label']==='API 模型 ID').length,1);
+ assert.equal(h.nodes(n=>n.type==='select'&&n.props['aria-label']==='API 模型选择').length,0);
+ h.input('url').props.onChange({target:{value:'invalid'}});h.render();
+ h.nodes(n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});h.render();
+ assert.equal(h.tab('连接与模型').props['aria-selected'],true);
  assert.deepEqual(h.requests.map(r=>r.url),['/api/connection/status']);
 });
